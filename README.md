@@ -76,8 +76,7 @@ We welcome your contributions! Here's how to get involved:
 
 ### Git Workflow
 
-- **Git Flow**: We follow Git Flow, meaning feature branches are created from `develop` and merged back after review.
-- **Branch Naming**: Name your branches as `feature/your-feature-name`, `bugfix/your-bugfix-name`, or `hotfix/your-hotfix-name`.
+- **Git Flow**: We follow NOT use Git Flow and will instead checkout branches from main and peer review before merging in
 - **Issue Tracking**: All bugs and feature requests are tracked in [GitHub Issues](https://github.com/UTSC-CSCC01-Software-Engineering-I/term-group-project-c01w25-project-ohamaland/issues).
 - **Pull Requests**: Submit a pull request with a detailed description of the changes you’ve made. Ensure your code passes all tests and follows our coding standards.
 
