@@ -1,2 +1,8 @@
 # Mac
 .DS_Store
+
+# Environment variables
+.env
+
+# Python bytecode files
+__pycache__
