@@ -5,6 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MONGODB_SETTINGS = {
-    "db": "mydatabase",
+    "db": "test",
     "host": os.getenv("MONGO_URI")
 }
