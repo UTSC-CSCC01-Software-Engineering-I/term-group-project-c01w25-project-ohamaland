@@ -1,2 +1,9 @@
 # Mac
 .DS_Store
+
+*.pyc
+__pycache__
+db.sqlite3
+/env
+*.env
+.vscode
