@@ -1,0 +1,38 @@
+import { backgroundOrange } from "@/styles/colors";
+import { Box, Stack } from "@mui/material";
+import Header from "./Header";
+
+interface IPageWrapperProps {
+    children: React.ReactNode; // Content will go inside the wrapper
+}
+
+export default function PageWrapper(props: IPageWrapperProps) {
+    return (
+        <Stack sx={pageContainerStyle}>
+            <Header />
+            <Box sx={mainContentStyle}>
+                <Box sx={contentAreaStyle}>
+                    {props.children}
+                </Box>
+            </Box>
+        </Stack>
+    )
+}
+
+const pageContainerStyle = {
+    height: "100vh",
+    backgroundColor: backgroundOrange,
+}
+
+const mainContentStyle = {
+    display: "flex",
+    overflow: "hidden",
+    flexGrow: 1,
+    backgroundColor: backgroundOrange
+}
+
+const contentAreaStyle = {
+    padding: "24px",
+    width: "100%",
+    overflow: "auto"
+}
