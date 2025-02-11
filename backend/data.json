@@ -1,0 +1,103 @@
+{
+  "account": [
+    {
+      "_id": UUID,
+      "name": String,
+      "email": String,
+      "password_hash": String,
+      "created_at": Date,
+      "groups": group[],
+	  "receipts: receipt[]
+	  "insights": insights
+	  "budget_goals": budget_goal[]
+    }
+  ],
+  "receipt": [
+    {
+      "_id": UUID,
+      "user_id": account,
+      "merchant": String,
+      "total_amount": float,
+      "currency": String,
+      "date": Date,
+      "items": item[],
+      "payment_method": String,
+      "receipt_image_url": String,
+    }
+  ],
+  "item": [
+	{
+	  "_id": UUID,
+      "name": String,
+      "category": String,
+      "price": float,
+      "quantity": int
+    },
+  ],
+  "Group": [
+    {
+      "_id": UUID,
+      "name": String,
+      "created_by": account,
+      "members": account[],
+      "expenses": group_expense[],
+    }
+  ],
+  "group_expense": [
+    {
+      "_id": UUID,
+      "group": group,
+      "account": account,
+      "amount": float,
+      "description": String,
+      "date": Date,
+      "split_details": split_detail[]
+    }
+  ],
+  "split_detail": [
+	{
+	  "_id": UUID,
+	  "account": account,
+      "amount_owed": float,
+      "status": String
+	}
+  ],
+  "insights": [
+    {
+      "_id": UUID,
+      "account": account,
+      "monthly_spending": monthly_spending[]
+	  "weekly_average": float,
+	  "monthly_average": float,
+	  "yearly_average": float
+    }
+  ],
+  "monthly_spending": [
+	{
+	  "_id": UUID,
+	  "month": Date,
+	  "total": float,
+	  "food": float,
+	  "transport": float,
+	  "entertainment": float,
+	  "shopping": float,
+	  "others": float
+	}
+  ],
+  "budget_goal": [
+	{
+	  "_id": UUID,
+	  "item": String,
+	  "total_amount": float,
+	  "current_amount": float
+	}
+  ],
+  "subscription": [
+	{
+	  "_id": UUID,
+	  "subscription_name": String,
+	  "due_date": Date,
+	  "payment_amount": float
+	}
+  ]
+}
