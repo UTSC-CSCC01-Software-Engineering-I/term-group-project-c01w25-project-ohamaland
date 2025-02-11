@@ -17,8 +17,7 @@
    ```sh
    psql -U postgres -c "CREATE DATABASE catalog;"
    ```
-
-4. Create a `.env` file in `backend/core/` with the following content (check Discord team page for content):
+3. Create a `.env` file in `backend/core/` with the following content (check Discord team page for content):
    ```ini
    SECRET_KEY=
    DB_NAME=
@@ -27,17 +26,17 @@
    DB_HOST=
    DB_PORT=
    ```
-5. Apply database migrations:
+
+#### Starting the Server
+1. Apply database migrations:
    ```sh
    python manage.py migrate
    ```
-
-#### Starting the Server
-1. Start the development server:
+2. Start the development server:
    ```sh
    python manage.py runserver
    ```
-2. The backend will be accessible at:
+3. The backend will be accessible at:
    ```
    http://127.0.0.1:8000/
    ```
