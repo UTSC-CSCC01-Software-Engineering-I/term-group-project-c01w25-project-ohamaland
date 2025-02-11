@@ -32,7 +32,7 @@ Before you begin, make sure you have the following installed:
 - **Node.js** (for frontend, if using Next.js)
 - **Tesseract OCR** or **Google Vision API** (for parsing receipts)
 - **Plaid** or **Flinks API** (for financial aggregation)
-- **MongoDB** (for database)
+- **PostgreSQL** (for database)
 
 ### Setup Instructions
 
