@@ -17,16 +17,6 @@
    ```sh
    psql -U postgres -c "CREATE DATABASE catalog;"
    ```
-3. Create a `users` table for temporary testing purposes:
-   ```sh
-   psql -U postgres -d catalog -c "
-   CREATE TABLE users (
-     id SERIAL PRIMARY KEY,
-     username VARCHAR(50) NOT NULL UNIQUE,
-     password TEXT NOT NULL
-   );"
-   ```
-   **Note:** This table is for temporary testing purposes only and should not be used in production.
 
 4. Create a `.env` file in `backend/core/` with the following content (check Discord team page for content):
    ```ini
