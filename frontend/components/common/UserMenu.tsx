@@ -6,13 +6,18 @@ export default function UserMenu() {
     return (
         <Box sx={userMenuStyle}>
             {/* TODO: These will become components with click functionality */}
-            <AccountCircleIcon />
-            <MailIcon />
+            <MailIcon sx={iconStyle} />
+            <AccountCircleIcon sx={iconStyle} />
         </Box>
     )
 }
 
 const userMenuStyle = {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    gap: "24px",
+}
+
+const iconStyle = {
+    fontSize: 32
 }

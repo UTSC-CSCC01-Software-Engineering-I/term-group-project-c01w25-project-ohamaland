@@ -19,6 +19,8 @@ export default function Header() {
 }
 
 const headerStyle = {
+    paddingeft: "24px",
+    paddingRight: "24px",
     backgroundColor: `${lightGrey}`,
     display: "flex",
     justifyContent: "space-between",

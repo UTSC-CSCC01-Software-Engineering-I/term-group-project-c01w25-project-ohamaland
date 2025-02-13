@@ -1,29 +1,45 @@
-import { Drawer, getSectionContainerStyle, iconContainerStyle, menuButtonStyle, menuIconStyle, sectionTextStyle, sideBarContainerStyle } from "@/styles/sideBarStyles";
+import { contentContainerStyle, Drawer, getSectionContainerStyle, iconContainerStyle, menuButtonStyle, menuIconStyle, sectionTextStyle, sideBarContainerStyle } from "@/styles/sideBarStyles";
 import { BrokenImage, SvgIconComponent } from "@mui/icons-material";
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
+import { Group, Receipt, Subscriptions, Insights, Settings }  from '@mui/icons-material';
+import { darkGrey, lightGrey } from "@/styles/colors";
 
 interface ISideBarProps {
     page: string;
     loggedIn: boolean;
+    children?: ReactNode;
 }
 
 const loggedInSections = [
-    "Sign Out"
+    "Groups",
+    "Receipts",
+    "Subscriptions",
+    "Insights",
+    "Settings"
 ]
 
 const loggedOutSections = [
     "Sign In"
 ]
 
+// routing that the sidebar options will lead to
 const routeMap: { [key: string]: string } = {
-
+    "Groups": "groups",
+    "Receipts": "receipts",
+    "Subscriptions": "subscriptions",
+    "Insights": "insights",
+    "Settings": "settings"
 }
 
 const iconMap: { [key: string]: SvgIconComponent } = {
-
+    "Groups": Group,
+    "Receipts": Receipt,
+    "Subscriptions": Subscriptions,
+    "Insights": Insights,
+    "Settings": Settings
 }
 
 function getIcon(section: string, active: boolean) {
@@ -52,7 +68,7 @@ export default function SideBar(props: ISideBarProps) {
     }
 
     function getBackgroundColor(iconPage: string) {
-        return props.page === iconPage ? "white": "white"
+        return props.page === iconPage ? lightGrey: darkGrey
     }
 
     return (
@@ -78,6 +94,9 @@ export default function SideBar(props: ISideBarProps) {
                     <MenuIcon sx={menuIconStyle} />
                 </Button>
             </Drawer>
+            <Box sx={contentContainerStyle}>
+                {props.children}
+            </Box>
         </Box>
     )
 }

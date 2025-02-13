@@ -1,11 +1,11 @@
 import MuiDrawer from "@mui/material/Drawer";
 import { styled, Theme, CSSObject } from "@mui/material/styles";
-import { hoverColor, defaultText } from "../styles/colors"
+import { hoverColor, darkGrey } from "../styles/colors"
 
 // SideBar component has a lot of styling so put into separate file else file too long
 
 export const sideBarContainerStyle = {
-    display: "flex",
+  display: "flex"
 }
 
 export const drawerWidth = 312;
@@ -38,17 +38,15 @@ export const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
-  position: "absolute",
   zIndex: 1000, // arbitrary z-index to ensure sidebar overlays all content
+  position: "absolute",
 
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme)
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme)
-  })
+  "& .MuiDrawer-paper": {
+    backgroundColor: darkGrey,
+    color: "white",
+    ...(!open ? closedMixin(theme) : openedMixin(theme)),
+    top: 64,
+  }
 }));
 
 export function getSectionContainerStyle(background: string) {
@@ -67,9 +65,9 @@ export function getSectionContainerStyle(background: string) {
 }
 
 export const sectionTextStyle = {
-  color: defaultText,
-  fontSize: "16px",
-  fontWeight: 400
+  color: "white",
+  fontSize: "30px",
+  fontWeight: 700
 }
 
 export const iconContainerStyle = {
@@ -92,7 +90,7 @@ export const menuButtonStyle = {
 }
 
 export const menuIconStyle = {
-  color: defaultText,
+  color: "white",
   fontSize: 32
 }
 
