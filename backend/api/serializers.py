@@ -2,13 +2,12 @@ import boto3
 from django.conf import settings
 from rest_framework import serializers
 from .models import Receipt, Item
-from django.core.files.storage import default_storage
 
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = ['id','name', 'category', 'price', 'quantity']
 
 class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True, read_only=True)

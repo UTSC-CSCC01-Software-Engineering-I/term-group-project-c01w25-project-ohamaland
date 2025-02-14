@@ -46,4 +46,4 @@ class Item(models.Model):
         db_table = "item"
 
     def __str__(self):
-        return f'Item {self.name} - {self.quantity}'
+        return f"Item {self.name} - {self.quantity}"
