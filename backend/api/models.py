@@ -47,3 +47,14 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
+    
+class Group(models.Model):
+    creator = models.IntegerField()
+    name = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "group"
+    
+    def __str__(self):
+        return f"Group {self.name} - {self.creator}"

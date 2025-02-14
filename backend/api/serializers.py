@@ -1,7 +1,7 @@
 import boto3
 from django.conf import settings
 from rest_framework import serializers
-from .models import Receipt, Item
+from .models import Receipt, Item, Group
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -36,3 +36,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
             validated_data["receipt_image_url"] = f"{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
 
         return super().create(validated_data)
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = '__all__'

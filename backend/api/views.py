@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .models import Receipt, Item
-from .serializers import ReceiptSerializer, ItemSerializer
+from .models import Receipt, Item, Group
+from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
@@ -49,3 +49,18 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     # Not 100% sure whether this works
     def get_object(self):
         return Item.objects.get(receipt=self.kwargs['receipt_id'], id=self.kwargs['pk'])
+
+# POST & GET of Groups
+class GroupList(generics.ListCreateAPIView):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"groups": serializer.data})
+
+# GET, PUT, PATCH & DELETE of Groups
+class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
