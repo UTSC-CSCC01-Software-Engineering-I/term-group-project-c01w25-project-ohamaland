@@ -61,7 +61,7 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
           Items:
         </Typography>
         {receipt.items?.map((item) => (
-          <Typography key={item._id} variant="body2" sx={{ ml: 2 }}>
+          <Typography key={item.id} variant="body2" sx={{ ml: 2 }}>
             • {item.name} ({item.category})  
             {` x${item.quantity} @ ${receipt.currency} ${Number(item.price).toFixed(2)}`}
           </Typography>

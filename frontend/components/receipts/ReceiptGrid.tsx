@@ -23,7 +23,7 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
     return (
         <Grid2 container spacing={3}>
             {filteredReceipts.map(receipt => (
-                <ReceiptCard key={receipt._id} receipt={receipt} />
+                <ReceiptCard key={receipt.id} receipt={receipt} />
             ))}
         </Grid2>
     )
