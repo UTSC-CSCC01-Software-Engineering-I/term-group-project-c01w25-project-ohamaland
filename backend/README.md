@@ -54,32 +54,32 @@
 
 The `insertdata` management command allows you to pre-populate the database with sample receipts and items.
 
-### Steps to Use `insertdata`
+# Steps to Use `insertdata`
 
 1. **Ensure that database migrations are applied**:
    python manage.py migrate
 
-# Run the insertdata command:
+###  Run the insertdata command:
 
 python manage.py insertdata
 
-# This will insert predefined receipts and items into the database.
+### This will insert predefined receipts and items into the database.
 
-### Verifying the Inserted Data
+# Verifying the Inserted Data
 
 After running insertdata, you can confirm that the data was successfully added by checking the database:
 
-# Open the Django shell:
+### Open the Django shell:
 
 python manage.py shell
 
-# Query the database:
+### Query the database:
 
 from api.models import Receipt, Item
 
-# Check the number of receipts inserted
+### Check the number of receipts inserted
 print("Total Receipts:", Receipt.objects.count())
 
-# Check the number of items inserted
+### Check the number of items inserted
 print("Total Items:", Item.objects.count())
 
