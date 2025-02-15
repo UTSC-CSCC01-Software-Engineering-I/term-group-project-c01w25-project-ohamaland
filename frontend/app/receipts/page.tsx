@@ -2,7 +2,6 @@
 
 import PageWrapper from "@/components/common/layouts/PageWrapper"
 import { useState, useEffect } from "react";
-import { tempReceipts } from "./tempReceipts"
 import { Category, Receipt } from "@/types/receipts"
 import { Dayjs } from "dayjs"
 import ReceiptFilter from "@/components/receipts/ReceiptFilter"
@@ -10,7 +9,7 @@ import { SelectChangeEvent } from "@mui/material"
 import ReceiptGrid from "@/components/receipts/ReceiptGrid"
 
 export default function Page() {
-    const [receipts, setReceipts] = useState<Receipt[]>(tempReceipts)
+    const [receipts, setReceipts] = useState<Receipt[]>([])
     const [startDate, setStartDate] = useState<Dayjs | null>(null)
     const [endDate, setEndDate] = useState<Dayjs | null>(null)
     const [filterTerm, setFilterTerm] = useState("")
