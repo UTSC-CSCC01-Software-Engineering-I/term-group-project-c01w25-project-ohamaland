@@ -1,31 +1,18 @@
-# Release Planning Meeting (RPM)
+# Release Plan
 
-## Date: 2025-02-03
+## Release Name: Release 1.0
+## Planned Release Date: Feb 14, 2025
 
-## Participants:
-- **RJ (Rhodwell Malicdem)**
-- **AbdulRahman Mallisho (Mel)**
-- **Hari Balamurali (Hari)**
-- **Leo Liao (Leo)**
-- **Mohamed Sbeinati (Ohama)**
+### Release Objectives
+The primary objective of this release is to deliver a **Minimum Viable Product (MVP)** that allows users to register, create and manage receipts, and interact with the system through a functional UI. This release focuses on backend infrastructure, frontend implementation, and database integration.
 
-## Release Goal:
-The primary objective of this release is to deliver a **Minimum Viable Product (MVP)** that allows users to:
-- Register
-- Create and manage receipts
-- Interact with the system through a functional UI
-- Use Group-Cost splitting feature
-
-This release will focus on **backend infrastructure, frontend implementation, and database integration**.
-
-## Scope:
-### Epics / Key Features:
+### Specific Goals
 #### **User Authentication & Authorization**
 - Implement secure user registration and login.
 - Enable role-based access control.
 
 #### **Receipts Management System**
-- Users can create, view, and delete receipts.
+- Allow users to create, view, and delete receipts.
 - Implement receipt image upload functionality.
 
 #### **Database & API Infrastructure**
@@ -33,50 +20,48 @@ This release will focus on **backend infrastructure, frontend implementation, an
 - Develop RESTful API endpoints for user and receipt management.
 
 #### **Frontend UI Development**
-- Design core UI components (receipt display, sidebar, error handling pages).
+- Design and implement core UI components (receipt display, sidebar, error handling pages).
 - Implement receipt upload and editing functionality.
 
 #### **Group Expense Tracking**
 - Introduce functionality to split costs among users.
 - Implement user group creation and management.
 
-## Timeline & Milestones:
-### **Sprint 1 (Feb 1 - Feb 14, 2025)**
-- Backend setup
-- API implementation
-- Cost-Splitting feature
-- Initial UI components
+### Metrics for Measurement
+- **User Registration Success:** Users able to register and log in without errors.
+- **System Response Time:** API response times for authentication, receipt storage, and retrieval (goal: < 200ms per request).
+- **Frontend-Backend Integration Success:** Have a successful Frontend-Backend Integration.
 
-**Planned Release Date:** February 14, 2025
+## Release Scope
+### **Included Features**
+- User authentication (registration, login, role-based access control)
+- Receipt CRUD operations (create, view, delete receipts)
+- Receipt image upload functionality
+- PostgreSQL integration for data persistence
+- RESTful API development for core features
+- UI components for receipt management and user interactions
+- Group expense tracking features (cost splitting, user group management)
 
-## Risks & Dependencies:
-### **Technical Risks:**
-- Potential delays due to database migration from MongoDB to PostgreSQL.
-- Ensuring proper integration between frontend and backend.
-- Dependency on backend API readiness for frontend integration.
-- Ensuring security best practices for authentication and data storage.
+### **Excluded Features**
+- Advanced analytics or reporting for receipt trends
+- Multi-language support
+- Push notifications and real-time updates
+- Detailed financial tracking for user expenses
+- Third-party payment integration
 
-### **External Dependencies:**
-- PostgreSQL hosting service.
+## Bug Fixes
+- First release, No bugs yet.
 
-## Team Assignments & Responsibilities:
-### **Backend Development:**
-- **RJ & Mel** - Database implementation.
+## Non-Functional Requirements
+- **Performance:** Ensure system responds within 200ms for key API operations.
+- **Security:** Encrypt user data.
+- **Usability:** Ensure a clean, responsive UI that follows accessibility standards.
 
-### **Frontend Development:**
-- **Leo** - UI components and user experience.
+## Dependencies and Limitations
+### **Dependencies:**
+- PostgreSQL hosting service for data storage
+- Authentication API for secure login and authorization
 
-### **Data Structures & Testing:**
-- **Hari** - Data management and test case preparation.
-
-### **Endpoint Design & Documentation:**
-- **Ohama** - API design, API documentation, and CRUD operations.
-
-### **Project Coordination:**
-- **Ohama** - Managing sprint progress and communication.
-
-## Next Steps:
-1. Finalize the database schema and API documentation.
-2. Develop and test core API functionalities.
-3. Continue UI development and integrate with backend services.
-4. Schedule regular standups to track progress and address blockers.
+### **Limitations:**
+- Limited error handling for unexpected API failures (to be improved in future releases)
+- No offline mode support (requires internet connection for full functionality)
