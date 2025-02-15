@@ -5,17 +5,20 @@ from .models import Receipt, Item, Group
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    _id = serializers.IntegerField(source='id', read_only=True)  # 👈 Rename `id` to `_id`
+
     class Meta:
         model = Item
-        fields = ['id','name', 'category', 'price', 'quantity']
+        fields = ['_id', 'name', 'category', 'price', 'quantity']  # 👈 Use `_id` instead of `id`
 
 class ReceiptSerializer(serializers.ModelSerializer):
+    _id = serializers.IntegerField(source='id', read_only=True)  # 👈 Rename `id` to `_id`
     items = ItemSerializer(many=True, read_only=True)
     receipt_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Receipt
-        fields = '__all__'
+        fields = ["_id", "user_id", "merchant", "total", "currency", "date", "payment_method", "receipt_image_url", "receipt_image", "items"]
 
     def create(self, validated_data):
         image = validated_data.pop("receipt_image", None)
@@ -36,6 +39,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
             validated_data["receipt_image_url"] = f"{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
 
         return super().create(validated_data)
+
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:

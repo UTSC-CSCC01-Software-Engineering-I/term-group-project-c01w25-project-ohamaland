@@ -51,7 +51,7 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
 
         {/* Total Amount */}
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-          Total: {receipt.currency} {receipt.total_amount.toFixed(2)}
+          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
