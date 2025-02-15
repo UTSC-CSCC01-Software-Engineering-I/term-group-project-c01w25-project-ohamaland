@@ -31,14 +31,7 @@ export default function Page() {
                 console.error("Error fetching receipts:", error);
             }
         }
-    
-        // Check if data exists in localStorage
-        const storedReceipts = localStorage.getItem("receipts");
-        if (storedReceipts) {
-            setReceipts(JSON.parse(storedReceipts));
-        } else {
-            fetchReceipts();
-        }
+        fetchReceipts();
     }, []);
     
     const handleCategoryChange = (event: SelectChangeEvent) => {
