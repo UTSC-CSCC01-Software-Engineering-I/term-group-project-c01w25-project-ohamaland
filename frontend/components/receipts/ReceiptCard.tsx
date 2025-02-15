@@ -1,13 +1,13 @@
-import React from "react";
 import { Receipt } from "@/types/receipts";
 import {
   Card,
   CardContent,
   CardMedia,
-  Typography,
   Divider,
   Stack,
+  Typography
 } from "@mui/material";
+import React from "react";
 
 interface IReceiptCardProps {
   receipt: Receipt;
@@ -50,9 +50,8 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
         </Stack>
 
         {/* Total Amount */}
-        console.log("receipt.total_amount is:", JSON.stringify(receipt.total_amount));
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-        Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
+          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
@@ -63,8 +62,12 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
         </Typography>
 
         {receipt.items?.map((item, index) => (
-          <Typography key={`${item.id}-${index}`} variant="body2" sx={{ ml: 2 }}>
-            • {item.name} ({item.category})  
+          <Typography
+            key={`${item.id}-${index}`}
+            variant="body2"
+            sx={{ ml: 2 }}
+          >
+            • {item.name} ({item.category})
             {` x${item.quantity} @ ${receipt.currency} ${Number(item.price).toFixed(2)}`}
           </Typography>
         ))}
