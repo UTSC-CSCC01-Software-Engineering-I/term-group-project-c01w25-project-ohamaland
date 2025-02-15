@@ -9,7 +9,7 @@ class Command(BaseCommand):
             {
                 "user_id": 69,
                 "merchant": "Walmart",
-                "total": 420.00,
+                "total_amount": 420.00,
                 "currency": "CAD",
                 "date": "2024-12-25",
                 "payment_method": "credit",
@@ -22,7 +22,7 @@ class Command(BaseCommand):
             {
                 "user_id": 70,
                 "merchant": "Target",
-                "total": 10.00,
+                "total_amount": 10.00,
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "cash",
@@ -34,7 +34,7 @@ class Command(BaseCommand):
             {
                 "user_id": 100,
                 "merchant": "KFC",
-                "total": 12.00,
+                "total_amount": 12.00,
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "debit",
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             {
                 "user_id": 200,
                 "merchant": "Nike",
-                "total": 70.00,
+                "total_amount": 70.00,
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "credit",
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             receipt = Receipt.objects.create(
                 user_id=receipt_data["user_id"],
                 merchant=receipt_data["merchant"],
-                total=receipt_data["total"],
+                total_amount=receipt_data["total_amount"],
                 currency=receipt_data["currency"],
                 date=receipt_data["date"],
                 payment_method=receipt_data["payment_method"],
