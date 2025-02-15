@@ -12,11 +12,11 @@ class Command(BaseCommand):
                 "total_amount": 420.00,
                 "currency": "CAD",
                 "date": "2024-12-25",
-                "payment_method": "credit",
+                "payment_method": "Credit",
                 "receipt_image_url": "https://example.com/receipt.jpg",
                 "items": [
-                    {"name": "Toilet Paper", "category": "home", "price": 5.00, "quantity": 20},
-                    {"name": "Toilet", "category": "fixtures", "price": 320.00, "quantity": 1},
+                    {"name": "Toilet Paper", "category": "Home", "price": 5.00, "quantity": 20},
+                    {"name": "Toilet", "category": "Fixtures", "price": 320.00, "quantity": 1},
                 ],
             },
             {
@@ -25,10 +25,10 @@ class Command(BaseCommand):
                 "total_amount": 10.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "cash",
+                "payment_method": "Cash",
                 "receipt_image_url": "https://example.com/receipt2.jpg",
                 "items": [
-                    {"name": "Treenuts", "category": "food", "price": 0.50, "quantity": 20},
+                    {"name": "Treenuts", "category": "Food", "price": 0.50, "quantity": 20},
                 ],
             },
             {
@@ -37,10 +37,10 @@ class Command(BaseCommand):
                 "total_amount": 12.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "debit",
+                "payment_method": "Debit",
                 "receipt_image_url": "https://example.com/receipt3.jpg",
                 "items": [
-                    {"name": "Chicken Nuggets", "category": "food", "price": 12.00, "quantity": 1},
+                    {"name": "Chicken Nuggets", "category": "Food", "price": 12.00, "quantity": 1},
                 ],
             },
             {
@@ -49,10 +49,10 @@ class Command(BaseCommand):
                 "total_amount": 70.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "credit",
+                "payment_method": "Credit",
                 "receipt_image_url": "https://example.com/receipt4.jpg",
                 "items": [
-                    {"name": "Hoodie", "category": "clothing", "price": 70.00, "quantity": 1},
+                    {"name": "Hoodie", "category": "Clothing", "price": 70.00, "quantity": 1},
                 ],
             },
         ]
