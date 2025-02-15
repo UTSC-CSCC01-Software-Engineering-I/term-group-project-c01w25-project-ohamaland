@@ -1,7 +1,7 @@
 import boto3
 from django.conf import settings
 from rest_framework import serializers
-from .models import Receipt, Item, Group
+from .models import Receipt, Item, Group, GroupMembers
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -41,3 +41,8 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+
+class GroupMembersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupMembers
+        fields = ['member']

@@ -58,3 +58,12 @@ class Group(models.Model):
     
     def __str__(self):
         return f"Group {self.name} - {self.creator}"
+
+class GroupMembers(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    member = models.IntegerField()
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'group_members'
+        unique_together = ('group', 'member')
