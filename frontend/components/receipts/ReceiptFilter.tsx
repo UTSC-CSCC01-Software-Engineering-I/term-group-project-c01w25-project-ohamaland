@@ -2,7 +2,7 @@ import { categories, Category } from "@/types/receipts"
 import { Box, InputBase, SelectChangeEvent } from "@mui/material"
 import { Dayjs } from "dayjs"
 import SearchIcon from "@mui/icons-material/Search";
-import { lightGrey, textLightGrey, defaultText, backgroundWhite} from "@/styles/colors";
+import { textLightGrey, defaultText, backgroundWhite} from "@/styles/colors";
 import { Dispatch, SetStateAction } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -82,16 +82,6 @@ const filterContainerStyle = {
     flexWrap: "wrap" as const,
 };
 
-const searchContainerStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    backgroundColor: backgroundWhite,
-    borderRadius: "8px",
-    padding: "4px 12px",
-    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
-};
-
 const iconStyle = {
     color: textLightGrey,
 };
@@ -105,23 +95,6 @@ const inputStyle = {
         color: textLightGrey,
         fontSize: "14px",
         fontWeight: 400,
-    },
-};
-
-const dateInputStyle = {
-    width: "130px",
-    fontSize: "14px",
-    fontWeight: 400,
-    color: defaultText,
-    padding: "4px 12px",
-    backgroundColor: backgroundWhite,
-    borderRadius: "8px",
-    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
-    "& .MuiInputBase-input": {
-        padding: 0,
-    },
-    "& ::placeholder": {
-        color: textLightGrey,
     },
 };
 
