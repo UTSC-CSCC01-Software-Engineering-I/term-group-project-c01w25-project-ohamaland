@@ -50,8 +50,9 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
         </Stack>
 
         {/* Total Amount */}
+        console.log("receipt.total_amount is:", JSON.stringify(receipt.total_amount));
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
+        Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
@@ -60,8 +61,9 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
         <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
           Items:
         </Typography>
-        {receipt.items?.map((item) => (
-          <Typography key={item.id} variant="body2" sx={{ ml: 2 }}>
+
+        {receipt.items?.map((item, index) => (
+          <Typography key={`${item.id}-${index}`} variant="body2" sx={{ ml: 2 }}>
             • {item.name} ({item.category})  
             {` x${item.quantity} @ ${receipt.currency} ${Number(item.price).toFixed(2)}`}
           </Typography>
