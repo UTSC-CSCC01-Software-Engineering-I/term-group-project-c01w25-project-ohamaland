@@ -1,6 +1,6 @@
 export const lightGrey = "#5d615e"
 
-export const backgroundOrange = "#f0b85d"
+export const backgroundOrange = "#ffffff"
 
 export const hoverColor = lightGrey
 

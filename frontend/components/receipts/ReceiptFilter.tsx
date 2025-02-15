@@ -24,7 +24,7 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
         <Box sx={filterContainerStyle}>
             {/* Searchbar */}
             <InputBase
-                placeholder="Search"
+                placeholder="Search receipts..."
                 startAdornment={<SearchIcon fontSize="medium" sx={iconStyle} />}
                 sx={inputStyle}
                 onChange={(e) => props.setFilterTerm(e.target.value)}
@@ -33,13 +33,29 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
 
             {/* Start date filter*/}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker value={props.startDate} onChange={(startDate) => props.setStartDate(startDate)}/>
+            <DatePicker
+                value={props.startDate}
+                onChange={(newDate) => props.setStartDate(newDate)}
+                slotProps={{
+                    textField: {
+                        placeholder: "Choose a start Date",
+                        },
+                }}
+            />
             </LocalizationProvider>
             
 
             {/* End Date Filter */}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker value={props.endDate} onChange={(endDate) => props.setEndDate(endDate)}/>
+            <DatePicker
+                value={props.endDate}
+                onChange={(newDate) => props.setEndDate(newDate)}
+                slotProps={{
+                    textField: {
+                        placeholder: "Choose an End Date",
+                        },
+                }}
+            />
             </LocalizationProvider>
 
             {/* Category Selector */}
@@ -57,31 +73,73 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
 
 const filterContainerStyle = {
     display: "flex",
-    backgroundColor: "white",
-    alignItems: "center"
-}
+    alignItems: "center",
+    gap: "16px",
+    padding: "16px",
+    borderRadius: "12px",
+    backgroundColor: "#lightGrey",  // Dark gray theme
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+    flexWrap: "wrap" as const,
+};
+
+const searchContainerStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    backgroundColor: "#575757", // Lighter gray for contrast
+    borderRadius: "8px",
+    padding: "4px 12px",
+    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
+};
 
 const iconStyle = {
-    marginRight: "8px",
-    color: lightGrey
-}
+    color: "#CCCCCC",
+};
 
 const inputStyle = {
-    height: "32px",
-    border: `1px solid ${textLightGrey}`,
-    borderRadius: "6px",
-    backgroundColor: "#FFF",
-    padding: "0 8px",
-    width: "280px",
     fontSize: "14px",
     fontWeight: 400,
+    flexGrow: 1,
+    color: "#FFFFFF",
     "& ::placeholder": {
-        color: lightGrey,
+        color: "#BDBDBD",
         fontSize: "14px",
-        fontWeight: 400
-    }
-}
+        fontWeight: 400,
+    },
+};
+
+const dateInputStyle = {
+    width: "130px",
+    fontSize: "14px",
+    fontWeight: 400,
+    color: "#FFFFFF",
+    padding: "4px 12px",
+    backgroundColor: "#575757",
+    borderRadius: "8px",
+    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
+    "& .MuiInputBase-input": {
+        padding: 0,
+    },
+    "& ::placeholder": {
+        color: "#BDBDBD",
+    },
+};
 
 const formControlStyle = {
     width: "160px",
-}
+    backgroundColor: "#FFFFFF",
+    borderRadius: "8px",
+    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+    "& .MuiOutlinedInput-root": {
+        color: "#FFFFFF",
+        "& fieldset": {
+            border: "none",
+        },
+        "&:hover fieldset": {
+            border: "none",
+        },
+        "&.Mui-focused fieldset": {
+            border: "2px solidrgb(0, 0, 0)",
+        },
+    },
+};
