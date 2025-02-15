@@ -14,6 +14,7 @@ The primary objective of this release is to deliver a **Minimum Viable Product (
 - Register
 - Create and manage receipts
 - Interact with the system through a functional UI
+- Use Group-Cost splitting feature
 
 This release will focus on **backend infrastructure, frontend implementation, and database integration**.
 
