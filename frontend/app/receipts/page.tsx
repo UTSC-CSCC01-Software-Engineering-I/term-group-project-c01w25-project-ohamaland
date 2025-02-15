@@ -27,7 +27,6 @@ export default function Page() {
                 const data = await response.json();
                 console.log("Received Data:", data);  // ✅ Debugging log
                 setReceipts(data.receipts);
-                localStorage.setItem("receipts", JSON.stringify(data.receipts));  // ✅ Persist data
             } catch (error) {
                 console.error("Error fetching receipts:", error);
             }
