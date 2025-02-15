@@ -1,6 +1,6 @@
 # Release Planning Meeting (RPM)
 
-## Date: 2025-02-01
+## Date: 2025-02-03
 
 ## Participants:
 - **RJ (Rhodwell Malicdem)**
