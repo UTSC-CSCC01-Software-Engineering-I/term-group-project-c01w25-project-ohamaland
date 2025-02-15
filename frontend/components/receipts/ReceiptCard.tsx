@@ -14,6 +14,8 @@ interface IReceiptCardProps {
 }
 
 const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
+  const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
+
   return (
     <Card sx={{ maxWidth: 400, margin: "1rem auto" }}>
       {receipt.receipt_image_url && (
@@ -40,7 +42,7 @@ const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt }) => {
           mb={1}
         >
           <Typography variant="body2" color="text.secondary">
-            {new Date(receipt.date).toLocaleDateString()}
+            {formattedDate} {/* Now it is always YYYY-MM-DD */}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {receipt.payment_method}
