@@ -1,8 +1,7 @@
 "use client"
 
 import PageWrapper from "@/components/common/layouts/PageWrapper"
-import { useState } from "react"
-import { tempReceipts } from "./tempReceipts"
+import { useState, useEffect } from "react";
 import { Category, Receipt } from "@/types/receipts"
 import { Dayjs } from "dayjs"
 import ReceiptFilter from "@/components/receipts/ReceiptFilter"
@@ -10,14 +9,31 @@ import { SelectChangeEvent } from "@mui/material"
 import ReceiptGrid from "@/components/receipts/ReceiptGrid"
 
 export default function Page() {
-    const [receipts, setReceipts] = useState<Receipt[]>(tempReceipts)
+    const [receipts, setReceipts] = useState<Receipt[]>([])
     const [startDate, setStartDate] = useState<Dayjs | null>(null)
     const [endDate, setEndDate] = useState<Dayjs | null>(null)
     const [filterTerm, setFilterTerm] = useState("")
     const [category, setCategory] = useState<Category>("All")
 
-    // TODO: Add call to fetch receipts
-
+    // Fetch receipts from API
+    useEffect(() => {
+        async function fetchReceipts() {
+            try {
+                console.log("Fetching receipts...");  // ✅ Debugging log
+                const response = await fetch("http://127.0.0.1:8000/api/receipts/");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch receipts");
+                }
+                const data = await response.json();
+                console.log("Received Data:", data);  // ✅ Debugging log
+                setReceipts(data.receipts);
+            } catch (error) {
+                console.error("Error fetching receipts:", error);
+            }
+        }
+        fetchReceipts();
+    }, []);
+    
     const handleCategoryChange = (event: SelectChangeEvent) => {
         setCategory(event.target.value as Category)
     }

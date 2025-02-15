@@ -22,8 +22,9 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 
     return (
         <Grid2 container spacing={3}>
-            {filteredReceipts.map(receipt => (
-                <ReceiptCard key={receipt._id} receipt={receipt} />
+
+            {filteredReceipts.map((receipt, index) => (
+                <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
             ))}
         </Grid2>
     )

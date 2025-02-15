@@ -9,7 +9,7 @@ class Receipt(models.Model):
 
     user_id = models.IntegerField()
     merchant = models.TextField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3)
     date = models.DateField()
     payment_method = models.TextField(blank=True, null=True, choices=PAYMENT_METHOD_CHOICES)

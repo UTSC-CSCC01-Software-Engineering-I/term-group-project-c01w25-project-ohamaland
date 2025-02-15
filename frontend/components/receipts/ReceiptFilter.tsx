@@ -2,7 +2,7 @@ import { categories, Category } from "@/types/receipts"
 import { Box, InputBase, SelectChangeEvent } from "@mui/material"
 import { Dayjs } from "dayjs"
 import SearchIcon from "@mui/icons-material/Search";
-import { lightGrey, textLightGrey } from "@/styles/colors";
+import { textLightGrey, defaultText, backgroundWhite} from "@/styles/colors";
 import { Dispatch, SetStateAction } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -24,7 +24,7 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
         <Box sx={filterContainerStyle}>
             {/* Searchbar */}
             <InputBase
-                placeholder="Search"
+                placeholder="Search receipts..."
                 startAdornment={<SearchIcon fontSize="medium" sx={iconStyle} />}
                 sx={inputStyle}
                 onChange={(e) => props.setFilterTerm(e.target.value)}
@@ -33,13 +33,29 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
 
             {/* Start date filter*/}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker value={props.startDate} onChange={(startDate) => props.setStartDate(startDate)}/>
+            <DatePicker
+                value={props.startDate}
+                onChange={(newDate) => props.setStartDate(newDate)}
+                slotProps={{
+                    textField: {
+                        placeholder: "Choose a start Date",
+                        },
+                }}
+            />
             </LocalizationProvider>
             
 
             {/* End Date Filter */}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker value={props.endDate} onChange={(endDate) => props.setEndDate(endDate)}/>
+            <DatePicker
+                value={props.endDate}
+                onChange={(newDate) => props.setEndDate(newDate)}
+                slotProps={{
+                    textField: {
+                        placeholder: "Choose an End Date",
+                        },
+                }}
+            />
             </LocalizationProvider>
 
             {/* Category Selector */}
@@ -57,31 +73,46 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
 
 const filterContainerStyle = {
     display: "flex",
-    backgroundColor: "white",
-    alignItems: "center"
-}
+    alignItems: "center",
+    gap: "16px",
+    padding: "16px",
+    borderRadius: "12px",
+    backgroundColor: backgroundWhite,
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+    flexWrap: "wrap" as const,
+};
 
 const iconStyle = {
-    marginRight: "8px",
-    color: lightGrey
-}
+    color: textLightGrey,
+};
 
 const inputStyle = {
-    height: "32px",
-    border: `1px solid ${textLightGrey}`,
-    borderRadius: "6px",
-    backgroundColor: "#FFF",
-    padding: "0 8px",
-    width: "280px",
     fontSize: "14px",
     fontWeight: 400,
+    flexGrow: 1,
+    color: defaultText,
     "& ::placeholder": {
-        color: lightGrey,
+        color: textLightGrey,
         fontSize: "14px",
-        fontWeight: 400
-    }
-}
+        fontWeight: 400,
+    },
+};
 
 const formControlStyle = {
     width: "160px",
-}
+    backgroundColor: backgroundWhite,
+    borderRadius: "8px",
+    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+    "& .MuiOutlinedInput-root": {
+        color: defaultText,
+        "& fieldset": {
+            border: "none",
+        },
+        "&:hover fieldset": {
+            border: "none",
+        },
+        "&.Mui-focused fieldset": {
+            border: `2px solid ${defaultText}`,
+        },
+    },
+};

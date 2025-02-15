@@ -1,5 +1,5 @@
 export type Receipt = {
-    _id: number,
+    id: number,
     user_id: number,
     merchant: string,
     total_amount: number,
@@ -21,7 +21,7 @@ export const categories = ["Home Goods", "Food", "Clothing", "Fixture", allCateg
 export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash"
 
 export type ReceiptItem = {
-    _id: number,
+    id: number,
     name: string,
     category: Category,
     price: number,
