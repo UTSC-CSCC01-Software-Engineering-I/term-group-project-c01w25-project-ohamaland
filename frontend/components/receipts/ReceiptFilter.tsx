@@ -2,7 +2,7 @@ import { categories, Category } from "@/types/receipts"
 import { Box, InputBase, SelectChangeEvent } from "@mui/material"
 import { Dayjs } from "dayjs"
 import SearchIcon from "@mui/icons-material/Search";
-import { lightGrey, textLightGrey } from "@/styles/colors";
+import { lightGrey, textLightGrey, defaultText, backgroundWhite} from "@/styles/colors";
 import { Dispatch, SetStateAction } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -77,7 +77,7 @@ const filterContainerStyle = {
     gap: "16px",
     padding: "16px",
     borderRadius: "12px",
-    backgroundColor: "#lightGrey",  // Dark gray theme
+    backgroundColor: backgroundWhite,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
     flexWrap: "wrap" as const,
 };
@@ -86,23 +86,23 @@ const searchContainerStyle = {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    backgroundColor: "#575757", // Lighter gray for contrast
+    backgroundColor: backgroundWhite,
     borderRadius: "8px",
     padding: "4px 12px",
     boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
 };
 
 const iconStyle = {
-    color: "#CCCCCC",
+    color: textLightGrey,
 };
 
 const inputStyle = {
     fontSize: "14px",
     fontWeight: 400,
     flexGrow: 1,
-    color: "#FFFFFF",
+    color: defaultText,
     "& ::placeholder": {
-        color: "#BDBDBD",
+        color: textLightGrey,
         fontSize: "14px",
         fontWeight: 400,
     },
@@ -112,26 +112,26 @@ const dateInputStyle = {
     width: "130px",
     fontSize: "14px",
     fontWeight: 400,
-    color: "#FFFFFF",
+    color: defaultText,
     padding: "4px 12px",
-    backgroundColor: "#575757",
+    backgroundColor: backgroundWhite,
     borderRadius: "8px",
     boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
     "& .MuiInputBase-input": {
         padding: 0,
     },
     "& ::placeholder": {
-        color: "#BDBDBD",
+        color: textLightGrey,
     },
 };
 
 const formControlStyle = {
     width: "160px",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: backgroundWhite,
     borderRadius: "8px",
     boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
     "& .MuiOutlinedInput-root": {
-        color: "#FFFFFF",
+        color: defaultText,
         "& fieldset": {
             border: "none",
         },
@@ -139,7 +139,7 @@ const formControlStyle = {
             border: "none",
         },
         "&.Mui-focused fieldset": {
-            border: "2px solidrgb(0, 0, 0)",
+            border: `2px solid ${defaultText}`,
         },
     },
 };
