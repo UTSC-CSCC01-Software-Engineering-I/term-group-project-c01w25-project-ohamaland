@@ -55,6 +55,16 @@
 - The user authentication system, database setup, CRUD endpoints, and frontend UI components were all implemented as planned.
 - All features were tested and are ready for integration into the next development cycle.
 
+###Pictures:
+
+![Receipt Home Page](https://github.com/user-attachments/assets/5242f0fa-a611-40d5-974d-2034cc55a8bb)
+![Groups Home Page](https://github.com/user-attachments/assets/5eb7768b-7176-4d03-984a-fe9f1c424b92)
+![Group Page](https://github.com/user-attachments/assets/7f29bd6d-5c89-4c90-a6a2-46656ecdc3cd)
+![Add Recipt Modal](https://github.com/user-attachments/assets/788e2738-66d7-4283-a0d3-58c3b60b1659)
+![Edit Recipt Modal](https://github.com/user-attachments/assets/6e917a82-55b7-4e71-87e6-5de18eeeee0d)
+![Receipt Filter & Group Filter](https://github.com/user-attachments/assets/cff9214e-aa12-4150-a3d3-a09fc0abb151)
+
+
 ## Meeting Highlights
 
 ### **Going into the next iteration, our main insights are:**
