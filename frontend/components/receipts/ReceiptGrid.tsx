@@ -31,11 +31,15 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
         paddingRight: "10px"
       }}
     >
-      <Grid2 container spacing={3}>
+    <Grid2 container spacing={3}>
         {filteredReceipts.map((receipt, index) => (
-          <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
-        ))}
-      </Grid2>
+          <ReceiptCard
+            key={`${receipt.id}-${index}`}
+            receipt={receipt}
+            onClick={() => props.onOpenDialog(receipt)}
+          />
+      ))}
+    </Grid2>
       <style jsx global>{`
         /* Transparent scrollbar style */
         div::-webkit-scrollbar {
