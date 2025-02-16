@@ -122,6 +122,8 @@ const modalStyle = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
+  maxHeight: "80vh", // Set max height to 80% of the viewport height
+  overflow: "auto", // Allows scrolling if content overflows
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
