@@ -17,9 +17,9 @@ export default function Page() {
   const [category, setCategory] = useState<Category>("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSaveReceipt = (newReceipt: Receipt) => {
-    setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
-  };
+  // const handleSaveReceipt = (newReceipt: Receipt) => {
+  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
+  // };
 
   // Fetch receipts from API
   useEffect(() => {
@@ -42,6 +42,12 @@ export default function Page() {
 
   const handleCategoryChange = (event: SelectChangeEvent) => {
     setCategory(event.target.value as Category);
+  };
+
+  // to handle adding a new receipt (temporary, hardcoded for now)
+  const handleSaveReceipt = (newReceipt: Receipt) => {
+    setReceipts([...receipts, newReceipt]);
+    setIsModalOpen(false);
   };
 
   return (

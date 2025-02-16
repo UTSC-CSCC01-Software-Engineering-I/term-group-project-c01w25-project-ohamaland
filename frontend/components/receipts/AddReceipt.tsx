@@ -8,14 +8,14 @@ import {
   Typography,
   Stack
 } from "@mui/material";
-// import FilePondUpload from "./FileUpload";
-import { Currency, PaymentMethod, categories, Category, ReceiptItem } from "@/types/receipts";
-// import { FileUpload } from "@mui/icons-material";
+import FilePondUpload from "./FileUpload";
+import { Currency, PaymentMethod, categories, Category, ReceiptItem, Receipt } from "@/types/receipts";
+import { FileUpload } from "@mui/icons-material";
 
 interface ReceiptModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (receiptData: any) => void; // Replace `any` with proper type
+  onSave: (newReceipt: Receipt) => void; // Function to handle saving the receipt
 }
 
 export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProps) {
@@ -28,7 +28,9 @@ export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProp
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
 
   const handleSave = () => {
-    const newReceipt = {
+    const newReceipt: Receipt = {
+      id: Date.now(), // or generate a UUID
+      user_id: 1, // You can replace this with the actual user ID from your app context
       merchant,
       total_amount: parseFloat(totalAmount),
       currency,
@@ -100,7 +102,7 @@ export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProp
           <MenuItem value="Cash">Cash</MenuItem>
         </TextField>
 
-        {/* <FileUpload setImageUrl={setReceiptImageUrl} />
+        <FilePondUpload setImageUrl={setReceiptImageUrl} />
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button variant="contained" color="primary" onClick={handleSave}>
             Save
@@ -108,7 +110,7 @@ export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProp
           <Button variant="outlined" onClick={onClose}>
             Cancel
           </Button>
-        </Stack> */}
+        </Stack>
       </Box>
     </Modal>
   );
