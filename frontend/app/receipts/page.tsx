@@ -3,8 +3,9 @@
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
+import ReceiptModal from "@/components/receipts/AddReceipt";
 import { Category, Receipt } from "@/types/receipts";
-import { SelectChangeEvent } from "@mui/material";
+import { Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -14,6 +15,11 @@ export default function Page() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
   const [category, setCategory] = useState<Category>("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSaveReceipt = (newReceipt: Receipt) => {
+    setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
+  };
 
   // Fetch receipts from API
   useEffect(() => {
@@ -56,6 +62,16 @@ export default function Page() {
         endDate={endDate}
         filterTerm={filterTerm}
         category={category}
+      />
+
+      <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)}>
+        + Add Receipt
+      </Button>
+
+      <ReceiptModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveReceipt}
       />
     </PageWrapper>
   );
