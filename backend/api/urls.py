@@ -12,5 +12,5 @@ urlpatterns = [
     path('groups/<int:pk>/', GroupDetail.as_view(), name='group-detail'),
 
     path('groups/<int:group_id>/members/', GroupMembersList.as_view(), name='group-members-list'),
-    path('groups/<int:group_id>/members/<int:pk>', GroupMembersDetail.as_view(), name='group-members-detail'),
+    path('groups/<int:group_id>/members/<int:pk>/', GroupMembersDetail.as_view(), name='group-members-detail'),
 ]

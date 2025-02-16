@@ -1,6 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import ReceiptModal from "@/components/receipts/AddReceipt";
@@ -16,7 +17,9 @@ export default function Page() {
   const [filterTerm, setFilterTerm] = useState("");
   const [category, setCategory] = useState<Category>("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   // const handleSaveReceipt = (newReceipt: Receipt) => {
   //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
   // };
@@ -48,6 +51,23 @@ export default function Page() {
   const handleSaveReceipt = (newReceipt: Receipt) => {
     setReceipts([...receipts, newReceipt]);
     setIsModalOpen(false);
+  }
+
+  const handleOpenDialog = (receipt: Receipt) => {
+    setSelectedReceipt(receipt);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedReceipt(null);
+  };
+
+  const handleSaveReceiptUpdate = (updatedReceipt: Receipt) => {
+    setReceipts((prevReceipts) =>
+      prevReceipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r))
+    );
+    handleCloseDialog();
   };
 
   return (
@@ -68,6 +88,7 @@ export default function Page() {
         endDate={endDate}
         filterTerm={filterTerm}
         category={category}
+        onOpenDialog={handleOpenDialog}
       />
 
       <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)}>
@@ -79,6 +100,15 @@ export default function Page() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveReceipt}
       />
+      
+      {selectedReceipt && (
+        <ReceiptDialog
+          receipt={selectedReceipt}
+          open={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveReceiptUpdate}
+        />
+      )}
     </PageWrapper>
   );
 }

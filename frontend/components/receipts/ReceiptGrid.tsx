@@ -9,6 +9,7 @@ interface IReceiptGridProps {
   endDate: Dayjs | null;
   filterTerm: string;
   category: Category;
+  onOpenDialog: (receipt: Receipt) => void;
 }
 
 export default function ReceiptGrid(props: IReceiptGridProps) {

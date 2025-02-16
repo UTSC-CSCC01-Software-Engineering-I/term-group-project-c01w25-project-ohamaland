@@ -12,6 +12,8 @@ export type Receipt = {
 
 export type Currency = "USD" | "CAD";
 
+export const currencies = ["USD", "CAD"];
+
 export const allCategory = "All";
 
 export type Category =
@@ -30,6 +32,8 @@ export const categories = [
 ];
 
 export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash";
+
+export const paymentMethods = ["credit", "debit", "cash"];
 
 export type ReceiptItem = {
   id: number;
