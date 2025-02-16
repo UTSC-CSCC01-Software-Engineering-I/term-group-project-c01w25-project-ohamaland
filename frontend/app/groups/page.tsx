@@ -1,61 +1,62 @@
 "use client";
 
+import React, { useState } from "react";
+import dayjs, { Dayjs } from "dayjs";
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import ReceiptFilter from "@/components/receipts/ReceiptFilter";
-import ReceiptGrid from "@/components/receipts/ReceiptGrid";
-import { Category, Receipt } from "@/types/receipts";
-import { SelectChangeEvent } from "@mui/material";
-import { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
+import GroupFilter from "../../components/groups/GroupFilter";
+import GroupGrid from "../../components/groups/GroupGrid";
+import { Group } from "@/types/groups";
 
-export default function Page() {
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
+/**
+ * Example data: Hard-code some groups to show in the grid.
+ */
+const mockGroups: Group[] = [
+  {
+    id: 1,
+    creator: 101,
+    name: "Engineering Team",
+    created_at: "2023-02-01T10:30:00Z",
+  },
+  {
+    id: 2,
+    creator: 202,
+    name: "Sales Department",
+    created_at: "2023-03-15T08:00:00Z",
+  },
+  {
+    id: 3,
+    creator: 303,
+    name: "Marketing Crew",
+    created_at: "2023-04-10T16:45:00Z",
+  },
+];
+
+export default function GroupsPage() {
+  // Initialize state with mock data
+  const [groups] = useState<Group[]>(mockGroups);
+
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
-  const [category, setCategory] = useState<Category>("All");
-
-  // Fetch receipts from API
-  useEffect(() => {
-    async function fetchReceipts() {
-      try {
-        console.log("Fetching receipts..."); // ✅ Debugging log
-        const response = await fetch("http://127.0.0.1:8000/api/receipts/");
-        if (!response.ok) {
-          throw new Error("Failed to fetch receipts");
-        }
-        const data = await response.json();
-        console.log("Received Data:", data); // ✅ Debugging log
-        setReceipts(data.receipts);
-      } catch (error) {
-        console.error("Error fetching receipts:", error);
-      }
-    }
-    fetchReceipts();
-  }, []);
-
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setCategory(event.target.value as Category);
-  };
 
   return (
     <PageWrapper>
-      <ReceiptFilter
+      {/* Filter component for Groups */}
+      <GroupFilter
         startDate={startDate}
         endDate={endDate}
         filterTerm={filterTerm}
-        category={category}
         setFilterTerm={setFilterTerm}
         setStartDate={setStartDate}
         setEndDate={setEndDate}
-        handleCategoryChange={handleCategoryChange}
       />
-      <ReceiptGrid
-        receipts={receipts}
+
+      {/* Renders a grid of GroupCards, filtered by date range and text search */}
+      <GroupGrid
+        groups={groups}
         startDate={startDate}
         endDate={endDate}
         filterTerm={filterTerm}
-        category={category}
       />
     </PageWrapper>
   );
