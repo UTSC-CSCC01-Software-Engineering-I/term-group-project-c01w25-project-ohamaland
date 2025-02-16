@@ -78,3 +78,9 @@ class GroupMembersList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         group = Group.objects.get(id=self.kwargs['group_id'])
         serializer.save(group=group)
+
+class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GroupMembersSerializer
+    
+    def get_object(self):
+        return GroupMembers.objects.get(group=self.kwargs['group_id'], id=self.kwargs['pk'])

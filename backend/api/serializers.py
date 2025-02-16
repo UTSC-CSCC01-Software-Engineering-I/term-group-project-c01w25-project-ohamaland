@@ -37,12 +37,15 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = '__all__'
-
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembers
-        fields = ['member']
+        fields = ['id', 'user_id', 'joined_at']
+
+class GroupSerializer(serializers.ModelSerializer):
+    members = GroupMembersSerializer(many=True, read_only=True, source='groupmembers_set')
+    receipts = ReceiptSerializer(many=True, read_only=True, source='receipt_set')
+
+    class Meta:
+        model = Group
+        fields = '__all__'
