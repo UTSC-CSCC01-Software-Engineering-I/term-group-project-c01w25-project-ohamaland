@@ -55,7 +55,7 @@
 - The user authentication system, database setup, CRUD endpoints, and frontend UI components were all implemented as planned.
 - All features were tested and are ready for integration into the next development cycle.
 
-###Pictures:
+### Pictures:
 
 ![Receipt Home Page](https://github.com/user-attachments/assets/5242f0fa-a611-40d5-974d-2034cc55a8bb)
 ![Groups Home Page](https://github.com/user-attachments/assets/5eb7768b-7176-4d03-984a-fe9f1c424b92)
