@@ -9,6 +9,7 @@ interface IReceiptGridProps {
   endDate: Dayjs | null;
   filterTerm: string;
   category: Category;
+  onOpenDialog: (receipt: Receipt) => void;
 }
 
 export default function ReceiptGrid(props: IReceiptGridProps) {
@@ -23,7 +24,11 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   return (
     <Grid2 container spacing={3}>
       {filteredReceipts.map((receipt, index) => (
-        <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
+        <ReceiptCard
+          key={`${receipt.id}-${index}`}
+          receipt={receipt}
+          onClick={() => props.onOpenDialog(receipt)}
+        />
       ))}
     </Grid2>
   );
