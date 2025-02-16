@@ -127,5 +127,18 @@ const modalStyle = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
-  borderRadius: 2
+  borderRadius: 2,
+  "&::-webkit-scrollbar": {
+    width: "8px",
+  },
+  "&::-webkit-scrollbar-track": {
+    background: "transparent",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    borderRadius: "10px",
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+  },
 };
