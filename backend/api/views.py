@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .models import Receipt, Item, Group
-from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer
+from .models import Receipt, Item, Group, GroupMembers
+from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
@@ -26,16 +26,15 @@ class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
 class ItemList(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 
-    def get_queryset(self):
-        # Filter items by the receipt_id provided in the URL
-        receipt_id = self.kwargs['receipt_id']
-        return Item.objects.filter(receipt_id=receipt_id)
-
     # Assures GET request for items under a specific receipt
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response({"items": serializer.data})
+
+    def get_queryset(self):
+        # Filter items by the receipt_id provided in the URL
+        return Item.objects.filter(receipt_id=self.kwargs['receipt_id'])
 
     # Handle POST request to create a new item under a specific receipt
     def perform_create(self, serializer):
@@ -64,3 +63,24 @@ class GroupList(generics.ListCreateAPIView):
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
+
+class GroupMembersList(generics.ListCreateAPIView):
+    serializer_class = GroupMembersSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"members": serializer.data})
+    
+    def get_queryset(self):
+        return GroupMembers.objects.filter(group_id=self.kwargs['group_id'])
+
+    def perform_create(self, serializer):
+        group = Group.objects.get(id=self.kwargs['group_id'])
+        serializer.save(group=group)
+
+class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = GroupMembersSerializer
+    
+    def get_object(self):
+        return GroupMembers.objects.get(group=self.kwargs['group_id'], id=self.kwargs['pk'])
