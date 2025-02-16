@@ -21,31 +21,13 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   );
 
   return (
-    <Grid2
-      container
-      spacing={3}
-      sx={{
-        maxHeight: "500px",
-        overflowY: "auto",
-        "&::-webkit-scrollbar": {
-          width: "8px",
-        },
-        "&::-webkit-scrollbar-track": {
-          background: "transparent",
-        },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: "rgba(0, 0, 0, 0.1)",
-          borderRadius: "10px",
-        },
-        "&::-webkit-scrollbar-thumb:hover": {
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
-        },
-      }}
-    >
-      {filteredReceipts.map((receipt, index) => (
-        <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
-      ))}
-    </Grid2>
+    <div style={{ maxHeight: "60vh", overflowY: "auto", marginTop: "20px" }}>
+      <Grid2 container spacing={3}>
+        {filteredReceipts.map((receipt, index) => (
+          <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
+        ))}
+      </Grid2>
+    </div>
   );
 }
 
