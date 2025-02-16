@@ -12,7 +12,7 @@ class Command(BaseCommand):
                 "total_amount": 420.00,
                 "currency": "CAD",
                 "date": "2024-12-25",
-                "payment_method": "Credit",
+                "payment_method": "credit",
                 "receipt_image_url": "https://example.com/receipt.jpg",
                 "items": [
                     {"name": "Toilet Paper", "category": "Home", "price": 5.00, "quantity": 20},
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 "total_amount": 10.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "Cash",
+                "payment_method": "cash",
                 "receipt_image_url": "https://example.com/receipt2.jpg",
                 "items": [
                     {"name": "Treenuts", "category": "Food", "price": 0.50, "quantity": 20},
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 "total_amount": 12.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "Debit",
+                "payment_method": "debit",
                 "receipt_image_url": "https://example.com/receipt3.jpg",
                 "items": [
                     {"name": "Chicken Nuggets", "category": "Food", "price": 12.00, "quantity": 1},
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 "total_amount": 70.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "Credit",
+                "payment_method": "credit",
                 "receipt_image_url": "https://example.com/receipt4.jpg",
                 "items": [
                     {"name": "Hoodie", "category": "Clothing", "price": 70.00, "quantity": 1},
