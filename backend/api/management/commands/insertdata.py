@@ -18,7 +18,7 @@ class Command(BaseCommand):
                         "currency": "USD",
                         "date": "2024-11-20",
                         "payment_method": "debit",
-                        "receipt_image_url": "https://example.com/receipt-office.jpg",
+                        "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
                             {"name": "Printer Paper", "category": "home", "price": 5.00, "quantity": 10},
                             {"name": "Desk Chair", "category": "furniture", "price": 150.00, "quantity": 1},
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                         "currency": "USD",
                         "date": "2024-12-01",
                         "payment_method": "credit",
-                        "receipt_image_url": "https://example.com/receipt-staples.jpg",
+                        "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
                             {"name": "Notebooks", "category": "home", "price": 3.00, "quantity": 5},
                             {"name": "Pens", "category": "home", "price": 0.50, "quantity": 10},
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 "currency": "CAD",
                 "date": "2024-12-25",
                 "payment_method": "credit",
-                "receipt_image_url": "https://example.com/receipt.jpg",
+                "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Toilet Paper", "category": "home", "price": 5.00, "quantity": 20},
                     {"name": "Toilet",       "category": "fixtures", "price": 320.00, "quantity": 1},
@@ -69,7 +69,7 @@ class Command(BaseCommand):
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "cash",
-                "receipt_image_url": "https://example.com/receipt2.jpg",
+                "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Treenuts", "category": "food", "price": 0.50, "quantity": 20},
                 ],
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "debit",
-                "receipt_image_url": "https://example.com/receipt3.jpg",
+                "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Chicken Nuggets", "category": "food", "price": 12.00, "quantity": 1},
                 ],
@@ -93,7 +93,7 @@ class Command(BaseCommand):
                 "currency": "USD",
                 "date": "2024-12-31",
                 "payment_method": "credit",
-                "receipt_image_url": "https://example.com/receipt4.jpg",
+                "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Hoodie", "category": "clothing", "price": 70.00, "quantity": 1},
                 ],
