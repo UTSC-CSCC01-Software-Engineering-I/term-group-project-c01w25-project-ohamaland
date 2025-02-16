@@ -1,27 +1,30 @@
-import React from "react";
-import { Card, CardContent, Typography } from "@mui/material";
+import Link from "next/link";
+import { Card, CardContent, Typography, Button } from "@mui/material";
 import { Group } from "@/types/groups";
 
 interface IGroupCardProps {
   group: Group;
 }
 
-const GroupCard: React.FC<IGroupCardProps> = ({ group }) => {
+export default function GroupCard({ group }: IGroupCardProps) {
   return (
     <Card sx={{ maxWidth: 400, margin: "1rem auto" }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {group.name}
-        </Typography>
+        <Typography variant="h6">{group.name}</Typography>
         <Typography variant="body2" color="text.secondary">
           Creator: {group.creator}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Created At: {group.created_at}
         </Typography>
+
+        {/* Link to detail page (app/groups/[id]/page.tsx) */}
+        <Link href={`/groups/${group.id}`}>
+          <Button variant="outlined" sx={{ mt: 1 }}>
+            View Details
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );
-};
-
-export default GroupCard;
+}
