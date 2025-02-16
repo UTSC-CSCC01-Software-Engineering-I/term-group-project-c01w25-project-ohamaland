@@ -1,4 +1,4 @@
-import { backgroundOrange } from "@/styles/colors";
+import { backgroundWhite } from "@/styles/colors";
 import { Box, Stack } from "@mui/material";
 import Header from "./Header";
 import SideBar from "./SideBar";
@@ -22,14 +22,14 @@ export default function PageWrapper(props: IPageWrapperProps) {
 
 const pageContainerStyle = {
   height: "100vh",
-  backgroundColor: backgroundOrange
+  backgroundColor: backgroundWhite
 };
 
 const mainContentStyle = {
   display: "flex",
   overflow: "hidden",
   flexGrow: 1,
-  backgroundColor: backgroundOrange
+  backgroundColor: backgroundWhite
 };
 
 const contentAreaStyle = {

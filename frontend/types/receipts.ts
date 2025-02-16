@@ -7,7 +7,7 @@ export type Receipt = {
   date: string; // this is a string but is in ISO date format
   items: ReceiptItem[];
   payment_method: PaymentMethod;
-  receipt_image_url: string;
+  receipt_image_url: string | null;
 };
 
 export type Currency = "USD" | "CAD";

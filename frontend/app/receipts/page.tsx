@@ -4,8 +4,9 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
+import ReceiptModal from "@/components/receipts/AddReceipt";
 import { Category, Receipt } from "@/types/receipts";
-import { SelectChangeEvent } from "@mui/material";
+import { Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -15,8 +16,13 @@ export default function Page() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
   const [category, setCategory] = useState<Category>("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // const handleSaveReceipt = (newReceipt: Receipt) => {
+  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
+  // };
 
   // Fetch receipts from API
   useEffect(() => {
@@ -41,6 +47,12 @@ export default function Page() {
     setCategory(event.target.value as Category);
   };
 
+  // to handle adding a new receipt (temporary, hardcoded for now)
+  const handleSaveReceipt = (newReceipt: Receipt) => {
+    setReceipts([...receipts, newReceipt]);
+    setIsModalOpen(false);
+  }
+
   const handleOpenDialog = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
     setIsDialogOpen(true);
@@ -51,7 +63,7 @@ export default function Page() {
     setSelectedReceipt(null);
   };
 
-  const handleSaveReceipt = (updatedReceipt: Receipt) => {
+  const handleSaveReceiptUpdate = (updatedReceipt: Receipt) => {
     setReceipts((prevReceipts) =>
       prevReceipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r))
     );
@@ -78,12 +90,23 @@ export default function Page() {
         category={category}
         onOpenDialog={handleOpenDialog}
       />
+
+      <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)}>
+        + Add Receipt
+      </Button>
+
+      <ReceiptModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveReceipt}
+      />
+      
       {selectedReceipt && (
         <ReceiptDialog
           receipt={selectedReceipt}
           open={isDialogOpen}
           onClose={handleCloseDialog}
-          onSave={handleSaveReceipt}
+          onSave={handleSaveReceiptUpdate}
         />
       )}
     </PageWrapper>

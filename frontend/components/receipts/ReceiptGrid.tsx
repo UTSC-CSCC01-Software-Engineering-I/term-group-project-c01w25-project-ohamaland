@@ -22,15 +22,40 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   );
 
   return (
-    <Grid2 container spacing={3}>
-      {filteredReceipts.map((receipt, index) => (
-        <ReceiptCard
-          key={`${receipt.id}-${index}`}
-          receipt={receipt}
-          onClick={() => props.onOpenDialog(receipt)}
-        />
-      ))}
-    </Grid2>
+    <div
+      style={{
+        maxHeight: "60vh",
+        overflowY: "auto",
+        marginTop: "20px",
+        backgroundColor: "transparent",
+        paddingRight: "10px"
+      }}
+    >
+      <Grid2 container spacing={3}>
+        {filteredReceipts.map((receipt, index) => (
+          <ReceiptCard key={`${receipt.id}-${index}`} receipt={receipt} />
+        ))}
+      </Grid2>
+      <style jsx global>{`
+        /* Transparent scrollbar style */
+        div::-webkit-scrollbar {
+          width: 8px; /* Scrollbar width */
+        }
+
+        div::-webkit-scrollbar-track {
+          background: transparent; /* Transparent track */
+        }
+
+        div::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.1); /* Slightly visible thumb */
+          border-radius: 10px;
+        }
+
+        div::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(0, 0, 0, 0.2); /* Darker on hover */
+        }
+      `}</style>
+    </div>
   );
 }
 
