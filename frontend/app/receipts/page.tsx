@@ -1,6 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
@@ -14,6 +15,8 @@ export default function Page() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
   const [category, setCategory] = useState<Category>("All");
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch receipts from API
   useEffect(() => {
@@ -38,6 +41,23 @@ export default function Page() {
     setCategory(event.target.value as Category);
   };
 
+  const handleOpenDialog = (receipt: Receipt) => {
+    setSelectedReceipt(receipt);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedReceipt(null);
+  };
+
+  const handleSaveReceipt = (updatedReceipt: Receipt) => {
+    setReceipts((prevReceipts) =>
+      prevReceipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r))
+    );
+    handleCloseDialog();
+  };
+
   return (
     <PageWrapper>
       <ReceiptFilter
@@ -56,7 +76,16 @@ export default function Page() {
         endDate={endDate}
         filterTerm={filterTerm}
         category={category}
+        onOpenDialog={handleOpenDialog}
       />
+      {selectedReceipt && (
+        <ReceiptDialog
+          receipt={selectedReceipt}
+          open={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveReceipt}
+        />
+      )}
     </PageWrapper>
   );
 }
