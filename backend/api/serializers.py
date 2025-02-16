@@ -33,7 +33,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
             
             s3_client.upload_fileobj(image, bucket_name, file_key, ExtraArgs={"ContentType": image.content_type}) # Ensures that it opens the image in the browser
 
-            validated_data["receipt_image_url"] = f"{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+            validated_data["receipt_image_url"] = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
 
         return super().create(validated_data)
 
