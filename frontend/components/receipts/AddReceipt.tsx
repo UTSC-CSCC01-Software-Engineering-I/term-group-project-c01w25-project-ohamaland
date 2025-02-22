@@ -9,8 +9,7 @@ import {
   Stack
 } from "@mui/material";
 import FilePondUpload from "./FileUpload";
-import { Currency, PaymentMethod, categories, Category, ReceiptItem, Receipt } from "@/types/receipts";
-import { FileUpload } from "@mui/icons-material";
+import { Currency, PaymentMethod, ReceiptItem, Receipt } from "@/types/receipts";
 
 interface ReceiptModalProps {
   open: boolean;
