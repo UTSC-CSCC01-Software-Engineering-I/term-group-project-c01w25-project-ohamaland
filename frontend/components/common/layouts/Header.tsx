@@ -1,7 +1,7 @@
 import { lightGrey } from "@/styles/colors";
 import { Box, Link, Typography } from "@mui/material";
-import UserMenu from "../UserMenu";
 import Image from "next/image";
+import UserMenu from "../UserMenu";
 
 export default function Header() {
   return (
@@ -9,12 +9,7 @@ export default function Header() {
       <Box sx={logoContainerStyle}>
         <Box sx={logoWrapperStyle}>
           <Link href="/">
-            <Image
-              src="/catalog.png"
-              width={36}
-              height={36}
-              alt={""}
-            />
+            <Image src="/catalog.png" width={36} height={36} alt={""} />
           </Link>
         </Box>
         <Typography sx={titleTextStyle}>Cat&Log</Typography>
@@ -52,5 +47,5 @@ const logoWrapperStyle = {
   borderRadius: "50%",
   display: "flex",
   justifyContent: "center",
-  alignItems: "center",
-}
+  alignItems: "center"
+};

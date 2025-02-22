@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { FilePond, registerPlugin } from "react-filepond";
-import "filepond/dist/filepond.min.css";
-import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import "filepond/dist/filepond.min.css";
+import { useState } from "react";
+import { FilePond, registerPlugin } from "react-filepond";
 
 registerPlugin(FilePondPluginFileValidateType);
 

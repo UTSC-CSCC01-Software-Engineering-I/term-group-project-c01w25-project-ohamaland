@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { Card, CardContent, Typography, Button } from "@mui/material";
-import { Group } from "@/types/groups";
 import { textGrey } from "@/styles/colors";
+import { Group } from "@/types/groups";
+import { Button, Card, CardContent, Typography } from "@mui/material";
+import Link from "next/link";
 
 interface IGroupCardProps {
   group: Group;
@@ -12,9 +12,7 @@ export default function GroupCard(props: IGroupCardProps) {
     <Card sx={cardStyle}>
       <CardContent>
         <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
-        <Typography sx={textStyle}>
-          Creator: {props.group.creator}
-        </Typography>
+        <Typography sx={textStyle}>Creator: {props.group.creator}</Typography>
         <Typography sx={textStyle}>
           Created At: {props.group.created_at}
         </Typography>
@@ -32,19 +30,19 @@ export default function GroupCard(props: IGroupCardProps) {
 const cardStyle = {
   maxWidth: 400,
   margin: "8px"
-}
+};
 
 const groupnameTextStyle = {
   color: "black",
   fontWeight: 500,
   fontSize: "18px"
-}
+};
 
 const textStyle = {
   color: textGrey,
   fontSize: "14px"
-}
+};
 
 const buttonStyle = {
   marginTop: "8px"
-}
+};

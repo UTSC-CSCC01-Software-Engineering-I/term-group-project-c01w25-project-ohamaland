@@ -1,8 +1,8 @@
 import { Category, Receipt } from "@/types/receipts";
+import { filterReceipts } from "@/utils/filters";
 import { Grid2 } from "@mui/material";
 import { Dayjs } from "dayjs";
 import ReceiptCard from "./ReceiptCard";
-import { filterReceipts } from "@/utils/filters";
 
 interface IReceiptGridProps {
   receipts: Receipt[];
@@ -24,12 +24,12 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 
   return (
     <Grid2 container spacing={3} sx={gridStyle}>
-        {filteredReceipts.map((receipt, index) => (
-          <ReceiptCard
-            key={`${receipt.id}-${index}`}
-            receipt={receipt}
-            onClick={() => props.onOpenDialog(receipt)}
-          />
+      {filteredReceipts.map((receipt, index) => (
+        <ReceiptCard
+          key={`${receipt.id}-${index}`}
+          receipt={receipt}
+          onClick={() => props.onOpenDialog(receipt)}
+        />
       ))}
     </Grid2>
   );
@@ -39,4 +39,4 @@ const gridStyle = {
   maxHeight: "80vh", // TODO: change this in the future using vh is not good should take max possible
   overflowY: "auto",
   marginTop: "24px"
-}
+};
