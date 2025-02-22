@@ -1,12 +1,22 @@
 import { lightGrey } from "@/styles/colors";
 import { Box, Link, Typography } from "@mui/material";
 import UserMenu from "../UserMenu";
+import Image from "next/image";
 
 export default function Header() {
   return (
     <Box sx={headerStyle}>
       <Box sx={logoContainerStyle}>
-        <Link href="/">{/* TODO: Put image of logo here */}</Link>
+        <Box sx={logoWrapperStyle}>
+          <Link href="/">
+            <Image
+              src="/catalog.png"
+              width={36}
+              height={36}
+              alt={""}
+            />
+          </Link>
+        </Box>
         <Typography sx={titleTextStyle}>Cat&Log</Typography>
       </Box>
       <UserMenu />
@@ -15,7 +25,7 @@ export default function Header() {
 }
 
 const headerStyle = {
-  paddingeft: "24px",
+  paddingLeft: "16px",
   paddingRight: "24px",
   backgroundColor: `${lightGrey}`,
   display: "flex",
@@ -35,3 +45,12 @@ const titleTextStyle = {
   fontWeight: "600",
   fontSize: "30px"
 };
+const logoWrapperStyle = {
+  width: "40px",
+  height: "40px",
+  backgroundColor: "white",
+  borderRadius: "50%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+}
