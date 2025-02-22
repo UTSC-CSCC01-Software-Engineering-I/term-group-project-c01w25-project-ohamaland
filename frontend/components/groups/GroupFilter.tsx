@@ -17,14 +17,7 @@ interface IGroupFilterProps {
   setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
 }
 
-export default function GroupFilter({
-  startDate,
-  endDate,
-  filterTerm,
-  setFilterTerm,
-  setStartDate,
-  setEndDate,
-}: IGroupFilterProps) {
+export default function GroupFilter(props: IGroupFilterProps){
   return (
     <Box sx={filterContainerStyle}>
       {/* Searchbar */}
@@ -32,15 +25,15 @@ export default function GroupFilter({
         placeholder="Search groups..."
         startAdornment={<SearchIcon fontSize="medium" sx={iconStyle} />}
         sx={inputStyle}
-        onChange={(e) => setFilterTerm(e.target.value)}
-        value={filterTerm}
+        onChange={(e) => props.setFilterTerm(e.target.value)}
+        value={props.filterTerm}
       />
 
       {/* Start Date Filter */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
-          value={startDate}
-          onChange={(newDate) => setStartDate(newDate)}
+          value={props.startDate}
+          onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
               placeholder: "Choose a start date",
@@ -52,8 +45,8 @@ export default function GroupFilter({
       {/* End Date Filter */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
-          value={endDate}
-          onChange={(newDate) => setEndDate(newDate)}
+          value={props.endDate}
+          onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
               placeholder: "Choose an end date",
