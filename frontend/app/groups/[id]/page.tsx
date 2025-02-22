@@ -1,29 +1,29 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import { Group } from "@/types/groups";
-import { GroupMember } from "@/types/groupMembers";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
+import { GroupMember } from "@/types/groupMembers";
+import { Group } from "@/types/groups";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
-  Typography,
-  Stack,
-  TextField,
-  Button,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  IconButton,
+  Stack,
+  Tab,
   Tabs,
-  Tab
+  TextField,
+  Typography
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function GroupDetailPage() {
   const params = useParams();
@@ -205,7 +205,11 @@ export default function GroupDetailPage() {
                     onChange={(e) => setNewUserId(Number(e.target.value))}
                     sx={{ width: 200 }}
                   />
-                  <Button variant="contained" size="large" onClick={handleAddMember}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleAddMember}
+                  >
                     Add Member
                   </Button>
                 </Stack>

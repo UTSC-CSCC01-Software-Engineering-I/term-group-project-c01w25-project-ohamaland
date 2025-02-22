@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import {
+  Currency,
+  PaymentMethod,
+  Receipt,
+  ReceiptItem
+} from "@/types/receipts";
 import {
   Box,
   Button,
-  Modal,
-  TextField,
   MenuItem,
-  Typography,
-  Stack
+  Modal,
+  Stack,
+  TextField,
+  Typography
 } from "@mui/material";
+import { useState } from "react";
 import FilePondUpload from "./FileUpload";
-import { Currency, PaymentMethod, ReceiptItem, Receipt } from "@/types/receipts";
 
 interface ReceiptModalProps {
   open: boolean;
@@ -17,12 +22,17 @@ interface ReceiptModalProps {
   onSave: (newReceipt: Receipt) => void; // Function to handle saving the receipt
 }
 
-export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProps) {
+export default function ReceiptModal({
+  open,
+  onClose,
+  onSave
+}: ReceiptModalProps) {
   const [merchant, setMerchant] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState<Currency>("USD");
   const [date, setDate] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Credit Card");
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("Credit Card");
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
 
@@ -45,7 +55,7 @@ export default function ReceiptModal({ open, onClose, onSave }: ReceiptModalProp
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle}>
-        <Typography variant="h6" gutterBottom sx={{ color:"black" }}>
+        <Typography variant="h6" gutterBottom sx={{ color: "black" }}>
           Add Receipt
         </Typography>
 
@@ -128,16 +138,16 @@ const modalStyle = {
   p: 4,
   borderRadius: 2,
   "&::-webkit-scrollbar": {
-    width: "8px",
+    width: "8px"
   },
   "&::-webkit-scrollbar-track": {
-    background: "transparent",
+    background: "transparent"
   },
   "&::-webkit-scrollbar-thumb": {
     backgroundColor: "rgba(0, 0, 0, 0.1)",
-    borderRadius: "10px",
+    borderRadius: "10px"
   },
   "&::-webkit-scrollbar-thumb:hover": {
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-  },
+    backgroundColor: "rgba(0, 0, 0, 0.2)"
+  }
 };

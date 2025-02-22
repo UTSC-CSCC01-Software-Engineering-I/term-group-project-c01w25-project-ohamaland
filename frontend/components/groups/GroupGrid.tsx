@@ -1,9 +1,8 @@
-import React from "react";
-import { Dayjs } from "dayjs";
-import { Grid2 } from "@mui/material";
 import { Group } from "@/types/groups";
-import GroupCard from "./GroupCard";
 import { filterGroups } from "@/utils/filters";
+import { Grid2 } from "@mui/material";
+import { Dayjs } from "dayjs";
+import GroupCard from "./GroupCard";
 
 interface IGroupGridProps {
   groups: Group[];

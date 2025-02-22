@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Dayjs } from "dayjs";
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import GroupFilter from "@/components/groups/GroupFilter"; 
-import GroupGrid from "@/components/groups/GroupGrid";  
+import GroupFilter from "@/components/groups/GroupFilter";
+import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
+import { Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
 
 export default function GroupsPage() {
   // State for the fetched groups
@@ -29,7 +29,6 @@ export default function GroupsPage() {
         console.log("Received Group Data:", data);
 
         setGroups(data.groups);
-
       } catch (error) {
         console.error("Error fetching groups:", error);
       }

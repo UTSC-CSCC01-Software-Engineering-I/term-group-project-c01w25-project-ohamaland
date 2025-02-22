@@ -5,8 +5,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Dispatch, SetStateAction } from "react";
 import { Dayjs } from "dayjs";
+import { Dispatch, SetStateAction } from "react";
 
 interface IGroupFilterProps {
   startDate: Dayjs | null;
@@ -17,7 +17,7 @@ interface IGroupFilterProps {
   setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
 }
 
-export default function GroupFilter(props: IGroupFilterProps){
+export default function GroupFilter(props: IGroupFilterProps) {
   return (
     <Box sx={filterContainerStyle}>
       {/* Searchbar */}
@@ -36,8 +36,8 @@ export default function GroupFilter(props: IGroupFilterProps){
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a start date",
-            },
+              placeholder: "Choose a start date"
+            }
           }}
         />
       </LocalizationProvider>
@@ -49,8 +49,8 @@ export default function GroupFilter(props: IGroupFilterProps){
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an end date",
-            },
+              placeholder: "Choose an end date"
+            }
           }}
         />
       </LocalizationProvider>
@@ -66,11 +66,11 @@ const filterContainerStyle = {
   borderRadius: "12px",
   backgroundColor: backgroundWhite,
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  flexWrap: "wrap" as const,
+  flexWrap: "wrap" as const
 };
 
 const iconStyle = {
-  color: textLightGrey,
+  color: textLightGrey
 };
 
 const inputStyle = {
@@ -81,6 +81,6 @@ const inputStyle = {
   "& ::placeholder": {
     color: textLightGrey,
     fontSize: "14px",
-    fontWeight: 400,
-  },
+    fontWeight: 400
+  }
 };

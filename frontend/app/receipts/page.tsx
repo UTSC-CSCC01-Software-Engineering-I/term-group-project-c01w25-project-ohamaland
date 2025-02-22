@@ -1,10 +1,10 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import ReceiptModal from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
-import ReceiptModal from "@/components/receipts/AddReceipt";
 import { Category, Receipt } from "@/types/receipts";
 import { Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
@@ -19,7 +19,7 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   // const handleSaveReceipt = (newReceipt: Receipt) => {
   //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
   // };
@@ -51,7 +51,7 @@ export default function Page() {
   const handleSaveReceipt = (newReceipt: Receipt) => {
     setReceipts([...receipts, newReceipt]);
     setIsModalOpen(false);
-  }
+  };
 
   const handleOpenDialog = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
@@ -91,7 +91,11 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
       />
 
-      <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setIsModalOpen(true)}
+      >
         + Add Receipt
       </Button>
 
@@ -100,7 +104,7 @@ export default function Page() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveReceipt}
       />
-      
+
       {selectedReceipt && (
         <ReceiptDialog
           receipt={selectedReceipt}
