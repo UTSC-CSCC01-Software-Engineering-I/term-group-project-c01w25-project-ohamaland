@@ -61,16 +61,16 @@ class Receipt(models.Model):
 
 class Item(models.Model):
     CATEGORY_CHOICES = [
-        ('home', 'Home'),
-        ('food', 'Food'),
-        ('clothing', 'Clothing'),
-        ('utilities', 'Utilities'),
-        ('entertainment', 'Entertainment'),
-        ('fixtures', 'Fixtures'),
-        ('furniture', 'Furniture'),
-        ('health', 'Health'),
-        ('beauty', 'Beauty'),
-        ('electronics', 'Electronics'),
+        ('Home', 'Home'),
+        ('Food', 'Food'),
+        ('Clothing', 'Clothing'),
+        ('Utilities', 'Utilities'),
+        ('Entertainment', 'Entertainment'),
+        ('Fixtures', 'Fixtures'),
+        ('Furniture', 'Furniture'),
+        ('Health', 'Health'),
+        ('Beauty', 'Beauty'),
+        ('Electronics', 'Electronics'),
     ]
 
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='items')
