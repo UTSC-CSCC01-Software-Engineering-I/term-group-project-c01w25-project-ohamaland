@@ -17,7 +17,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
         fields = ['user_id', 'group', 'merchant', 'total_amount', 'currency',
-                  'date', 'payment_method', 'receipt_image_url', 'items']
+                  'date', 'payment_method', 'receipt_image_url', 'items', 'receipt_image']
 
     def create(self, validated_data):
         image = validated_data.pop("receipt_image", None)
