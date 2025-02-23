@@ -23,9 +23,9 @@ class GroupMembers(models.Model):
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('debit', 'Debit'),
-        ('credit', 'Credit'),
-        ('cash', 'Cash'),
+        ('Debit', 'Debit Card'),
+        ('Credit', 'Credit Card'),
+        ('Cash', 'Cash'),
     ]
 
     user_id = models.IntegerField(null=True, blank=True)
