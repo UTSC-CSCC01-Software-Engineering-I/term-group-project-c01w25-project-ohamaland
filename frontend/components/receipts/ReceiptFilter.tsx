@@ -1,4 +1,4 @@
-import { backgroundWhite, defaultText, textLightGrey } from "@/styles/colors";
+import { defaultText, textLightGrey } from "@/styles/colors";
 import { categories, Category } from "@/types/receipts";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase, SelectChangeEvent } from "@mui/material";
@@ -76,7 +76,7 @@ const filterContainerStyle = {
   gap: "16px",
   padding: "16px",
   borderRadius: "12px",
-  backgroundColor: backgroundWhite,
+  backgroundColor: "white",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
   flexWrap: "wrap" as const
 };
@@ -99,7 +99,7 @@ const inputStyle = {
 
 const formControlStyle = {
   width: "160px",
-  backgroundColor: backgroundWhite,
+  backgroundColor: "white",
   borderRadius: "8px",
   boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
   "& .MuiOutlinedInput-root": {
