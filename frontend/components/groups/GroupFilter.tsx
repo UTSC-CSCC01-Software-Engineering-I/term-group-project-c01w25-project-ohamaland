@@ -59,14 +59,21 @@ export default function GroupFilter(props: IGroupFilterProps) {
 }
 
 const filterContainerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "16px",
-  padding: "16px",
-  borderRadius: "12px",
-  backgroundColor: backgroundWhite,
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  flexWrap: "wrap" as const
+  display: "flex",       // Flexbox for alignment
+  alignItems: "center",  // Vertically center items
+  gap: "16px",           // Space between elements
+  padding: "16px",       // Inner padding
+  borderRadius: "12px",  // Rounded corners
+  backgroundColor: backgroundWhite,  // White background
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)", // Soft shadow effect
+
+  // **Responsive Width Handling**
+  width: "90vw",        // Takes up most of the window but leaves space on both sides
+  margin: "0 auto",    // Centers it within the page
+  paddingX: "5%",      // Adds responsive spacing on the left & right
+
+  // **Ensures the filter remains responsive**
+  flexWrap: "wrap" as const,  // Allows wrapping when the screen is too small
 };
 
 const iconStyle = {

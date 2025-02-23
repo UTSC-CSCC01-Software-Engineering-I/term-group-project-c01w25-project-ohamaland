@@ -28,8 +28,10 @@ export default function GroupCard(props: IGroupCardProps) {
 }
 
 const cardStyle = {
-  maxWidth: 400,
-  margin: "8px"
+  width: "100%",
+  margin: "8px",
+  maxWidth: "100%", // Prevent overflow
+  boxSizing: "border-box" // Ensures padding/margins don’t cause width issues
 };
 
 const groupnameTextStyle = {
