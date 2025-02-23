@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+
 class Group(models.Model):
     creator = models.IntegerField()
     name = models.TextField()
@@ -12,6 +13,7 @@ class Group(models.Model):
     def __str__(self):
         return f"Group {self.name} - {self.creator}"
 
+
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user_id = models.IntegerField()
@@ -20,6 +22,7 @@ class GroupMembers(models.Model):
     class Meta:
         db_table = 'group_members'
         unique_together = ('group', 'user_id')
+
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -54,6 +57,7 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"Receipt {self.id} - {self.merchant}"
+
 
 class Item(models.Model):
     CATEGORY_CHOICES = [
