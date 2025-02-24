@@ -7,7 +7,8 @@ import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
+import ReceiptDialog from "@/components/receipts/ReceiptDialog";
+import { Receipt } from "@/types/receipts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
@@ -34,6 +35,8 @@ export default function GroupDetailPage() {
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [newUserId, setNewUserId] = useState<number>(0);
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchGroup() {
@@ -109,6 +112,47 @@ export default function GroupDetailPage() {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
+
+  const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+    try {
+      const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0];
+  
+      const updatedData = { ...updatedReceipt, date: formattedDate };
+  
+      const response = await fetch(`http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error:", errorData);
+        throw new Error(errorData.detail || "Failed to save the receipt");
+      }
+  
+      const savedReceipt = await response.json();
+      setGroup((prevGroup) =>
+        prevGroup && prevGroup.receipts
+          ? { ...prevGroup, receipts: prevGroup.receipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r)) }
+          : prevGroup
+      );
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error updating receipt:", error);
+    }
+  };  
+  
+  const handleOpenDialog = (receipt: Receipt) => {
+    setSelectedReceipt(receipt);
+    setDialogOpen(true);
+  };
+  
+  const handleCloseDialog = () => {
+    setSelectedReceipt(null);
+    setDialogOpen(false);
+  };
+  
 
   return (
     <PageWrapper>
@@ -205,9 +249,9 @@ export default function GroupDetailPage() {
                   <Stack spacing={2}>
                     {group.receipts.map((receipt) => (
                       <ReceiptCard 
-                      key={receipt.id} 
-                      receipt={receipt} 
-                      onClick={() => console.log(`Clicked View details on receipt ID: ${receipt.id}`)} 
+                        key={receipt.id} 
+                        receipt={receipt} 
+                        onClick={() => handleOpenDialog(receipt)} 
                       />
                     ))}
                   </Stack>
@@ -215,6 +259,15 @@ export default function GroupDetailPage() {
               </CardContent>
             </Card>
           </Box>
+        )}
+
+        {selectedReceipt && (
+          <ReceiptDialog
+            receipt={selectedReceipt}
+            open={dialogOpen}
+            onClose={handleCloseDialog}
+            onSave={handleSaveReceiptUpdate}
+          />
         )}
       </Box>
     </PageWrapper>
