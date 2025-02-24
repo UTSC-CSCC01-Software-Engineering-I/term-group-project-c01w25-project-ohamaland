@@ -21,7 +21,7 @@ import FilePondUpload from "./FileUpload";
 interface IAddReceiptProps {
   open: boolean;
   onClose: () => void;
-  onSave: (newReceipt: Receipt) => void;
+  onSave: (newReceipt: Receipt, file: File | null) => void; // Function to handle saving the receipt
 }
 
 export default function AddReceipt(props: IAddReceiptProps) {
@@ -33,6 +33,7 @@ export default function AddReceipt(props: IAddReceiptProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSave = () => {
     const newReceipt: Receipt = {
@@ -44,9 +45,9 @@ export default function AddReceipt(props: IAddReceiptProps) {
       date,
       payment_method: paymentMethod,
       items,
-      receipt_image_url: receiptImageUrl
+      receipt_image_url: receiptImageUrl || ""
     };
-    onSave(newReceipt);
+    onSave(newReceipt, file);
     onClose();
   };
 
@@ -93,7 +94,6 @@ export default function AddReceipt(props: IAddReceiptProps) {
             onChange={(e) => setDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
-
           <TextField
             select
             label="Payment Method"
@@ -108,16 +108,15 @@ export default function AddReceipt(props: IAddReceiptProps) {
             ))}
           </TextField>
 
-          <FilePondUpload setImageUrl={setReceiptImageUrl} />
-
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Save
-            </Button>
-            <Button variant="outlined" onClick={onClose}>
-              Cancel
-            </Button>
-          </Stack>
+        <FilePondUpload setImageUrl={setReceiptImageUrl} setFile={setFile}/>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Save
+          </Button>
+          <Button variant="outlined" onClick={onClose}>
+            Cancel
+          </Button>
+        </Stack>
         </Stack>
       </Box>
     </Modal>

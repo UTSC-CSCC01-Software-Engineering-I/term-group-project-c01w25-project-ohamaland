@@ -33,7 +33,7 @@ export const categories = [
 
 export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash" | "";
 
-export const paymentMethods = ["credit", "debit", "cash"];
+export const paymentMethods = ["Credit", "Debit", "Cash"];
 
 export type ReceiptItem = {
   id: number;

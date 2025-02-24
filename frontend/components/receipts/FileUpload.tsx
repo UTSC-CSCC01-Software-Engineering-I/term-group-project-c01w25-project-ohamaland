@@ -8,13 +8,15 @@ registerPlugin(FilePondPluginFileValidateType);
 
 interface FilePondUploadProps {
   setImageUrl: (url: string) => void;
+  setFile: (file: File) => void;
 }
 
-export default function FilePondUpload({ setImageUrl }: FilePondUploadProps) {
+export default function FilePondUpload({ setImageUrl, setFile }: FilePondUploadProps) {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   // Simulate setting the image URL (e.g., hardcoded URL for now)
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
+    setFile(file);
     const fileReader = new FileReader();
     fileReader.onloadend = () => {
       const imageUrl = fileReader.result as string; // Simulate the image URL
@@ -36,6 +38,7 @@ export default function FilePondUpload({ setImageUrl }: FilePondUploadProps) {
           const file = fileItems[0]?.file as File; // Cast the file to a `File` type
           if (file) {
             handleFileUpload(file); // Call to simulate file upload
+            setFile(file);
           }
         }}
       />
