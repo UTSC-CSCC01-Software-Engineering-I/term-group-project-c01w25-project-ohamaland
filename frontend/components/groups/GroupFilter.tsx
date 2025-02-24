@@ -37,24 +37,8 @@ export default function GroupFilter(props: IGroupFilterProps) {
           slotProps={{
             textField: {
               placeholder: "Choose a start date",
-              variant: "standard",
-              sx: {
-                "& .MuiOutlinedInput-root": {
-                  border: "none",
-                  boxShadow: "none"
-                },
-                "& fieldset": {
-                  border: "none"
-                },
-                "& .MuiInputBase-input": {
-                  padding: "6px 8px"
-                },
-                "& input:-webkit-autofill": {
-                  WebkitBoxShadow: "0 0 0px 1000px white inset !important",
-                  transition: "background-color 5000s ease-in-out 0s"
-                }
-              }
-            }
+              sx: { ...datePickerStyle },
+            },
           }}
         />
 
@@ -65,24 +49,8 @@ export default function GroupFilter(props: IGroupFilterProps) {
           slotProps={{
             textField: {
               placeholder: "Choose an end date",
-              variant: "standard",
-              sx: {
-                "& .MuiOutlinedInput-root": {
-                  border: "none",
-                  boxShadow: "none"
-                },
-                "& fieldset": {
-                  border: "none"
-                },
-                "& .MuiInputBase-input": {
-                  padding: "6px 8px"
-                },
-                "& input:-webkit-autofill": {
-                  WebkitBoxShadow: "0 0 0px 1000px white inset !important",
-                  transition: "background-color 5000s ease-in-out 0s"
-                }
-              }
-            }
+              sx: { ...datePickerStyle },
+            },
           }}
         />
       </LocalizationProvider>
@@ -99,17 +67,15 @@ const filterContainerStyle = {
   borderRadius: "24px",
   backgroundColor: backgroundWhite,
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-
   width: "clamp(400px, 50vw, 600px)",
   maxWidth: "80vw",
   height: "50px",
   flexWrap: "nowrap",
-
-  margin: "0 auto"
+  margin: "0 auto",
 };
 
 const iconStyle = {
-  color: textLightGrey
+  color: textLightGrey,
 };
 
 const inputStyle = {
@@ -120,6 +86,23 @@ const inputStyle = {
   "& ::placeholder": {
     color: textLightGrey,
     fontSize: "14px",
-    fontWeight: 400
-  }
+    fontWeight: 400,
+  },
+};
+
+const datePickerStyle = {
+  "& .MuiOutlinedInput-root": {
+    border: "none",
+    boxShadow: "none",
+  },
+  "& fieldset": {
+    border: "none",
+  },
+  "& .MuiInputBase-input": {
+    padding: "6px 8px",
+  },
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0px 1000px white inset !important",
+    transition: "background-color 5000s ease-in-out 0s",
+  },
 };

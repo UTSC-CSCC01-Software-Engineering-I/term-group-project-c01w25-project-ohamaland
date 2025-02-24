@@ -40,18 +40,7 @@ export default function GroupsPage() {
   return (
     <PageWrapper>
       {/* Full-Screen Centering for GroupFilter */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: "70px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "clamp(400px, 50vw, 600px)",
-          backgroundColor: "white",
-          borderRadius: "24px",
-          padding: "10px 16px"
-        }}
-      >
+      <Box sx={filterWrapperStyle}>
         <GroupFilter
           startDate={startDate}
           endDate={endDate}
@@ -62,8 +51,8 @@ export default function GroupsPage() {
         />
       </Box>
 
-      {/* GroupGrid is BELOW the Filter */}
-      <Box sx={{ paddingTop: "120px" }}>
+      {/* GroupGrid*/}
+      <Box sx={gridWrapperStyle}>
         <GroupGrid
           groups={groups}
           startDate={startDate}
@@ -74,3 +63,18 @@ export default function GroupsPage() {
     </PageWrapper>
   );
 }
+
+const filterWrapperStyle = {
+  position: "fixed",
+  top: "70px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "clamp(400px, 50vw, 600px)",
+  backgroundColor: "white",
+  borderRadius: "24px",
+  padding: "10px 16px",
+};
+
+const gridWrapperStyle = {
+  paddingTop: "120px",
+};
