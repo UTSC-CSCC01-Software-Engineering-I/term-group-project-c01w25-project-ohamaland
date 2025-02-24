@@ -19,7 +19,7 @@ import FilePondUpload from "./FileUpload";
 interface ReceiptModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (newReceipt: Receipt) => void; // Function to handle saving the receipt
+  onSave: (newReceipt: Receipt, file: File | null) => void; // Function to handle saving the receipt
 }
 
 export default function ReceiptModal({
@@ -35,6 +35,7 @@ export default function ReceiptModal({
     useState<PaymentMethod>("Credit Card");
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSave = () => {
     const newReceipt: Receipt = {
@@ -46,9 +47,9 @@ export default function ReceiptModal({
       date,
       payment_method: paymentMethod,
       items,
-      receipt_image_url: receiptImageUrl
+      receipt_image_url: receiptImageUrl || ""
     };
-    onSave(newReceipt);
+    onSave(newReceipt, file);
     onClose();
   };
 
@@ -106,12 +107,12 @@ export default function ReceiptModal({
           onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
           margin="normal"
         >
-          <MenuItem value="Credit Card">Credit Card</MenuItem>
-          <MenuItem value="Debit Card">Debit Card</MenuItem>
-          <MenuItem value="Cash">Cash</MenuItem>
+          <MenuItem value="credit">Credit</MenuItem>
+          <MenuItem value="debit">Debit Card</MenuItem>
+          <MenuItem value="cash">Cash</MenuItem>
         </TextField>
 
-        <FilePondUpload setImageUrl={setReceiptImageUrl} />
+        <FilePondUpload setImageUrl={setReceiptImageUrl} setFile={setFile}/>
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button variant="contained" color="primary" onClick={handleSave}>
             Save

@@ -48,9 +48,41 @@ export default function Page() {
   };
 
   // to handle adding a new receipt (temporary, hardcoded for now)
-  const handleSaveReceipt = (newReceipt: Receipt) => {
-    setReceipts([...receipts, newReceipt]);
-    setIsModalOpen(false);
+  const handleSaveReceipt = async (newReceipt: Receipt, file : File | null) => {
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+  
+    const formData = new FormData();
+  
+    // Append the receipt image (file)
+    formData.append("receipt_image", file);
+  
+    // Append each field of newReceipt separately as form fields
+    formData.append("merchant", newReceipt.merchant);
+    formData.append("total_amount", newReceipt.total_amount.toString());  // Convert to string if necessary
+    formData.append("currency", newReceipt.currency);
+    formData.append("date", newReceipt.date);
+    formData.append("payment_method", newReceipt.payment_method);
+    formData.append("items", JSON.stringify(newReceipt.items));
+    formData.append("user_id", "1"); // hardcoded
+    
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
+        method: "POST",
+        body: formData,
+      }); 
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to save receipt");
+      } 
+      const savedReceipt = await response.json();  
+      setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
+      setIsModalOpen(false); 
+    } catch (error) {
+      console.error("Error saving receipt:", error);
+    }
   };
 
   const handleOpenDialog = (receipt: Receipt) => {
@@ -63,11 +95,36 @@ export default function Page() {
     setSelectedReceipt(null);
   };
 
-  const handleSaveReceiptUpdate = (updatedReceipt: Receipt) => {
-    setReceipts((prevReceipts) =>
-      prevReceipts.map((r) => (r.id === updatedReceipt.id ? updatedReceipt : r))
-    );
-    handleCloseDialog();
+  const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+    try {
+      const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+
+      const updatedData = {
+        ...updatedReceipt,
+        date: formattedDate,
+      };
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update receipt");
+      }
+      const savedReceipt = await response.json();
+      setReceipts((prevReceipts) =>
+        prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
+      );
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error updating receipt:", error);
+    }
   };
 
   return (
