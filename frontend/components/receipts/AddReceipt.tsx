@@ -18,17 +18,14 @@ import {
 import { useState } from "react";
 import FilePondUpload from "./FileUpload";
 
-interface ReceiptModalProps {
+interface IAddReceiptProps {
   open: boolean;
   onClose: () => void;
   onSave: (newReceipt: Receipt) => void;
 }
 
-export default function AddReceipt({
-  open,
-  onClose,
-  onSave
-}: ReceiptModalProps) {
+export default function AddReceipt(props: IAddReceiptProps) {
+  const { open, onClose, onSave } = props;
   const [merchant, setMerchant] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState<Currency>("");

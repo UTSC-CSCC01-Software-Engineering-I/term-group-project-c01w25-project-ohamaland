@@ -15,7 +15,8 @@ interface IReceiptCardProps {
   onClick: () => void;
 }
 
-export default function ReceiptCard({ receipt, onClick }: IReceiptCardProps) {
+export default function ReceiptCard(props: IReceiptCardProps) {
+  const { receipt, onClick } = props;
   const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
 
   return (

@@ -130,5 +130,4 @@ const filterContainerStyle = {
 const buttonStyle = {
   marginLeft: "8px",
   color: "white"
-  // textTransform: "none", // prevents all-caps text
 };
