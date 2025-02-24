@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+
 class Group(models.Model):
     creator = models.IntegerField()
     name = models.TextField()
@@ -12,6 +13,7 @@ class Group(models.Model):
     def __str__(self):
         return f"Group {self.name} - {self.creator}"
 
+
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user_id = models.IntegerField()
@@ -21,11 +23,12 @@ class GroupMembers(models.Model):
         db_table = 'group_members'
         unique_together = ('group', 'user_id')
 
+
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('debit', 'Debit'),
-        ('credit', 'Credit'),
-        ('cash', 'Cash'),
+        ('Debit', 'Debit Card'),
+        ('Credit', 'Credit Card'),
+        ('Cash', 'Cash'),
     ]
 
     user_id = models.IntegerField(null=True, blank=True)
@@ -55,18 +58,19 @@ class Receipt(models.Model):
     def __str__(self):
         return f"Receipt {self.id} - {self.merchant}"
 
+
 class Item(models.Model):
     CATEGORY_CHOICES = [
-        ('home', 'Home'),
-        ('food', 'Food'),
-        ('clothing', 'Clothing'),
-        ('utilities', 'Utilities'),
-        ('entertainment', 'Entertainment'),
-        ('fixtures', 'Fixtures'),
-        ('furniture', 'Furniture'),
-        ('health', 'Health'),
-        ('beauty', 'Beauty'),
-        ('electronics', 'Electronics'),
+        ('Home', 'Home'),
+        ('Food', 'Food'),
+        ('Clothing', 'Clothing'),
+        ('Utilities', 'Utilities'),
+        ('Entertainment', 'Entertainment'),
+        ('Fixtures', 'Fixtures'),
+        ('Furniture', 'Furniture'),
+        ('Health', 'Health'),
+        ('Beauty', 'Beauty'),
+        ('Electronics', 'Electronics'),
     ]
 
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='items')

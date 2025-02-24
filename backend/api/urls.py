@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import ReceiptList, ReceiptDetail, ItemList, ItemDetail, GroupList, GroupDetail, GroupMembersList, GroupMembersDetail
+from .views import ReceiptList, ReceiptDetail, ItemList, ItemDetail, GroupList, GroupDetail, GroupMembersList, \
+    GroupMembersDetail
 
 urlpatterns = [
     path('receipts/', ReceiptList.as_view(), name='receipt-list-create'),
