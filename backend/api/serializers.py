@@ -7,7 +7,7 @@ from .models import Receipt, Item, Group, GroupMembers
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ['name', 'category', 'price', 'quantity']
+        fields = ['id', 'name', 'category', 'price', 'quantity']
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
@@ -16,8 +16,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Receipt
-        fields = ['user_id', 'group', 'merchant', 'total_amount', 'currency',
-                  'date', 'payment_method', 'receipt_image_url', 'items', 'receipt_image']
+        fields = "__all__"
 
     def create(self, validated_data):
         image = validated_data.pop("receipt_image", None)
@@ -44,7 +43,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembers
-        fields = ['group', 'user_id', 'joined_at']
+        fields = "__all__"
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -53,4 +52,4 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['creator', 'name', 'members', 'receipts']
+        fields = "__all__"
