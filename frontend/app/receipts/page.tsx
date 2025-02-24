@@ -124,6 +124,7 @@ const filterContainerStyle = {
   alignItems: "center",
   gap: "16px",
   marginBottom: "16px",
+  width: "100%",
 };
 
 const buttonStyle = {

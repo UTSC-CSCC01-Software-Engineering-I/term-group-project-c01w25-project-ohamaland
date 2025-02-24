@@ -38,7 +38,7 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a start Date"
+              placeholder: "Choose a Start Date"
             }
           }}
         />

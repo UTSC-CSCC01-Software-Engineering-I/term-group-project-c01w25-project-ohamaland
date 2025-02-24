@@ -6,78 +6,121 @@ import {
   CardMedia,
   Divider,
   Stack,
-  Typography
+  Typography,
+  Button,
 } from "@mui/material";
 import React from "react";
+import { textGrey } from "@/styles/colors";
 
 interface IReceiptCardProps {
   receipt: Receipt;
   onClick: () => void;
 }
 
-const ReceiptCard: React.FC<IReceiptCardProps> = ({ receipt, onClick }) => {
+export default function ReceiptCard({ receipt, onClick }: IReceiptCardProps) {
   const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
 
   return (
-    <Box onClick={onClick} style={{ cursor: "pointer" }}>
-      <Card sx={{ maxWidth: 400, margin: "1rem auto" }}>
-        {receipt.receipt_image_url && (
-          <CardMedia
-            component="img"
-            height="200"
-            image={receipt.receipt_image_url}
-            alt={`Receipt from ${receipt.merchant}`}
-            sx={{ objectFit: "contain" }}
-          />
+    <Card sx={cardStyle} onClick={onClick}>
+      {receipt.receipt_image_url && (
+        <CardMedia
+          component="img"
+          height="200"
+          image={receipt.receipt_image_url}
+          alt={`Receipt from ${receipt.merchant}`}
+          sx={mediaStyle}
+        />
+      )}
+
+      <CardContent>
+        {/* Merchant Name */}
+        <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
+
+        {/* Date & Payment Method */}
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+          <Typography sx={textStyle}>{formattedDate}</Typography>
+          <Typography sx={textStyle}>{receipt.payment_method}</Typography>
+        </Stack>
+
+        {/* Total Amount */}
+        <Typography sx={totalTextStyle}>
+          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
+        </Typography>
+
+        <Divider sx={{ my: 1 }} />
+
+        {/* Items */}
+        <Typography sx={itemsTitleStyle}>Items:</Typography>
+
+        {receipt.items.slice(0, 2).map((item, index) => (
+          <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
+            • {item.name} ({item.category}) x{item.quantity} @ {receipt.currency}{" "}
+            {Number(item.price).toFixed(2)}
+          </Typography>
+        ))}
+
+        {receipt.items.length > 2 && (
+          <Typography sx={moreItemsStyle}>+ {receipt.items.length - 2} more...</Typography>
         )}
 
-        <CardContent>
-          {/* Merchant Name */}
-          <Typography variant="h6" gutterBottom>
-            {receipt.merchant}
-          </Typography>
-
-          {/* Date & Payment Method */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={1}
-          >
-            <Typography variant="body2" color="text.secondary">
-              {formattedDate} {/* Now it is always YYYY-MM-DD */}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {receipt.payment_method}
-            </Typography>
-          </Stack>
-
-          {/* Total Amount */}
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
-          </Typography>
-
-          <Divider sx={{ my: 1 }} />
-
-          {/* Items */}
-          <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-            Items:
-          </Typography>
-
-          {receipt.items?.map((item, index) => (
-            <Typography
-              key={`${item.id}-${index}`}
-              variant="body2"
-              sx={{ ml: 2 }}
-            >
-              • {item.name} ({item.category})
-              {` x${item.quantity} @ ${receipt.currency} ${Number(item.price).toFixed(2)}`}
-            </Typography>
-          ))}
-        </CardContent>
-      </Card>
-    </Box>
+        {/* View Details Button */}
+        <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
+          View Details
+        </Button>
+      </CardContent>
+    </Card>
   );
+}
+
+const cardStyle = {
+  maxWidth: 400,
+  margin: "8px",
+  cursor: "pointer",
 };
 
-export default ReceiptCard;
+const mediaStyle = {
+  objectFit: "contain",
+};
+
+const merchantTextStyle = {
+  fontWeight: 500,
+  fontSize: "18px",
+  color: "black",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
+const textStyle = {
+  fontSize: "14px",
+  color: textGrey,
+};
+
+const totalTextStyle = {
+  fontSize: "16px",
+  fontWeight: 600,
+};
+
+const itemsTitleStyle = {
+  fontSize: "14px",
+  fontWeight: 500,
+  marginBottom: "8px",
+};
+
+const itemTextStyle = {
+  fontSize: "12px",
+  marginLeft: "8px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
+const moreItemsStyle = {
+  fontSize: "12px",
+  color: textGrey,
+  fontStyle: "italic",
+};
+
+const buttonStyle = {
+  marginTop: "8px",
+};
