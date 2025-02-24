@@ -6,7 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import { Button, SelectChangeEvent, Box } from "@mui/material";
+import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -124,11 +124,11 @@ const filterContainerStyle = {
   alignItems: "center",
   gap: "16px",
   marginBottom: "16px",
-  width: "100%",
+  width: "100%"
 };
 
 const buttonStyle = {
   marginLeft: "8px",
-  color: "white",
+  color: "white"
   // textTransform: "none", // prevents all-caps text
 };

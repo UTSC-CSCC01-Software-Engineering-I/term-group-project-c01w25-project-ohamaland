@@ -1,16 +1,14 @@
+import { textGrey } from "@/styles/colors";
 import { Receipt } from "@/types/receipts";
 import {
-  Box,
+  Button,
   Card,
   CardContent,
   CardMedia,
   Divider,
   Stack,
-  Typography,
-  Button,
+  Typography
 } from "@mui/material";
-import React from "react";
-import { textGrey } from "@/styles/colors";
 
 interface IReceiptCardProps {
   receipt: Receipt;
@@ -37,7 +35,12 @@ export default function ReceiptCard({ receipt, onClick }: IReceiptCardProps) {
         <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
 
         {/* Date & Payment Method */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={1}
+        >
           <Typography sx={textStyle}>{formattedDate}</Typography>
           <Typography sx={textStyle}>{receipt.payment_method}</Typography>
         </Stack>
@@ -54,13 +57,15 @@ export default function ReceiptCard({ receipt, onClick }: IReceiptCardProps) {
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} ({item.category}) x{item.quantity} @ {receipt.currency}{" "}
-            {Number(item.price).toFixed(2)}
+            • {item.name} ({item.category}) x{item.quantity} @{" "}
+            {receipt.currency} {Number(item.price).toFixed(2)}
           </Typography>
         ))}
 
         {receipt.items.length > 2 && (
-          <Typography sx={moreItemsStyle}>+ {receipt.items.length - 2} more...</Typography>
+          <Typography sx={moreItemsStyle}>
+            + {receipt.items.length - 2} more...
+          </Typography>
         )}
 
         {/* View Details Button */}
@@ -75,11 +80,11 @@ export default function ReceiptCard({ receipt, onClick }: IReceiptCardProps) {
 const cardStyle = {
   maxWidth: 400,
   margin: "8px",
-  cursor: "pointer",
+  cursor: "pointer"
 };
 
 const mediaStyle = {
-  objectFit: "contain",
+  objectFit: "contain"
 };
 
 const merchantTextStyle = {
@@ -88,23 +93,23 @@ const merchantTextStyle = {
   color: "black",
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textOverflow: "ellipsis",
+  textOverflow: "ellipsis"
 };
 
 const textStyle = {
   fontSize: "14px",
-  color: textGrey,
+  color: textGrey
 };
 
 const totalTextStyle = {
   fontSize: "16px",
-  fontWeight: 600,
+  fontWeight: 600
 };
 
 const itemsTitleStyle = {
   fontSize: "14px",
   fontWeight: 500,
-  marginBottom: "8px",
+  marginBottom: "8px"
 };
 
 const itemTextStyle = {
@@ -112,15 +117,15 @@ const itemTextStyle = {
   marginLeft: "8px",
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textOverflow: "ellipsis",
+  textOverflow: "ellipsis"
 };
 
 const moreItemsStyle = {
   fontSize: "12px",
   color: textGrey,
-  fontStyle: "italic",
+  fontStyle: "italic"
 };
 
 const buttonStyle = {
-  marginTop: "8px",
+  marginTop: "8px"
 };

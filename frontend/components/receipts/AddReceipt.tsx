@@ -4,7 +4,7 @@ import {
   Receipt,
   ReceiptItem,
   currencies,
-  paymentMethods,
+  paymentMethods
 } from "@/types/receipts";
 import {
   Box,
@@ -33,8 +33,7 @@ export default function AddReceipt({
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState<Currency>("");
   const [date, setDate] = useState("");
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
 
@@ -139,12 +138,12 @@ const modalStyle = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
-  borderRadius: 2,
+  borderRadius: 2
 };
 
 const modalTitleStyle = {
   fontSize: "24px",
   fontWeight: 600,
   color: "black",
-  marginBottom: "8px",
+  marginBottom: "8px"
 };
