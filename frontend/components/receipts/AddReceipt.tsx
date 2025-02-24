@@ -59,71 +59,70 @@ export default function AddReceipt({
       <Box sx={modalStyle}>
         <Typography sx={modalTitleStyle}>Add Receipt</Typography>
 
-        <TextField
-          label="Merchant"
-          fullWidth
-          value={merchant}
-          onChange={(e) => setMerchant(e.target.value)}
-          margin="normal"
-        />
+        <Stack spacing={2}>
+          <TextField
+            label="Merchant"
+            fullWidth
+            value={merchant}
+            onChange={(e) => setMerchant(e.target.value)}
+          />
 
-        <TextField
-          label="Total Amount"
-          fullWidth
-          type="number"
-          value={totalAmount}
-          onChange={(e) => setTotalAmount(e.target.value)}
-          margin="normal"
-        />
+          <TextField
+            label="Total Amount"
+            fullWidth
+            type="number"
+            value={totalAmount}
+            onChange={(e) => setTotalAmount(e.target.value)}
+          />
 
-        <TextField
-          select
-          label="Currency"
-          fullWidth
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value as Currency)}
-          margin="normal"
-        >
-          {currencies.map((curr) => (
-            <MenuItem key={curr} value={curr}>
-              {curr}
-            </MenuItem>
-          ))}
-        </TextField>
+          <TextField
+            select
+            label="Currency"
+            fullWidth
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as Currency)}
+          >
+            {currencies.map((curr) => (
+              <MenuItem key={curr} value={curr}>
+                {curr}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <TextField
-          label="Date"
-          type="date"
-          fullWidth
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          margin="normal"
-          InputLabelProps={{ shrink: true }}
-        />
+          <TextField
+            label="Date"
+            type="date"
+            fullWidth
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
 
-        <TextField
-          select
-          label="Payment Method"
-          fullWidth
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-          margin="normal"
-        >
-          {paymentMethods.map((method) => (
-            <MenuItem key={method} value={method}>
-              {method}
-            </MenuItem>
-          ))}
-        </TextField>
+          <TextField
+            select
+            label="Payment Method"
+            fullWidth
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+          >
+            {paymentMethods.map((method) => (
+              <MenuItem key={method} value={method}>
+                {method}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <FilePondUpload setImageUrl={setReceiptImageUrl} />
-        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+          <FilePondUpload setImageUrl={setReceiptImageUrl} />
+
+          {/* Buttons */}
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Save
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </Modal>

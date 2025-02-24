@@ -127,7 +127,7 @@ const filterContainerStyle = {
 };
 
 const buttonStyle = {
-  marginLeft: "16px",
+  marginLeft: "8px",
   color: "white",
   // textTransform: "none", // prevents all-caps text
 };
