@@ -19,5 +19,6 @@ const userMenuStyle = {
 };
 
 const iconStyle = {
-  fontSize: 32
+  fontSize: 32,
+  color: "white"
 };

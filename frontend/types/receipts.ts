@@ -10,7 +10,7 @@ export type Receipt = {
   receipt_image_url: string | null;
 };
 
-export type Currency = "USD" | "CAD";
+export type Currency = "USD" | "CAD" | "";
 
 export const currencies = ["USD", "CAD"];
 
@@ -31,9 +31,9 @@ export const categories = [
   allCategory
 ];
 
-export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash";
+export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash" | "";
 
-export const paymentMethods = ["credit", "debit", "cash"];
+export const paymentMethods = ["Credit", "Debit", "Cash"];
 
 export type ReceiptItem = {
   id: number;
