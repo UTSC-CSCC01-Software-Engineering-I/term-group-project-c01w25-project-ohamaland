@@ -2,6 +2,7 @@
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
+import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { useParams } from "next/navigation";
@@ -136,10 +137,10 @@ export default function GroupDetailPage() {
                 <Typography variant="h6" gutterBottom>
                   {group.name}
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" sx={{ color: textLightGrey }}>
                   <strong>Creator:</strong> {group.creator}
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" sx={{ color: textLightGrey }}>
                   <strong>Created At:</strong> {group.created_at}
                 </Typography>
               </Stack>

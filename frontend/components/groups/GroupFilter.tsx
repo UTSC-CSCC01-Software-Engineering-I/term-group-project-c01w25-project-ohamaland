@@ -29,27 +29,59 @@ export default function GroupFilter(props: IGroupFilterProps) {
         value={props.filterTerm}
       />
 
-      {/* Start Date Filter */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* Start Date Filter */}
         <DatePicker
           value={props.startDate}
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a start date"
+              placeholder: "Choose a start date",
+              variant: "standard",
+              sx: {
+                "& .MuiOutlinedInput-root": {
+                  border: "none",
+                  boxShadow: "none"
+                },
+                "& fieldset": {
+                  border: "none"
+                },
+                "& .MuiInputBase-input": {
+                  padding: "6px 8px"
+                },
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0px 1000px white inset !important",
+                  transition: "background-color 5000s ease-in-out 0s"
+                }
+              }
             }
           }}
         />
-      </LocalizationProvider>
 
-      {/* End Date Filter */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* End Date Filter */}
         <DatePicker
           value={props.endDate}
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an end date"
+              placeholder: "Choose an end date",
+              variant: "standard",
+              sx: {
+                "& .MuiOutlinedInput-root": {
+                  border: "none",
+                  boxShadow: "none"
+                },
+                "& fieldset": {
+                  border: "none"
+                },
+                "& .MuiInputBase-input": {
+                  padding: "6px 8px"
+                },
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0px 1000px white inset !important",
+                  transition: "background-color 5000s ease-in-out 0s"
+                }
+              }
             }
           }}
         />
@@ -59,21 +91,21 @@ export default function GroupFilter(props: IGroupFilterProps) {
 }
 
 const filterContainerStyle = {
-  display: "flex",       // Flexbox for alignment
-  alignItems: "center",  // Vertically center items
-  gap: "16px",           // Space between elements
-  padding: "16px",       // Inner padding
-  borderRadius: "12px",  // Rounded corners
-  backgroundColor: backgroundWhite,  // White background
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)", // Soft shadow effect
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "12px",
+  padding: "10px 16px",
+  borderRadius: "24px",
+  backgroundColor: backgroundWhite,
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
 
-  // **Responsive Width Handling**
-  width: "90vw",        // Takes up most of the window but leaves space on both sides
-  margin: "0 auto",    // Centers it within the page
-  paddingX: "5%",      // Adds responsive spacing on the left & right
+  width: "clamp(400px, 50vw, 600px)",
+  maxWidth: "80vw",
+  height: "50px",
+  flexWrap: "nowrap",
 
-  // **Ensures the filter remains responsive**
-  flexWrap: "wrap" as const,  // Allows wrapping when the screen is too small
+  margin: "0 auto"
 };
 
 const iconStyle = {

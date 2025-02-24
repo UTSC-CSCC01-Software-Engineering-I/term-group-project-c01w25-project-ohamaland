@@ -4,6 +4,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
+import { Box } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -38,23 +39,38 @@ export default function GroupsPage() {
 
   return (
     <PageWrapper>
-      {/* Filter component for Groups */}
-      <GroupFilter
-        startDate={startDate}
-        endDate={endDate}
-        filterTerm={filterTerm}
-        setFilterTerm={setFilterTerm}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
-      />
+      {/* Full-Screen Centering for GroupFilter */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: "70px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "clamp(400px, 50vw, 600px)",
+          backgroundColor: "white",
+          borderRadius: "24px",
+          padding: "10px 16px"
+        }}
+      >
+        <GroupFilter
+          startDate={startDate}
+          endDate={endDate}
+          filterTerm={filterTerm}
+          setFilterTerm={setFilterTerm}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+      </Box>
 
-      {/* GroupGrid shows the filtered groups */}
-      <GroupGrid
-        groups={groups}
-        startDate={startDate}
-        endDate={endDate}
-        filterTerm={filterTerm}
-      />
+      {/* GroupGrid is BELOW the Filter */}
+      <Box sx={{ paddingTop: "120px" }}>
+        <GroupGrid
+          groups={groups}
+          startDate={startDate}
+          endDate={endDate}
+          filterTerm={filterTerm}
+        />
+      </Box>
     </PageWrapper>
   );
 }
