@@ -2,12 +2,10 @@
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
+import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import { Receipt } from "@/types/receipts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -26,6 +24,8 @@ import {
   TextField,
   Typography
 } from "@mui/material";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 export default function GroupDetailPage() {
   const params = useParams();
@@ -115,44 +115,53 @@ export default function GroupDetailPage() {
 
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
-      const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0];
-  
+      const formattedDate = new Date(updatedReceipt.date)
+        .toISOString()
+        .split("T")[0];
+
       const updatedData = { ...updatedReceipt, date: formattedDate };
-  
-      const response = await fetch(`http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-  
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData)
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error:", errorData);
         throw new Error(errorData.detail || "Failed to save the receipt");
       }
-  
+
       const savedReceipt = await response.json();
       setGroup((prevGroup) =>
         prevGroup && prevGroup.receipts
-          ? { ...prevGroup, receipts: prevGroup.receipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r)) }
+          ? {
+              ...prevGroup,
+              receipts: prevGroup.receipts.map((r) =>
+                r.id === savedReceipt.id ? savedReceipt : r
+              )
+            }
           : prevGroup
       );
       handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
     }
-  };  
-  
+  };
+
   const handleOpenDialog = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
     setDialogOpen(true);
   };
-  
+
   const handleCloseDialog = () => {
     setSelectedReceipt(null);
     setDialogOpen(false);
   };
-  
 
   return (
     <PageWrapper>
@@ -192,7 +201,9 @@ export default function GroupDetailPage() {
               <CardHeader title="Members" />
               <CardContent>
                 {members.length === 0 ? (
-                  <Typography sx={noMembersTextStyle}>No members found.</Typography>
+                  <Typography sx={noMembersTextStyle}>
+                    No members found.
+                  </Typography>
                 ) : (
                   <List sx={listStyle}>
                     {members.map((member) => (
@@ -228,7 +239,11 @@ export default function GroupDetailPage() {
                     onChange={(e) => setNewUserId(Number(e.target.value))}
                     sx={textFieldStyle}
                   />
-                  <Button variant="contained" size="large" onClick={handleAddMember}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleAddMember}
+                  >
                     Add Member
                   </Button>
                 </Stack>
@@ -248,10 +263,10 @@ export default function GroupDetailPage() {
                 ) : (
                   <Stack spacing={2}>
                     {group.receipts.map((receipt) => (
-                      <ReceiptCard 
-                        key={receipt.id} 
-                        receipt={receipt} 
-                        onClick={() => handleOpenDialog(receipt)} 
+                      <ReceiptCard
+                        key={receipt.id}
+                        receipt={receipt}
+                        onClick={() => handleOpenDialog(receipt)}
                       />
                     ))}
                   </Stack>
@@ -280,52 +295,52 @@ const containerStyle = {
   marginLeft: "auto",
   marginRight: "auto",
   paddingTop: "32px",
-  paddingBottom: "32px",
+  paddingBottom: "32px"
 };
 
 const titleStyle = {
   fontSize: "24px",
   fontWeight: 700,
-  marginBottom: "16px",
+  marginBottom: "16px"
 };
 
 const subtitleStyle = {
   fontSize: "16px",
   fontWeight: 600,
-  marginBottom: "8px",
+  marginBottom: "8px"
 };
 
 const textStyle = {
   fontSize: "16px",
   fontWeight: 400,
-  color: textLightGrey,
+  color: textLightGrey
 };
 
 const loadingTextStyle = {
   fontSize: "16px",
-  color: "grey",
+  color: "grey"
 };
 
 const cardStyle = {
   marginBottom: "24px",
-  width: "100%",
+  width: "100%"
 };
 
 const tabsStyle = {
   marginBottom: "24px",
-  width: "100%",
+  width: "100%"
 };
 
 const noMembersTextStyle = {
-  marginBottom: "16px",
+  marginBottom: "16px"
 };
 
 const listStyle = {
   marginBottom: "16px",
-  width: "100%",
+  width: "100%"
 };
 
 const textFieldStyle = {
   width: "240px",
-  minWidth: "150px",
+  minWidth: "150px"
 };

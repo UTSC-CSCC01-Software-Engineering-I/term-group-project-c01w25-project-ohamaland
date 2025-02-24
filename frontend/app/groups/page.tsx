@@ -72,9 +72,9 @@ const filterWrapperStyle = {
   width: "clamp(400px, 50vw, 600px)",
   backgroundColor: "white",
   borderRadius: "24px",
-  padding: "10px 16px",
+  padding: "10px 16px"
 };
 
 const gridWrapperStyle = {
-  paddingTop: "120px",
+  paddingTop: "120px"
 };

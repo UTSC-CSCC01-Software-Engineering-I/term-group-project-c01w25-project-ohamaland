@@ -37,8 +37,8 @@ export default function GroupFilter(props: IGroupFilterProps) {
           slotProps={{
             textField: {
               placeholder: "Choose a start date",
-              sx: { ...datePickerStyle },
-            },
+              sx: { ...datePickerStyle }
+            }
           }}
         />
 
@@ -49,8 +49,8 @@ export default function GroupFilter(props: IGroupFilterProps) {
           slotProps={{
             textField: {
               placeholder: "Choose an end date",
-              sx: { ...datePickerStyle },
-            },
+              sx: { ...datePickerStyle }
+            }
           }}
         />
       </LocalizationProvider>
@@ -71,11 +71,11 @@ const filterContainerStyle = {
   maxWidth: "800px",
   height: "48px",
   flexWrap: "nowrap",
-  margin: "0 auto",
+  margin: "0 auto"
 };
 
 const iconStyle = {
-  color: textLightGrey,
+  color: textLightGrey
 };
 
 const inputStyle = {
@@ -86,23 +86,23 @@ const inputStyle = {
   "& ::placeholder": {
     color: textLightGrey,
     fontSize: "16px",
-    fontWeight: 400,
-  },
+    fontWeight: 400
+  }
 };
 
 const datePickerStyle = {
   "& .MuiOutlinedInput-root": {
     border: "none",
-    boxShadow: "none",
+    boxShadow: "none"
   },
   "& fieldset": {
-    border: "none",
+    border: "none"
   },
   "& .MuiInputBase-input": {
-    padding: "6px 8px",
+    padding: "6px 8px"
   },
   "& input:-webkit-autofill": {
     WebkitBoxShadow: "0 0 0px 1000px white inset !important",
-    transition: "background-color 5000s ease-in-out 0s",
-  },
+    transition: "background-color 5000s ease-in-out 0s"
+  }
 };
