@@ -67,6 +67,7 @@ export default function Page() {
     formData.append("payment_method", newReceipt.payment_method);
     formData.append("items", JSON.stringify(newReceipt.items));
     formData.append("user_id", "1"); // hardcoded
+    formData.append("id", newReceipt.id.toString());
     
     try {
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
@@ -98,12 +99,12 @@ export default function Page() {
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
       const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-
+      
       const updatedData = {
         ...updatedReceipt,
         date: formattedDate,
       };
-
+      console.log("Contents of receipt: ", updatedReceipt);
       const response = await fetch(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
@@ -115,7 +116,9 @@ export default function Page() {
         }
       );
       if (!response.ok) {
-        throw new Error("Failed to update receipt");
+        const errorData = await response.json(); // Get the error response body
+        console.error("Error:", errorData);
+        throw new Error(errorData.detail || "Failed to save the receipt");
       }
       const savedReceipt = await response.json();
       setReceipts((prevReceipts) =>

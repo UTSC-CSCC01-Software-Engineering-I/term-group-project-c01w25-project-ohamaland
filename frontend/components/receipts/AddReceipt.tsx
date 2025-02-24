@@ -107,9 +107,9 @@ export default function ReceiptModal({
           onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
           margin="normal"
         >
-          <MenuItem value="credit">Credit</MenuItem>
-          <MenuItem value="debit">Debit Card</MenuItem>
-          <MenuItem value="cash">Cash</MenuItem>
+          <MenuItem value="Credit">Credit Card</MenuItem>
+          <MenuItem value="Debit">Debit Card</MenuItem>
+          <MenuItem value="Cash">Cash</MenuItem>
         </TextField>
 
         <FilePondUpload setImageUrl={setReceiptImageUrl} setFile={setFile}/>
