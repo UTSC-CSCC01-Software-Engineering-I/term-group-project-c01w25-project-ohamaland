@@ -275,22 +275,23 @@ export default function GroupDetailPage() {
 }
 
 const containerStyle = {
-  maxWidth: 900,
+  width: "90%",
+  maxWidth: "100%",
   mx: "auto",
-  pt: 4,
-  pb: 4,
+  pt: "4%",
+  pb: "4%",
 };
 
 const titleStyle = {
-  fontSize: "24px",
+  fontSize: "2vw",
   fontWeight: 700,
-  marginBottom: "16px",
+  marginBottom: "2%",
 };
 
 const subtitleStyle = {
-  fontSize: "18px",
+  fontSize: "1.8vw",
   fontWeight: 600,
-  marginBottom: "8px",
+  marginBottom: "1.5%",
 };
 
 const textStyle = {
@@ -305,22 +306,26 @@ const loadingTextStyle = {
 };
 
 const cardStyle = {
-  mb: 3,
+  mb: "3%",
+  width: "100%",
 };
 
 const tabsStyle = {
-  mb: 3,
+  mb: "3%",
+  width: "100%",
 };
 
 const noMembersTextStyle = {
-  mb: 2,
+  mb: "2%",
 };
 
 const listStyle = {
-  mb: 2,
+  mb: "2%",
   bgcolor: "background.paper",
+  width: "100%",
 };
 
 const textFieldStyle = {
-  width: 200,
+  width: "50%",
+  minWidth: "150px",
 };
