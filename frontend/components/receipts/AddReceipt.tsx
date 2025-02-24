@@ -94,15 +94,13 @@ export default function AddReceipt(props: IAddReceiptProps) {
             onChange={(e) => setDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
-
-        <TextField
-          select
-          label="Payment Method"
-          fullWidth
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-          margin="normal"
-        >
+          <TextField
+            select
+            label="Payment Method"
+            fullWidth
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+          >
             {paymentMethods.map((method) => (
               <MenuItem key={method} value={method}>
                 {method}
