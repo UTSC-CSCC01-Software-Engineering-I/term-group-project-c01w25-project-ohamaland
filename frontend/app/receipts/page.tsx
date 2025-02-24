@@ -6,7 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import { Button, SelectChangeEvent } from "@mui/material";
+import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -72,16 +72,26 @@ export default function Page() {
 
   return (
     <PageWrapper>
-      <ReceiptFilter
-        startDate={startDate}
-        endDate={endDate}
-        filterTerm={filterTerm}
-        category={category}
-        setFilterTerm={setFilterTerm}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
-        handleCategoryChange={handleCategoryChange}
-      />
+      <Box sx={filterContainerStyle}>
+        <ReceiptFilter
+          startDate={startDate}
+          endDate={endDate}
+          filterTerm={filterTerm}
+          category={category}
+          setFilterTerm={setFilterTerm}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+          handleCategoryChange={handleCategoryChange}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setIsModalOpen(true)}
+          sx={buttonStyle}
+        >
+          Add Receipt
+        </Button>
+      </Box>
       <ReceiptGrid
         receipts={receipts}
         startDate={startDate}
@@ -90,14 +100,6 @@ export default function Page() {
         category={category}
         onOpenDialog={handleOpenDialog}
       />
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setIsModalOpen(true)}
-      >
-        + Add Receipt
-      </Button>
 
       <ReceiptModal
         open={isModalOpen}
@@ -116,3 +118,16 @@ export default function Page() {
     </PageWrapper>
   );
 }
+
+const filterContainerStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "16px",
+  marginBottom: "16px",
+  width: "100%"
+};
+
+const buttonStyle = {
+  marginLeft: "8px",
+  color: "white"
+};

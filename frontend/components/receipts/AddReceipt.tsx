@@ -2,7 +2,9 @@ import {
   Currency,
   PaymentMethod,
   Receipt,
-  ReceiptItem
+  ReceiptItem,
+  currencies,
+  paymentMethods
 } from "@/types/receipts";
 import {
   Box,
@@ -16,30 +18,26 @@ import {
 import { useState } from "react";
 import FilePondUpload from "./FileUpload";
 
-interface ReceiptModalProps {
+interface IAddReceiptProps {
   open: boolean;
   onClose: () => void;
-  onSave: (newReceipt: Receipt) => void; // Function to handle saving the receipt
+  onSave: (newReceipt: Receipt) => void;
 }
 
-export default function ReceiptModal({
-  open,
-  onClose,
-  onSave
-}: ReceiptModalProps) {
+export default function AddReceipt(props: IAddReceiptProps) {
+  const { open, onClose, onSave } = props;
   const [merchant, setMerchant] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>("");
   const [date, setDate] = useState("");
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("Credit Card");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
 
   const handleSave = () => {
     const newReceipt: Receipt = {
-      id: Date.now(), // or generate a UUID
-      user_id: 1, // You can replace this with the actual user ID from your app context
+      id: Date.now(),
+      user_id: 1,
       merchant,
       total_amount: parseFloat(totalAmount),
       currency,
@@ -55,70 +53,71 @@ export default function ReceiptModal({
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle}>
-        <Typography variant="h6" gutterBottom sx={{ color: "black" }}>
-          Add Receipt
-        </Typography>
+        <Typography sx={modalTitleStyle}>Add Receipt</Typography>
 
-        <TextField
-          label="Merchant"
-          fullWidth
-          value={merchant}
-          onChange={(e) => setMerchant(e.target.value)}
-          margin="normal"
-        />
+        <Stack spacing={2}>
+          <TextField
+            label="Merchant"
+            fullWidth
+            value={merchant}
+            onChange={(e) => setMerchant(e.target.value)}
+          />
 
-        <TextField
-          label="Total Amount"
-          fullWidth
-          type="number"
-          value={totalAmount}
-          onChange={(e) => setTotalAmount(e.target.value)}
-          margin="normal"
-        />
+          <TextField
+            label="Total Amount"
+            fullWidth
+            type="number"
+            value={totalAmount}
+            onChange={(e) => setTotalAmount(e.target.value)}
+          />
 
-        <TextField
-          select
-          label="Currency"
-          fullWidth
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value as Currency)}
-          margin="normal"
-        >
-          <MenuItem value="USD">USD</MenuItem>
-          <MenuItem value="CAD">CAD</MenuItem>
-        </TextField>
+          <TextField
+            select
+            label="Currency"
+            fullWidth
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as Currency)}
+          >
+            {currencies.map((curr) => (
+              <MenuItem key={curr} value={curr}>
+                {curr}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <TextField
-          label="Date"
-          type="date"
-          fullWidth
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          margin="normal"
-          InputLabelProps={{ shrink: true }}
-        />
+          <TextField
+            label="Date"
+            type="date"
+            fullWidth
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
 
-        <TextField
-          select
-          label="Payment Method"
-          fullWidth
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-          margin="normal"
-        >
-          <MenuItem value="Credit Card">Credit Card</MenuItem>
-          <MenuItem value="Debit Card">Debit Card</MenuItem>
-          <MenuItem value="Cash">Cash</MenuItem>
-        </TextField>
+          <TextField
+            select
+            label="Payment Method"
+            fullWidth
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+          >
+            {paymentMethods.map((method) => (
+              <MenuItem key={method} value={method}>
+                {method}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <FilePondUpload setImageUrl={setReceiptImageUrl} />
-        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+          <FilePondUpload setImageUrl={setReceiptImageUrl} />
+
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Save
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </Modal>
@@ -131,23 +130,17 @@ const modalStyle = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
-  maxHeight: "80vh", // Set max height to 80% of the viewport height
-  overflow: "auto", // Allows scrolling if content overflows
+  maxHeight: "80vh",
+  overflow: "auto",
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
-  borderRadius: 2,
-  "&::-webkit-scrollbar": {
-    width: "8px"
-  },
-  "&::-webkit-scrollbar-track": {
-    background: "transparent"
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
-    borderRadius: "10px"
-  },
-  "&::-webkit-scrollbar-thumb:hover": {
-    backgroundColor: "rgba(0, 0, 0, 0.2)"
-  }
+  borderRadius: 2
+};
+
+const modalTitleStyle = {
+  fontSize: "24px",
+  fontWeight: 600,
+  color: "black",
+  marginBottom: "8px"
 };

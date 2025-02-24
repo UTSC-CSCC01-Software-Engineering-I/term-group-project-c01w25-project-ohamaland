@@ -1,5 +1,5 @@
 import DropDownSelector from "@/components/common/DropDownSelector"; // Ensure this component exists
-import { backgroundWhite, defaultText } from "@/styles/colors";
+import { defaultText } from "@/styles/colors";
 import {
   Category,
   Currency,
@@ -133,7 +133,7 @@ const dialogTitleTextStyle = {
 
 const formControlStyle = {
   width: "160px",
-  backgroundColor: backgroundWhite,
+  backgroundColor: "white",
   borderRadius: "8px",
   boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
   "& .MuiOutlinedInput-root": {

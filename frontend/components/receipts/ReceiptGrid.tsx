@@ -36,7 +36,7 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 }
 
 const gridStyle = {
-  maxHeight: "80vh", // TODO: change this in the future using vh is not good should take max possible
+  maxHeight: "60vh", // TODO: change this in the future using vh is not good should take max possible
   overflowY: "auto",
   marginTop: "24px"
 };
