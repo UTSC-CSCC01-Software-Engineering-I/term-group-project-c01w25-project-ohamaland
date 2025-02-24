@@ -34,11 +34,16 @@ ALLOWED_HOSTS = []
 
 # Application definition
 REST_FRAMEWORK = {
-  "COERCE_DECIMAL_TO_STRING": False
+  "COERCE_DECIMAL_TO_STRING": False,
+  "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
 }
 
 INSTALLED_APPS = [
     'rest_framework',
+    'rest_framework_simplejwt',
     'api.apps.ApiConfig',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -48,6 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     'storages',
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [
@@ -116,6 +122,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+AUTH_USER_MODEL = "api.User"
 
 
 # Internationalization

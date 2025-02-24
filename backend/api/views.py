@@ -1,8 +1,11 @@
-from rest_framework import generics
+from django.contrib.auth import authenticate
+from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Receipt, Item, Group, GroupMembers
-from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer
+from .models import Receipt, Item, Group, GroupMembers, User
+from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer, UserSerializer
 
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
@@ -84,3 +87,33 @@ class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return GroupMembers.objects.get(group=self.kwargs['group_id'], id=self.kwargs['pk'])
+
+
+class UserRegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLoginView(APIView):
+    def post(self, request):
+        identifier = request.data.get('identifier')
+        password = request.data.get('password')
+
+        if not identifier or not password:
+            return Response({"error": "Username/email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=identifier).first()
+        username = user.username if user else identifier
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)

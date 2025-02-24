@@ -1,5 +1,7 @@
-from django.core.exceptions import ValidationError
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Group(models.Model):
@@ -84,3 +86,16 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
+
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    phone_number = PhoneNumberField(null=True, blank=True)
+
+    class Meta:
+        db_table = "user"
+
+    def __str__(self):
+        return self.username

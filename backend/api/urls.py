@@ -1,6 +1,8 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from .views import ReceiptList, ReceiptDetail, ItemList, ItemDetail, GroupList, GroupDetail, GroupMembersList, \
-    GroupMembersDetail
+    GroupMembersDetail, UserRegisterView, UserLoginView
 
 urlpatterns = [
     path('receipts/', ReceiptList.as_view(), name='receipt-list-create'),
@@ -14,4 +16,8 @@ urlpatterns = [
 
     path('groups/<int:group_id>/members/', GroupMembersList.as_view(), name='group-members-list'),
     path('groups/<int:group_id>/members/<int:pk>/', GroupMembersDetail.as_view(), name='group-members-detail'),
+
+    path('user/register/', UserRegisterView.as_view()),
+    path('user/login/', UserLoginView.as_view()),
+    path('user/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]
