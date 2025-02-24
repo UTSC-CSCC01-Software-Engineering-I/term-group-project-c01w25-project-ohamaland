@@ -277,55 +277,55 @@ export default function GroupDetailPage() {
 const containerStyle = {
   width: "90%",
   maxWidth: "100%",
-  mx: "auto",
-  pt: "4%",
-  pb: "4%",
+  marginLeft: "auto",
+  marginRight: "auto",
+  paddingTop: "32px",
+  paddingBottom: "32px",
 };
 
 const titleStyle = {
-  fontSize: "2vw",
+  fontSize: "24px",
   fontWeight: 700,
-  marginBottom: "2%",
+  marginBottom: "16px",
 };
 
 const subtitleStyle = {
-  fontSize: "1.8vw",
+  fontSize: "16px",
   fontWeight: 600,
-  marginBottom: "1.5%",
+  marginBottom: "8px",
 };
 
 const textStyle = {
-  fontSize: "14px",
+  fontSize: "16px",
   fontWeight: 400,
   color: textLightGrey,
 };
 
 const loadingTextStyle = {
-  fontSize: "14px",
+  fontSize: "16px",
   color: "grey",
 };
 
 const cardStyle = {
-  mb: "3%",
+  marginBottom: "24px",
   width: "100%",
 };
 
 const tabsStyle = {
-  mb: "3%",
+  marginBottom: "24px",
   width: "100%",
 };
 
 const noMembersTextStyle = {
-  mb: "2%",
+  marginBottom: "16px",
 };
 
 const listStyle = {
-  mb: "2%",
-  bgcolor: "background.paper",
+  marginBottom: "16px",
   width: "100%",
 };
 
 const textFieldStyle = {
-  width: "50%",
+  width: "240px",
   minWidth: "150px",
 };

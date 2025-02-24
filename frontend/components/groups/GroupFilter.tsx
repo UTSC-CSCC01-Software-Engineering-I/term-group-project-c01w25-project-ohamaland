@@ -62,14 +62,14 @@ const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "12px",
-  padding: "10px 16px",
+  gap: "16px",
+  padding: "8px 16px",
   borderRadius: "24px",
   backgroundColor: backgroundWhite,
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  width: "clamp(400px, 50vw, 600px)",
-  maxWidth: "80vw",
-  height: "50px",
+  width: "720px",
+  maxWidth: "800px",
+  height: "48px",
   flexWrap: "nowrap",
   margin: "0 auto",
 };
@@ -79,13 +79,13 @@ const iconStyle = {
 };
 
 const inputStyle = {
-  fontSize: "14px",
+  fontSize: "16px",
   fontWeight: 400,
   flexGrow: 1,
   color: defaultText,
   "& ::placeholder": {
     color: textLightGrey,
-    fontSize: "14px",
+    fontSize: "16px",
     fontWeight: 400,
   },
 };

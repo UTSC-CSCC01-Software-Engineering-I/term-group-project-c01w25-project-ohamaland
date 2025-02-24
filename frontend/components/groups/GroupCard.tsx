@@ -28,19 +28,19 @@ export default function GroupCard(props: IGroupCardProps) {
 }
 
 const cardStyle = {
-  maxWidth: 400,
+  maxWidth: "400px",
   margin: "8px"
 };
 
 const groupnameTextStyle = {
   color: "black",
   fontWeight: 500,
-  fontSize: "18px"
+  fontSize: "16px"
 };
 
 const textStyle = {
   color: textGrey,
-  fontSize: "14px"
+  fontSize: "16px"
 };
 
 const buttonStyle = {
