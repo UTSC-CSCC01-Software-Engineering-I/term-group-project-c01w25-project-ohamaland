@@ -4,7 +4,7 @@ export type Subscription = {
     merchant: string;
     total_amount: number;
     currency: Currency;
-    renewalDate: string; // this is a string but is in ISO date format
+    renewalTime: string; // this is a string but is in ISO date format
     // items: ReceiptItem[];
     // payment_method: PaymentMethod;
     // receipt_image_url: string | null;
