@@ -11,7 +11,10 @@ interface FilePondUploadProps {
   setFile: (file: File) => void;
 }
 
-export default function FilePondUpload({ setImageUrl, setFile }: FilePondUploadProps) {
+export default function FilePondUpload({
+  setImageUrl,
+  setFile
+}: FilePondUploadProps) {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   // Simulate setting the image URL (e.g., hardcoded URL for now)

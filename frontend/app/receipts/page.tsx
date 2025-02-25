@@ -48,7 +48,7 @@ export default function Page() {
   };
 
   // to handle adding a new receipt (temporary, hardcoded for now)
-  const handleSaveReceipt = async (newReceipt: Receipt, file : File | null) => {
+  const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     if (!file) {
       console.error("No file selected");
       return;
@@ -61,7 +61,7 @@ export default function Page() {
 
     // Append each field of newReceipt separately as form fields
     formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString());  // Convert to string if necessary
+    formData.append("total_amount", newReceipt.total_amount.toString()); // Convert to string if necessary
     formData.append("currency", newReceipt.currency);
     formData.append("date", newReceipt.date);
     formData.append("payment_method", newReceipt.payment_method);
@@ -72,7 +72,7 @@ export default function Page() {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
-        body: formData,
+        body: formData
       });
       console.log(response);
       if (!response.ok) {
@@ -98,11 +98,13 @@ export default function Page() {
 
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
-      const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+      const formattedDate = new Date(updatedReceipt.date)
+        .toISOString()
+        .split("T")[0]; // Convert to YYYY-MM-DD
 
       const updatedData = {
         ...updatedReceipt,
-        date: formattedDate,
+        date: formattedDate
       };
       console.log("Contents of receipt: ", updatedReceipt);
       const response = await fetch(
@@ -110,9 +112,9 @@ export default function Page() {
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(updatedData)
         }
       );
       if (!response.ok) {

@@ -108,15 +108,15 @@ export default function AddReceipt(props: IAddReceiptProps) {
             ))}
           </TextField>
 
-        <FilePondUpload setImageUrl={setReceiptImageUrl} setFile={setFile}/>
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
-        </Stack>
+          <FilePondUpload setImageUrl={setReceiptImageUrl} setFile={setFile} />
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Save
+            </Button>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </Modal>
