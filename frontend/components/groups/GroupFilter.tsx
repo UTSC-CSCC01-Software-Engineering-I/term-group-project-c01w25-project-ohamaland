@@ -99,7 +99,7 @@ const datePickerStyle = {
     border: "none"
   },
   "& .MuiInputBase-input": {
-    padding: "6px 8px"
+    padding: "8px 8px"
   },
   "& input:-webkit-autofill": {
     WebkitBoxShadow: "0 0 0px 1000px white inset !important",
