@@ -3,22 +3,25 @@
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptModal from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
-import ReceiptFilter from "@/components/receipts/ReceiptFilter";
+import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
+import { TimePeriod, Subscription } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [renewalTime, setRenewalTime] = useState<TimePeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
-  const [category, setCategory] = useState<Category>("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [category, setCategory] = useState<Category>("All");
 
   // const handleSaveReceipt = (newReceipt: Receipt) => {
   //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
@@ -28,13 +31,11 @@ export default function Page() {
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        console.log("Fetching receipts..."); // ✅ Debugging log
         const response = await fetch("http://127.0.0.1:8000/api/receipts/");
         if (!response.ok) {
           throw new Error("Failed to fetch receipts");
         }
         const data = await response.json();
-        console.log("Received Data:", data); // ✅ Debugging log
         setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
@@ -42,6 +43,10 @@ export default function Page() {
     }
     fetchReceipts();
   }, []);
+
+  const handleTimePeriodChange = (event: SelectChangeEvent) => {
+    setRenewalTime(event.target.value as TimePeriod);
+  };
 
   const handleCategoryChange = (event: SelectChangeEvent) => {
     setCategory(event.target.value as Category);
@@ -133,15 +138,11 @@ export default function Page() {
   return (
     <PageWrapper>
       <Box sx={filterContainerStyle}>
-        <ReceiptFilter
-          startDate={startDate}
-          endDate={endDate}
+        <SubscriptionFilter
+          renewalTime={renewalTime}
           filterTerm={filterTerm}
-          category={category}
           setFilterTerm={setFilterTerm}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-          handleCategoryChange={handleCategoryChange}
+          handleTimePeriodChange={handleTimePeriodChange}
         />
         <Button
           variant="contained"
@@ -149,7 +150,7 @@ export default function Page() {
           onClick={() => setIsModalOpen(true)}
           sx={buttonStyle}
         >
-          Add Receipt
+          Add Subscription
         </Button>
       </Box>
       <ReceiptGrid
