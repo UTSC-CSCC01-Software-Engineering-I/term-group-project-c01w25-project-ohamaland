@@ -1,5 +1,5 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
-import { timePeriods, TimePeriod } from "@/types/subscriptions";
+import { timePeriods, TimePeriod, billingPeriod, BillingPeriod } from "@/types/subscriptions";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase, SelectChangeEvent } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -31,9 +31,19 @@ export default function ReceiptFilter(props: ISubscriptionFilterProps) {
       <DropDownSelector
         value={props.renewalTime}
         inputId="timeperiod-select-label"
-        label="Renewal Time"
+        label="Renewal Date"
         onChange={props.handleTimePeriodChange}
         options={timePeriods}
+        formControlStyle={formControlStyle}
+      />
+
+      {/* Renewal Date Period Filter*/}
+      <DropDownSelector
+        value={props.renewalTime}
+        inputId="billingperiod-select-label"
+        label="Billing Period"
+        onChange={props.handleTimePeriodChange}
+        options={billingPeriod}
         formControlStyle={formControlStyle}
       />
     </Box>
