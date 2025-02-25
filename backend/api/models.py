@@ -99,3 +99,46 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
+
+class Subscription(models.Model):
+    # PAYMENT_METHOD_CHOICES = [
+    #     ('Debit', 'Debit Card'),
+    #     ('Credit', 'Credit Card'),
+    #     ('Cash', 'Cash'),
+    # ]
+
+    BILLING_PERIOD_CHOICES = [
+        ('Daily', 'Daily'),
+        ('Weekly', 'Weekly'),
+        ('Monthly', 'Monthly'),
+        ('Yearly', 'Yearly'),
+        ('Custom', 'Custom'),
+    ]
+
+    user_id = models.IntegerField(null=True, blank=True)
+    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
+    merchant = models.TextField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3)
+    renewal_date = models.DateField()
+    billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
+    billing_interval = models.PositiveIntegerField(default=1)
+    # payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "subscription"
+
+    def clean(self):
+        if self.user_id and self.group:
+            raise ValidationError("A subscription can only be linked to either a user or a group.")
+        if not self.user_id and not self.group:
+            raise ValidationError("A subscription must be linked to either a user or a group.")
+
+    def save(self, *args, **kwargs):
+        # Clean the instance before saving to validate the constraints
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Subscription {self.id} - {self.merchant}"
