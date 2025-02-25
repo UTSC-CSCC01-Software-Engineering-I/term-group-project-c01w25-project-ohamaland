@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 
 export default function Page() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [renewalTime, setRenewalTime] = useState<TimePeriod>("All");
+  const [renewalDate, setRenewalDate] = useState<TimePeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
 //   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
@@ -40,7 +40,7 @@ export default function Page() {
 //   }, []);
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
-    setRenewalTime(event.target.value as TimePeriod);
+    setRenewalDate(event.target.value as TimePeriod);
   };
 
 //   // to handle adding a new receipt (temporary, hardcoded for now)
@@ -130,7 +130,7 @@ export default function Page() {
     <PageWrapper>
       <Box sx={filterContainerStyle}>
         <SubscriptionFilter
-          renewalTime={renewalTime}
+          renewalTime={renewalDate}
           filterTerm={filterTerm}
           setFilterTerm={setFilterTerm}
           handleTimePeriodChange={handleTimePeriodChange}
@@ -147,7 +147,7 @@ export default function Page() {
       <SubscriptionGrid
         subscriptions={subscriptions}
         filterTerm={filterTerm}
-        renewalTime={renewalTime}
+        renewalTime={renewalDate}
         onOpenDialog={handleOpenDialog}
       />
 

@@ -17,7 +17,7 @@ interface ISubscriptionCardProps {
 
 export default function SubscriptionCard(props: ISubscriptionCardProps) {
   const { subscription, onClick } = props;
-  const formattedDate = subscription.renewalTime.split("T")[0]; // Ensures YYYY-MM-DD
+  const formattedDate = subscription.renewal_date.split("T")[0]; // Ensures YYYY-MM-DD
 
   return (
     <Card sx={cardStyle} onClick={onClick}>
