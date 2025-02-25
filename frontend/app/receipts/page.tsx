@@ -1,7 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import AddReciept from "@/components/receipts/AddReceipt";
+import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
@@ -163,7 +163,7 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
       />
 
-      <AddReciept
+      <AddReceipt
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveReceipt}
