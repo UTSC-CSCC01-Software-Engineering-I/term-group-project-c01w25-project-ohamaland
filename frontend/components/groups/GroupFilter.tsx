@@ -1,6 +1,6 @@
 "use client";
 
-import { backgroundWhite, defaultText, textLightGrey } from "@/styles/colors";
+import { defaultText, textLightGrey } from "@/styles/colors";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -65,7 +65,7 @@ const filterContainerStyle = {
   gap: "16px",
   padding: "8px 16px",
   borderRadius: "24px",
-  backgroundColor: backgroundWhite,
+  backgroundColor: "white",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
   width: "720px",
   maxWidth: "800px",

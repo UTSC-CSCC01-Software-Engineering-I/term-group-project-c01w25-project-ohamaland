@@ -9,5 +9,3 @@ export const darkGrey = "#2e302e";
 export const textLightGrey = "#D4D8DF";
 
 export const textGrey = "#00000099";
-
-export const backgroundWhite = "#FFFFFF";
