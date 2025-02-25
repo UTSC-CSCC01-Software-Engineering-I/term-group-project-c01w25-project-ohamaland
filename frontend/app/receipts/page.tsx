@@ -1,7 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import ReceiptModal from "@/components/receipts/AddReceipt";
+import AddReciept from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
@@ -53,12 +53,12 @@ export default function Page() {
       console.error("No file selected");
       return;
     }
-  
+
     const formData = new FormData();
-  
+
     // Append the receipt image (file)
     formData.append("receipt_image", file);
-  
+
     // Append each field of newReceipt separately as form fields
     formData.append("merchant", newReceipt.merchant);
     formData.append("total_amount", newReceipt.total_amount.toString());  // Convert to string if necessary
@@ -68,19 +68,19 @@ export default function Page() {
     formData.append("items", JSON.stringify(newReceipt.items));
     formData.append("user_id", "1"); // hardcoded
     formData.append("id", newReceipt.id.toString());
-    
+
     try {
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
         body: formData,
-      }); 
+      });
       console.log(response);
       if (!response.ok) {
         throw new Error("Failed to save receipt");
-      } 
-      const savedReceipt = await response.json();  
+      }
+      const savedReceipt = await response.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
     }
@@ -99,7 +99,7 @@ export default function Page() {
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
       const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-      
+
       const updatedData = {
         ...updatedReceipt,
         date: formattedDate,
@@ -161,7 +161,7 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
       />
 
-      <ReceiptModal
+      <AddReciept
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveReceipt}
