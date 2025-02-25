@@ -17,7 +17,7 @@ class Command(BaseCommand):
                         "total_amount": 200.00,
                         "currency": "USD",
                         "date": "2024-11-20",
-                        "payment_method": "debit",
+                        "payment_method": "Debit",
                         "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
                             {"name": "Printer Paper", "category": "home", "price": 5.00, "quantity": 10},
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                         "total_amount": 45.00,
                         "currency": "USD",
                         "date": "2024-12-01",
-                        "payment_method": "credit",
+                        "payment_method": "Credit",
                         "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
                             {"name": "Notebooks", "category": "home", "price": 3.00, "quantity": 5},
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                 "total_amount": 420.00,
                 "currency": "CAD",
                 "date": "2024-12-25",
-                "payment_method": "credit",
+                "payment_method": "Credit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Toilet Paper", "category": "home", "price": 5.00, "quantity": 20},
@@ -68,7 +68,7 @@ class Command(BaseCommand):
                 "total_amount": 10.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "cash",
+                "payment_method": "Cash",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Treenuts", "category": "food", "price": 0.50, "quantity": 20},
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 "total_amount": 12.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "debit",
+                "payment_method": "Debit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Chicken Nuggets", "category": "food", "price": 12.00, "quantity": 1},
@@ -92,7 +92,7 @@ class Command(BaseCommand):
                 "total_amount": 70.00,
                 "currency": "USD",
                 "date": "2024-12-31",
-                "payment_method": "credit",
+                "payment_method": "Credit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
                     {"name": "Hoodie", "category": "clothing", "price": 70.00, "quantity": 1},

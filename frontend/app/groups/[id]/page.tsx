@@ -2,11 +2,11 @@
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
+import ReceiptDialog from "@/components/receipts/ReceiptDialog";
+import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
-
+import { Receipt } from "@/types/receipts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
@@ -24,22 +24,20 @@ import {
   TextField,
   Typography
 } from "@mui/material";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 export default function GroupDetailPage() {
   const params = useParams();
   const groupId = Number(params.id);
 
-  // State for group info
   const [group, setGroup] = useState<Group | null>(null);
-
-  // State for members
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [newUserId, setNewUserId] = useState<number>(0);
-
-  // State for active tab
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Fetch group info (including any nested receipts)
   useEffect(() => {
     async function fetchGroup() {
       try {
@@ -56,7 +54,6 @@ export default function GroupDetailPage() {
     fetchGroup();
   }, [groupId]);
 
-  // Fetch group members from separate endpoint
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -75,7 +72,6 @@ export default function GroupDetailPage() {
     fetchMembers();
   }, [groupId]);
 
-  // Add a new member
   const handleAddMember = async () => {
     if (!newUserId) return;
     try {
@@ -98,7 +94,6 @@ export default function GroupDetailPage() {
     }
   };
 
-  // Remove a member
   const handleRemoveMember = async (memberId: number) => {
     try {
       const res = await fetch(
@@ -114,49 +109,87 @@ export default function GroupDetailPage() {
     }
   };
 
-  // Switch between tabs
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
+  const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+    try {
+      const formattedDate = new Date(updatedReceipt.date)
+        .toISOString()
+        .split("T")[0];
+
+      const updatedData = { ...updatedReceipt, date: formattedDate };
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error:", errorData);
+        throw new Error(errorData.detail || "Failed to save the receipt");
+      }
+
+      const savedReceipt = await response.json();
+      setGroup((prevGroup) =>
+        prevGroup && prevGroup.receipts
+          ? {
+              ...prevGroup,
+              receipts: prevGroup.receipts.map((r) =>
+                r.id === savedReceipt.id ? savedReceipt : r
+              )
+            }
+          : prevGroup
+      );
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error updating receipt:", error);
+    }
+  };
+
+  const handleOpenDialog = (receipt: Receipt) => {
+    setSelectedReceipt(receipt);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedReceipt(null);
+    setDialogOpen(false);
+  };
+
   return (
     <PageWrapper>
-      {/* Centered container */}
-      <Box sx={{ maxWidth: 900, mx: "auto", pt: 4, pb: 4 }}>
-        <Typography variant="h4" sx={{ mb: 3 }}>
-          Group Details
-        </Typography>
+      <Box sx={containerStyle}>
+        <Typography sx={titleStyle}>Group Details</Typography>
 
         {/* GROUP INFO CARD */}
-        <Card variant="outlined" sx={{ mb: 2 }}>
+        <Card variant="outlined" sx={cardStyle}>
           <CardHeader title="Group Information" />
           <CardContent>
             {group ? (
               <Stack spacing={1}>
-                <Typography variant="h6" gutterBottom>
-                  {group.name}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography sx={subtitleStyle}>{group.name}</Typography>
+                <Typography sx={textStyle}>
                   <strong>Creator:</strong> {group.creator}
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography sx={textStyle}>
                   <strong>Created At:</strong> {group.created_at}
                 </Typography>
               </Stack>
             ) : (
-              <Typography>Loading group...</Typography>
+              <Typography sx={loadingTextStyle}>Loading group...</Typography>
             )}
           </CardContent>
         </Card>
 
         {/* TABS for MEMBERS vs RECEIPTS */}
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          textColor="primary"
-          indicatorColor="primary"
-          sx={{ mb: 3 }}
-        >
+        <Tabs value={activeTab} onChange={handleTabChange} sx={tabsStyle}>
           <Tab label="Members" />
           <Tab label="Receipts" />
         </Tabs>
@@ -164,14 +197,15 @@ export default function GroupDetailPage() {
         {/* TAB PANEL: MEMBERS */}
         {activeTab === 0 && (
           <Box>
-            {/* MEMBERS List */}
-            <Card variant="outlined" sx={{ mb: 3 }}>
+            <Card variant="outlined" sx={cardStyle}>
               <CardHeader title="Members" />
               <CardContent>
                 {members.length === 0 ? (
-                  <Typography sx={{ mb: 2 }}>No members found.</Typography>
+                  <Typography sx={noMembersTextStyle}>
+                    No members found.
+                  </Typography>
                 ) : (
-                  <List sx={{ mb: 2, bgcolor: "background.paper" }}>
+                  <List sx={listStyle}>
                     {members.map((member) => (
                       <ListItem
                         key={member.id}
@@ -203,7 +237,7 @@ export default function GroupDetailPage() {
                     variant="outlined"
                     value={newUserId || ""}
                     onChange={(e) => setNewUserId(Number(e.target.value))}
-                    sx={{ width: 200 }}
+                    sx={textFieldStyle}
                   />
                   <Button
                     variant="contained"
@@ -221,7 +255,7 @@ export default function GroupDetailPage() {
         {/* TAB PANEL: RECEIPTS */}
         {activeTab === 1 && (
           <Box>
-            <Card variant="outlined">
+            <Card variant="outlined" sx={cardStyle}>
               <CardHeader title="Group Receipts" />
               <CardContent>
                 {!group?.receipts || group.receipts.length === 0 ? (
@@ -229,7 +263,11 @@ export default function GroupDetailPage() {
                 ) : (
                   <Stack spacing={2}>
                     {group.receipts.map((receipt) => (
-                      <ReceiptCard key={receipt.id} receipt={receipt} />
+                      <ReceiptCard
+                        key={receipt.id}
+                        receipt={receipt}
+                        onClick={() => handleOpenDialog(receipt)}
+                      />
                     ))}
                   </Stack>
                 )}
@@ -237,7 +275,72 @@ export default function GroupDetailPage() {
             </Card>
           </Box>
         )}
+
+        {selectedReceipt && (
+          <ReceiptDialog
+            receipt={selectedReceipt}
+            open={dialogOpen}
+            onClose={handleCloseDialog}
+            onSave={handleSaveReceiptUpdate}
+          />
+        )}
       </Box>
     </PageWrapper>
   );
 }
+
+const containerStyle = {
+  width: "90%",
+  maxWidth: "100%",
+  marginLeft: "auto",
+  marginRight: "auto",
+  paddingTop: "32px",
+  paddingBottom: "32px"
+};
+
+const titleStyle = {
+  fontSize: "24px",
+  fontWeight: 700,
+  marginBottom: "16px"
+};
+
+const subtitleStyle = {
+  fontSize: "16px",
+  fontWeight: 600,
+  marginBottom: "8px"
+};
+
+const textStyle = {
+  fontSize: "16px",
+  fontWeight: 400,
+  color: textLightGrey
+};
+
+const loadingTextStyle = {
+  fontSize: "16px",
+  color: "grey"
+};
+
+const cardStyle = {
+  marginBottom: "24px",
+  width: "100%"
+};
+
+const tabsStyle = {
+  marginBottom: "24px",
+  width: "100%"
+};
+
+const noMembersTextStyle = {
+  marginBottom: "16px"
+};
+
+const listStyle = {
+  marginBottom: "16px",
+  width: "100%"
+};
+
+const textFieldStyle = {
+  width: "240px",
+  minWidth: "150px"
+};

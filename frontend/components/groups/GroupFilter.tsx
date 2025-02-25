@@ -1,6 +1,6 @@
 "use client";
 
-import { backgroundWhite, defaultText, textLightGrey } from "@/styles/colors";
+import { defaultText, textLightGrey } from "@/styles/colors";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -29,27 +29,27 @@ export default function GroupFilter(props: IGroupFilterProps) {
         value={props.filterTerm}
       />
 
-      {/* Start Date Filter */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* Start Date Filter */}
         <DatePicker
           value={props.startDate}
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a start date"
+              placeholder: "Choose a start date",
+              sx: { ...datePickerStyle }
             }
           }}
         />
-      </LocalizationProvider>
 
-      {/* End Date Filter */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {/* End Date Filter */}
         <DatePicker
           value={props.endDate}
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an end date"
+              placeholder: "Choose an end date",
+              sx: { ...datePickerStyle }
             }
           }}
         />
@@ -61,12 +61,17 @@ export default function GroupFilter(props: IGroupFilterProps) {
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "center",
   gap: "16px",
-  padding: "16px",
-  borderRadius: "12px",
-  backgroundColor: backgroundWhite,
+  padding: "8px 16px",
+  borderRadius: "24px",
+  backgroundColor: "white",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  flexWrap: "wrap" as const
+  width: "720px",
+  maxWidth: "800px",
+  height: "48px",
+  flexWrap: "nowrap",
+  margin: "0 auto"
 };
 
 const iconStyle = {
@@ -74,13 +79,30 @@ const iconStyle = {
 };
 
 const inputStyle = {
-  fontSize: "14px",
+  fontSize: "16px",
   fontWeight: 400,
   flexGrow: 1,
   color: defaultText,
   "& ::placeholder": {
     color: textLightGrey,
-    fontSize: "14px",
+    fontSize: "16px",
     fontWeight: 400
+  }
+};
+
+const datePickerStyle = {
+  "& .MuiOutlinedInput-root": {
+    border: "none",
+    boxShadow: "none"
+  },
+  "& fieldset": {
+    border: "none"
+  },
+  "& .MuiInputBase-input": {
+    padding: "8px 8px"
+  },
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0px 1000px white inset !important",
+    transition: "background-color 5000s ease-in-out 0s"
   }
 };
