@@ -84,21 +84,5 @@ export function filterSubscriptions(
   filterTerm: string,
   renewalTime: TimePeriod
 ): Subscription[] {
-  return subscriptions.filter((subscription) => {
-
-    const lowercaseFilterTerm = filterTerm.toLowerCase();
-    const merchantMatch = subscription.merchant
-      .toLowerCase()
-      .includes(lowercaseFilterTerm);
-
-    if (filterTerm && !merchantMatch) {
-      return false;
-    }
-
-    if (renewalTime !== "All") {
-      return false;
-    }
-
-    return true;
-  });
+  return subscriptions;
 }
