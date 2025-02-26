@@ -18,9 +18,9 @@ export default function Page() {
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // const handleSaveReceipt = (newReceipt: Receipt) => {
-  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
-  // };
+  const handleSaveSubscription = (newSubscription: Subscription) => {
+    setSubscriptions((prevSubscriptions) => [...prevSubscriptions, newSubscription]);
+  };
 
   // Fetch receipts from API
 //   useEffect(() => {
@@ -42,13 +42,6 @@ export default function Page() {
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setRenewalDate(event.target.value as TimePeriod);
   };
-
-//   // to handle adding a new receipt (temporary, hardcoded for now)
-//   const handleSaveReceipt = async (newReceipt: Receipt, file : File | null) => {
-//     if (!file) {
-//       console.error("No file selected");
-//       return;
-//     }
 
 //     const formData = new FormData();
 

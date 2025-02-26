@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.models import Receipt, Item, Group, GroupMembers
+from api.models import Receipt, Item, Group, GroupMembers, Subscription
 
 class Command(BaseCommand):
     help = "Insert sample data into the database (Groups, GroupMembers, Receipts, Items)."
@@ -100,6 +100,37 @@ class Command(BaseCommand):
             },
         ]
 
+        # Sample data for user-based Subscriptions
+        subscription_data = [
+            {
+                "user_id": 20,
+                "merchant": "Netflix",
+                "total_amount": 30.00,
+                "currency": "CAD",
+                "renewal_date": "2025-12-25",
+                "billing_period": "Monthly",
+                "billing_interval": "1",
+            },
+            {
+                "user_id": 10,
+                "merchant": "Amazon Prime",
+                "total_amount": 100.00,
+                "currency": "USD",
+                "renewal_date": "2026-11-15",
+                "billing_period": "Yearly",
+                "billing_interval": "1",
+            },
+            {
+                "user_id": 10,
+                "merchant": "PS Plus",
+                "total_amount": 1000,
+                "currency": "CAD",
+                "renewal_date": "2027-01-01",
+                "billing_period": "Yearly",
+                "billing_interval": "3",
+            },
+        ]
+
         self.stdout.write("Deleting old data...")
 
         # Order matters if you have foreign keys. Delete Items first, then Receipts, then GroupMembers, then Groups.
@@ -107,6 +138,7 @@ class Command(BaseCommand):
         Receipt.objects.all().delete()
         GroupMembers.objects.all().delete()
         Group.objects.all().delete()
+        Subscription.objects.all().delete()
 
         self.stdout.write("Inserting new groups and group members...")
 
@@ -167,5 +199,17 @@ class Command(BaseCommand):
                     price=item_data["price"],
                     quantity=item_data["quantity"],
                 )
+
+        # Insert user-based Subscriptions
+        for subscription in subscription_data:
+            Subscription.objects.create(
+                user_id=subscription["user_id"],
+                merchant=subscription["merchant"],
+                total_amount=subscription["total_amount"],
+                currency=subscription["currency"],
+                renewal_date=subscription["renewal_date"],
+                billing_period=subscription["billing_period"],
+                billing_interval=subscription["billing_interval"],
+            )
 
         self.stdout.write(self.style.SUCCESS("Successfully inserted sample Groups, Receipts, and Items!"))
