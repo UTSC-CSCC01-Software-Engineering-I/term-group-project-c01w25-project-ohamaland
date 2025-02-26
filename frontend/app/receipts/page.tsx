@@ -1,7 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import ReceiptModal from "@/components/receipts/AddReceipt";
+import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
@@ -48,39 +48,39 @@ export default function Page() {
   };
 
   // to handle adding a new receipt (temporary, hardcoded for now)
-  const handleSaveReceipt = async (newReceipt: Receipt, file : File | null) => {
+  const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     if (!file) {
       console.error("No file selected");
       return;
     }
-  
+
     const formData = new FormData();
-  
+
     // Append the receipt image (file)
     formData.append("receipt_image", file);
-  
+
     // Append each field of newReceipt separately as form fields
     formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString());  // Convert to string if necessary
+    formData.append("total_amount", newReceipt.total_amount.toString()); // Convert to string if necessary
     formData.append("currency", newReceipt.currency);
     formData.append("date", newReceipt.date);
     formData.append("payment_method", newReceipt.payment_method);
     formData.append("items", JSON.stringify(newReceipt.items));
     formData.append("user_id", "1"); // hardcoded
     formData.append("id", newReceipt.id.toString());
-    
+
     try {
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
-        body: formData,
-      }); 
+        body: formData
+      });
       console.log(response);
       if (!response.ok) {
         throw new Error("Failed to save receipt");
-      } 
-      const savedReceipt = await response.json();  
+      }
+      const savedReceipt = await response.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
     }
@@ -98,11 +98,13 @@ export default function Page() {
 
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
-      const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
-      
+      const formattedDate = new Date(updatedReceipt.date)
+        .toISOString()
+        .split("T")[0]; // Convert to YYYY-MM-DD
+
       const updatedData = {
         ...updatedReceipt,
-        date: formattedDate,
+        date: formattedDate
       };
       console.log("Contents of receipt: ", updatedReceipt);
       const response = await fetch(
@@ -110,9 +112,9 @@ export default function Page() {
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(updatedData)
         }
       );
       if (!response.ok) {
@@ -161,7 +163,7 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
       />
 
-      <ReceiptModal
+      <AddReceipt
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveReceipt}
