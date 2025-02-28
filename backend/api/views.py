@@ -128,3 +128,19 @@ class UserLoginView(APIView):
                 'access': str(refresh.access_token),
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserLogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            
+            if not refresh_token:
+                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": "An error occurred during logout"}, status=status.HTTP_400_BAD_REQUEST)
