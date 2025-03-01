@@ -1,13 +1,17 @@
-import io
+import os
 import re
 import uuid
-import cv2
-import numpy as np
-import pytesseract
 from datetime import datetime
+from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.core.credentials import AzureKeyCredential
 
-# Tesseract OCR Configuration
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"  # Adjust path if needed
+# Load keys from environment variables
+AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT")
+AZURE_KEY = os.getenv("AZURE_KEY")
+
+# Ensure keys are set before proceeding
+if not AZURE_ENDPOINT or not AZURE_KEY:
+    raise ValueError("Azure credentials are missing. Set AZURE_ENDPOINT and AZURE_KEY as environment variables.")
 
 # Categories for classifying items
 CATEGORY_KEYWORDS = {
@@ -17,30 +21,6 @@ CATEGORY_KEYWORDS = {
     "Fixture": ["light", "bulb", "pipe", "mirror"]
 }
 
-def preprocess_image(image_path):
-    """
-    Enhances image quality for better OCR accuracy.
-    """
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)  # Convert to grayscale
-    img = cv2.GaussianBlur(img, (3, 3), 0)  # Reduce noise"
-    _, img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Increase contrast
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)  # Adaptive thresholding
-    return img
-
-def extract_text_tesseract(image_path):
-    """
-    Extracts text using Tesseract OCR as a fallback.
-    """
-    preprocessed_image = preprocess_image(image_path)
-    return pytesseract.image_to_string(preprocessed_image, config="--psm 6")
-
-def extract_text_from_receipt(image_path):
-    """
-    Tries Google Vision OCR first, falls back to Tesseract if needed.
-    """
-    text = extract_text_tesseract(image_path)
-    return text.strip()
-
 def categorize_item(item_name):
     """
     Assigns a category to an item based on predefined keywords.
@@ -49,6 +29,27 @@ def categorize_item(item_name):
         if any(keyword.lower() in item_name.lower() for keyword in keywords):
             return category
     return "Unknown"
+
+def extract_text_azure(image_path):
+    """
+    Extracts text from an image using Azure Form Recognizer.
+    """
+    client = DocumentAnalysisClient(endpoint=AZURE_ENDPOINT, credential=AzureKeyCredential(AZURE_KEY))
+
+    with open(image_path, "rb") as f:
+        poller = client.begin_analyze_document("prebuilt-receipt", document=f)
+        result = poller.result()
+
+    extracted_text = []
+    confidence_scores = []
+
+    for page in result.pages:
+        for word in page.words:
+            extracted_text.append(word.content)
+            confidence_scores.append(word.confidence)
+
+    avg_confidence = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0
+    return " ".join(extracted_text), avg_confidence
 
 def extract_receipt_items(ocr_text):
     """
@@ -63,7 +64,7 @@ def extract_receipt_items(ocr_text):
             "id": uuid.uuid4().int & (1<<32)-1,
             "name": item_name.strip(),
             "category": categorize_item(item_name),
-            "price": float(price),
+            "price": float(price.replace(",", "")),
             "quantity": int(quantity)
         }
         items.append(item_data)
@@ -74,9 +75,9 @@ def extract_receipt_details(ocr_text):
     """
     Extracts structured details like merchant, date, total amount, and payment method.
     """
-    date_pattern = r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b"
-    amount_pattern = r"Total[:\s]*([\d,]+\.\d{2})"
-    merchant_pattern = r"(?i)([A-Za-z\s]+(?:LLC|Inc|Supermarket|Store|Cafe|Restaurant|Shop|Market|House|Circle Co.))"
+    date_pattern = r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{2}[/-]\d{2})"
+    amount_pattern = r"(?:Total|Bill Amount|Grand Total)[:\s]*([\d,]+\.\d{2})"
+    merchant_pattern = r"(?i)([A-Za-z\s&]+(?:LLC|Inc|Supermarket|Store|Cafe|Restaurant|Shop|Market|House|Circle Co\.?))"
     currency_pattern = r"\b(USD|CAD|\$|C\$)\b"
     payment_pattern = r"\b(Credit Card|Debit Card|Cash)\b"
 
@@ -95,7 +96,7 @@ def extract_receipt_details(ocr_text):
             try:
                 formatted_date = datetime.strptime(extracted_date, "%m/%d/%Y").isoformat()
             except ValueError:
-                formatted_date = extracted_date  # Keep original format if parsing fails
+                formatted_date = extracted_date
 
     extracted_currency = currency_match.group(1) if currency_match else "USD"
     extracted_currency = "USD" if extracted_currency == "$" else "CAD" if extracted_currency == "C$" else extracted_currency
@@ -112,7 +113,7 @@ def process_receipt(image_path, user_id):
     """
     Processes a receipt image and extracts structured data.
     """
-    ocr_text = extract_text_from_receipt(image_path)
+    ocr_text, confidence = extract_text_azure(image_path)
     if not ocr_text:
         return {"error": "No text detected"}
 
@@ -128,13 +129,17 @@ def process_receipt(image_path, user_id):
         "date": receipt_data["date"],
         "items": receipt_items,
         "payment_method": receipt_data["payment_method"],
-        "receipt_image_url": None
+        "receipt_image_url": None,
+        "ocr_confidence": confidence  # Added OCR confidence score
     }
 
+# Code below is for testing OCR functionality
 
-
+"""
 if __name__ == "__main__":
     image_path = "image.png"
-    user_id = 1234  # Example user ID
+    user_id = 1234
     receipt = process_receipt(image_path, user_id)
     print(receipt)
+    
+"""
