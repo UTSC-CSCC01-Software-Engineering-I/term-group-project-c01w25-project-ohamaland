@@ -4,8 +4,21 @@ from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    phone_number = PhoneNumberField(null=True, blank=True)
+
+    class Meta:
+        db_table = "user"
+
+    def __str__(self):
+        return self.username
+
+
 class Group(models.Model):
-    creator = models.IntegerField()
+    creator = models.ForeignKey(User, on_delete=models.CASCADE) # SET_NULL?
     name = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -18,7 +31,7 @@ class Group(models.Model):
 
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    user = models. ForeignKey(User, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -33,7 +46,7 @@ class Receipt(models.Model):
         ('Cash', 'Cash'),
     ]
 
-    user_id = models.IntegerField(null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     merchant = models.TextField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -47,9 +60,9 @@ class Receipt(models.Model):
         db_table = "receipt"
 
     def clean(self):
-        if self.user_id and self.group:
+        if self.user and self.group:
             raise ValidationError("A receipt can only be linked to either a user or a group.")
-        if not self.user_id and not self.group:
+        if not self.user and not self.group:
             raise ValidationError("A receipt must be linked to either a user or a group.")
 
     def save(self, *args, **kwargs):
@@ -86,16 +99,3 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
-
-
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=False)
-    last_name = models.CharField(max_length=150, blank=False)
-    phone_number = PhoneNumberField(null=True, blank=True)
-
-    class Meta:
-        db_table = "user"
-
-    def __str__(self):
-        return self.username

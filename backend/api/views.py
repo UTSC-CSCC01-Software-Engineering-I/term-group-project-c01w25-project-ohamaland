@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -11,8 +12,11 @@ from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, Gro
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
 class ReceiptList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ReceiptSerializer
-    queryset = Receipt.objects.all()
+
+    def get_queryset(self):
+        return Receipt.objects.filter(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -21,11 +25,13 @@ class ReceiptList(generics.ListCreateAPIView):
 
 
 class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ReceiptSerializer
     queryset = Receipt.objects.all()
 
 
 class ItemList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     def list(self, request, *args, **kwargs):
@@ -44,6 +50,7 @@ class ItemList(generics.ListCreateAPIView):
 
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     # Not 100% sure whether this works
@@ -52,6 +59,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GroupList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
@@ -62,11 +70,13 @@ class GroupList(generics.ListCreateAPIView):
 
 
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
 
 class GroupMembersList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def list(self, request, *args, **kwargs):
@@ -83,6 +93,7 @@ class GroupMembersList(generics.ListCreateAPIView):
 
 
 class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
@@ -117,3 +128,19 @@ class UserLoginView(APIView):
                 'access': str(refresh.access_token),
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserLogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            
+            if not refresh_token:
+                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": "An error occurred during logout"}, status=status.HTTP_400_BAD_REQUEST)

@@ -44,6 +44,7 @@ REST_FRAMEWORK = {
 INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'api.apps.ApiConfig',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
+
 # Allow CORS
 CORS_ALLOW_ALL_ORIGINS = True  # For development, allow all origins
 
