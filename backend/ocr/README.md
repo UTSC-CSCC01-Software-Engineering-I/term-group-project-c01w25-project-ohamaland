@@ -34,6 +34,7 @@ print(receipt_data)
 
 ### **3️⃣ Example Output**
 
+```python
 {
     "id": 1989493682,
     "user_id": 1234,
@@ -53,3 +54,4 @@ print(receipt_data)
     "receipt_image_url": null,
     "ocr_confidence": 0.9618103448275861
 }
+```
