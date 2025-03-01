@@ -1,8 +1,10 @@
+from decimal import Decimal
 import boto3
 from django.conf import settings
 from rest_framework import serializers
 
-from .models import Receipt, Item, Group, GroupMembers, User
+from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
+from .signals import update_spending_analytics
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,15 +25,25 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True, read_only=True)
+    items = ItemSerializer(many=True, write_only=True)
     receipt_image = serializers.ImageField(required=False)
-
+    user_id = serializers.IntegerField(required=False)
+    
     class Meta:
         model = Receipt
         fields = "__all__"
 
     def create(self, validated_data):
         image = validated_data.pop("receipt_image", None)
+        items_data = validated_data.pop('items', [])
+
+        user_id = validated_data.pop('user', None)
+        validated_data['user'] = User.objects.filter(id=user_id).first() if isinstance(user_id, int) else user_id
+
+        receipt = Receipt.objects.create(**validated_data)
+
+        for item_data in items_data:
+            Item.objects.create(receipt=receipt, **item_data)
 
         if image:
             s3_client = boto3.client(
@@ -49,7 +61,20 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
             validated_data["receipt_image_url"] = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
 
-        return super().create(validated_data)
+        update_spending_analytics(receipt.user_id)
+
+        return receipt
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Convert Decimal fields to float
+        for key, value in data.items():
+            if isinstance(value, Decimal):
+                data[key] = float(value)
+
+        return data
+
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
@@ -65,3 +90,24 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = "__all__"
+
+class SpendingAnalyticsSerializer(serializers.ModelSerializer):
+    category_spending = serializers.SerializerMethodField()
+    class Meta:
+        model = SpendingAnalytics
+        fields = ['user', 'total_spent', 'category_spending', 'period', 'date']
+
+    def get_category_spending(self, obj):
+        """Convert category_spending JSON field to list for frontend processing."""
+        return [{"category": key, "amount": float(value)} for key, value in obj.category_spending.items()]
+
+    def to_representation(self, instance):
+        """Convert Decimal fields to float for JSON serialization."""
+        data = super().to_representation(instance)
+
+        # Ensure price fields (or any DecimalField) are converted
+        for key, value in data.items():
+            if isinstance(value, Decimal):
+                data[key] = float(value)
+
+        return data

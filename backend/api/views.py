@@ -3,12 +3,16 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
 
-from .models import Receipt, Item, Group, GroupMembers, User
-from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer, UserSerializer
+from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
+from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer, UserSerializer, SpendingAnalyticsSerializer
 
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
+
+User = get_user_model()
 
 class ReceiptList(generics.ListCreateAPIView):
     serializer_class = ReceiptSerializer
@@ -116,4 +120,14 @@ class UserLoginView(APIView):
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             })
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)    
+
+
+class SpendingAnalyticsView(generics.ListAPIView):
+    serializer_class = SpendingAnalyticsSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+
+        return SpendingAnalytics.objects.filter(user=user).order_by("-date")

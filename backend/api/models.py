@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.timezone import now
 
 
 class Group(models.Model):
@@ -26,6 +27,19 @@ class GroupMembers(models.Model):
         unique_together = ('group', 'user_id')
 
 
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    phone_number = PhoneNumberField(null=True, blank=True)
+
+    class Meta:
+        db_table = "user"
+
+    def __str__(self):
+        return self.username
+    
+    
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('Debit', 'Debit Card'),
@@ -33,7 +47,7 @@ class Receipt(models.Model):
         ('Cash', 'Cash'),
     ]
 
-    user_id = models.IntegerField(null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="receipts")
     group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     merchant = models.TextField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -86,16 +100,24 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
-
-
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=False)
-    last_name = models.CharField(max_length=150, blank=False)
-    phone_number = PhoneNumberField(null=True, blank=True)
+    
+    
+class SpendingAnalytics(models.Model):
+    TIME_CHOICES = [
+        ('Weekly', 'Weekly'),
+        ('Monthly', 'Monthly'),
+        ('Quarterly', 'Quarterly'),
+        ('Yearly', 'Yearly')
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category_spending =models.JSONField(default=dict)
+    total_spent = models.DecimalField(max_digits=10, decimal_places=2)
+    period = models.TextField(max_length=20, choices = TIME_CHOICES)
+    date = models.DateField(default=now)
 
     class Meta:
-        db_table = "user"
+        db_table = "spending_analytics"
+        unique_together = ('user', 'period', 'date')
 
     def __str__(self):
-        return self.username
+        return f"{self.user.username} - {self.period} - {self.date} - Total Spent: {self.total_spent}"
