@@ -5,8 +5,21 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.utils.timezone import now
 
 
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
+    phone_number = PhoneNumberField(null=True, blank=True)
+
+    class Meta:
+        db_table = "user"
+
+    def __str__(self):
+        return self.username
+
+
 class Group(models.Model):
-    creator = models.IntegerField()
+    creator = models.ForeignKey(User, on_delete=models.CASCADE) # SET_NULL?
     name = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -19,25 +32,12 @@ class Group(models.Model):
 
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    user = models. ForeignKey(User, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'group_members'
         unique_together = ('group', 'user_id')
-
-
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=False)
-    last_name = models.CharField(max_length=150, blank=False)
-    phone_number = PhoneNumberField(null=True, blank=True)
-
-    class Meta:
-        db_table = "user"
-
-    def __str__(self):
-        return self.username
     
     
 class Receipt(models.Model):
@@ -61,9 +61,9 @@ class Receipt(models.Model):
         db_table = "receipt"
 
     def clean(self):
-        if self.user_id and self.group:
+        if self.user and self.group:
             raise ValidationError("A receipt can only be linked to either a user or a group.")
-        if not self.user_id and not self.group:
+        if not self.user and not self.group:
             raise ValidationError("A receipt must be linked to either a user or a group.")
 
     def save(self, *args, **kwargs):

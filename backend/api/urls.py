@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import ReceiptList, ReceiptDetail, ItemList, ItemDetail, GroupList, GroupDetail, GroupMembersList, \
-    GroupMembersDetail, UserRegisterView, UserLoginView, SpendingAnalyticsView
+    GroupMembersDetail, UserRegisterView, UserLoginView, UserLogoutView, SpendingAnalyticsView
 
 urlpatterns = [
     path('receipts/', ReceiptList.as_view(), name='receipt-list-create'),
@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('user/register/', UserRegisterView.as_view(), name='user-register'),
     path('user/login/', UserLoginView.as_view()),
+    path('user/logout/', UserLogoutView.as_view()),
     path('user/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
     path('analytics/spending/', SpendingAnalyticsView.as_view(), name='spending-analytics'),
