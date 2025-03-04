@@ -36,7 +36,7 @@ class GroupMembers(models.Model):
 
     class Meta:
         db_table = "group_members"
-        unique_together = ("group", "user_id")
+        unique_together = ("group", "user")
 
 
 class Receipt(models.Model):
