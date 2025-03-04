@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.models import Receipt, Item, Group, GroupMembers, Subscription, User
+from api.models import Receipt, Item, Group, GroupMembers, User
 from django.utils.timezone import now
 
 
@@ -247,6 +247,13 @@ class Command(BaseCommand):
 
         # Insert user-based Receipts + Items
         for receipt_data in receipts_data:
+            # Ensure receipt is linked to exactly one of user or group
+            if ("user_id" in receipt_data and "group" in receipt_data) or (
+                "user_id" not in receipt_data and "group" not in receipt_data
+            ):
+                raise ValueError(
+                    "A receipt must be linked to either a user or a group, but not both."
+                )
             new_receipt = Receipt.objects.create(
                 user_id=receipt_data["user_id"],
                 merchant=receipt_data["merchant"],
