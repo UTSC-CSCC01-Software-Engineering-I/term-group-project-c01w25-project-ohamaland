@@ -18,7 +18,7 @@ class User(AbstractUser):
 
 
 class Group(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.CASCADE) # SET_NULL?
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)  # SET_NULL?
     name = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -31,19 +31,19 @@ class Group(models.Model):
 
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user = models. ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'group_members'
-        unique_together = ('group', 'user_id')
+        db_table = "group_members"
+        unique_together = ("group", "user_id")
 
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('Debit', 'Debit Card'),
-        ('Credit', 'Credit Card'),
-        ('Cash', 'Cash'),
+        ("Debit", "Debit Card"),
+        ("Credit", "Credit Card"),
+        ("Cash", "Cash"),
     ]
 
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
@@ -52,7 +52,9 @@ class Receipt(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3)
     date = models.DateField()
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
+    payment_method = models.CharField(
+        max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True
+    )
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -61,9 +63,13 @@ class Receipt(models.Model):
 
     def clean(self):
         if self.user and self.group:
-            raise ValidationError("A receipt can only be linked to either a user or a group.")
+            raise ValidationError(
+                "A receipt can only be linked to either a user or a group."
+            )
         if not self.user and not self.group:
-            raise ValidationError("A receipt must be linked to either a user or a group.")
+            raise ValidationError(
+                "A receipt must be linked to either a user or a group."
+            )
 
     def save(self, *args, **kwargs):
         # Clean the instance before saving to validate the constraints
@@ -76,19 +82,19 @@ class Receipt(models.Model):
 
 class Item(models.Model):
     CATEGORY_CHOICES = [
-        ('Home', 'Home'),
-        ('Food', 'Food'),
-        ('Clothing', 'Clothing'),
-        ('Utilities', 'Utilities'),
-        ('Entertainment', 'Entertainment'),
-        ('Fixtures', 'Fixtures'),
-        ('Furniture', 'Furniture'),
-        ('Health', 'Health'),
-        ('Beauty', 'Beauty'),
-        ('Electronics', 'Electronics'),
+        ("Home", "Home"),
+        ("Food", "Food"),
+        ("Clothing", "Clothing"),
+        ("Utilities", "Utilities"),
+        ("Entertainment", "Entertainment"),
+        ("Fixtures", "Fixtures"),
+        ("Furniture", "Furniture"),
+        ("Health", "Health"),
+        ("Beauty", "Beauty"),
+        ("Electronics", "Electronics"),
     ]
 
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='items')
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="items")
     name = models.TextField()
     category = models.TextField(blank=True, null=True, choices=CATEGORY_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)

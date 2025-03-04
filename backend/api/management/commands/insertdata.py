@@ -1,8 +1,11 @@
 from django.core.management.base import BaseCommand
 from api.models import Receipt, Item, Group, GroupMembers
 
+
 class Command(BaseCommand):
-    help = "Insert sample data into the database (Groups, GroupMembers, Receipts, Items)."
+    help = (
+        "Insert sample data into the database (Groups, GroupMembers, Receipts, Items)."
+    )
 
     def handle(self, *args, **kwargs):
         # Sample data for Groups
@@ -20,8 +23,18 @@ class Command(BaseCommand):
                         "payment_method": "Debit",
                         "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
-                            {"name": "Printer Paper", "category": "home", "price": 5.00, "quantity": 10},
-                            {"name": "Desk Chair", "category": "furniture", "price": 150.00, "quantity": 1},
+                            {
+                                "name": "Printer Paper",
+                                "category": "home",
+                                "price": 5.00,
+                                "quantity": 10,
+                            },
+                            {
+                                "name": "Desk Chair",
+                                "category": "furniture",
+                                "price": 150.00,
+                                "quantity": 1,
+                            },
                         ],
                     },
                 ],
@@ -39,8 +52,18 @@ class Command(BaseCommand):
                         "payment_method": "Credit",
                         "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                         "items": [
-                            {"name": "Notebooks", "category": "home", "price": 3.00, "quantity": 5},
-                            {"name": "Pens", "category": "home", "price": 0.50, "quantity": 10},
+                            {
+                                "name": "Notebooks",
+                                "category": "home",
+                                "price": 3.00,
+                                "quantity": 5,
+                            },
+                            {
+                                "name": "Pens",
+                                "category": "home",
+                                "price": 0.50,
+                                "quantity": 10,
+                            },
                         ],
                     },
                 ],
@@ -58,8 +81,18 @@ class Command(BaseCommand):
                 "payment_method": "Credit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
-                    {"name": "Toilet Paper", "category": "home", "price": 5.00, "quantity": 20},
-                    {"name": "Toilet",       "category": "fixtures", "price": 320.00, "quantity": 1},
+                    {
+                        "name": "Toilet Paper",
+                        "category": "home",
+                        "price": 5.00,
+                        "quantity": 20,
+                    },
+                    {
+                        "name": "Toilet",
+                        "category": "fixtures",
+                        "price": 320.00,
+                        "quantity": 1,
+                    },
                 ],
             },
             {
@@ -71,7 +104,12 @@ class Command(BaseCommand):
                 "payment_method": "Cash",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
-                    {"name": "Treenuts", "category": "food", "price": 0.50, "quantity": 20},
+                    {
+                        "name": "Treenuts",
+                        "category": "food",
+                        "price": 0.50,
+                        "quantity": 20,
+                    },
                 ],
             },
             {
@@ -83,7 +121,12 @@ class Command(BaseCommand):
                 "payment_method": "Debit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
-                    {"name": "Chicken Nuggets", "category": "food", "price": 12.00, "quantity": 1},
+                    {
+                        "name": "Chicken Nuggets",
+                        "category": "food",
+                        "price": 12.00,
+                        "quantity": 1,
+                    },
                 ],
             },
             {
@@ -95,7 +138,12 @@ class Command(BaseCommand):
                 "payment_method": "Credit",
                 "receipt_image_url": "https://catalog-receipt-storage.s3.us-east-2.amazonaws.com/receipts/receipt.jpg",
                 "items": [
-                    {"name": "Hoodie", "category": "clothing", "price": 70.00, "quantity": 1},
+                    {
+                        "name": "Hoodie",
+                        "category": "clothing",
+                        "price": 70.00,
+                        "quantity": 1,
+                    },
                 ],
             },
         ]
@@ -119,10 +167,7 @@ class Command(BaseCommand):
             )
             # Create GroupMembers
             for user_id in g_data.get("members", []):
-                GroupMembers.objects.create(
-                    group=new_group,
-                    user_id=user_id
-                )
+                GroupMembers.objects.create(group=new_group, user_id=user_id)
             # Create Receipts for this group
             for r_data in g_data.get("receipts", []):
                 new_receipt = Receipt.objects.create(
@@ -168,4 +213,8 @@ class Command(BaseCommand):
                     quantity=item_data["quantity"],
                 )
 
-        self.stdout.write(self.style.SUCCESS("Successfully inserted sample Groups, Receipts, and Items!"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Successfully inserted sample Groups, Receipts, and Items!"
+            )
+        )

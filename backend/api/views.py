@@ -6,10 +6,17 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Receipt, Item, Group, GroupMembers, User
-from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer, UserSerializer
+from .serializers import (
+    ReceiptSerializer,
+    ItemSerializer,
+    GroupSerializer,
+    GroupMembersSerializer,
+    UserSerializer,
+)
 
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
+
 
 class ReceiptList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -41,11 +48,13 @@ class ItemList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Filter items by the receipt_id provided in the URL
-        return Item.objects.filter(receipt_id=self.kwargs['receipt_id'])
+        return Item.objects.filter(receipt_id=self.kwargs["receipt_id"])
 
     # Handle POST request to create a new item under a specific receipt
     def perform_create(self, serializer):
-        receipt = Receipt.objects.get(id=self.kwargs['receipt_id'])  # Checks if the receipt with ID exists
+        receipt = Receipt.objects.get(
+            id=self.kwargs["receipt_id"]
+        )  # Checks if the receipt with ID exists
         serializer.save(receipt=receipt)
 
 
@@ -55,7 +64,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
 
     # Not 100% sure whether this works
     def get_object(self):
-        return Item.objects.get(receipt=self.kwargs['receipt_id'], id=self.kwargs['pk'])
+        return Item.objects.get(receipt=self.kwargs["receipt_id"], id=self.kwargs["pk"])
 
 
 class GroupList(generics.ListCreateAPIView):
@@ -85,10 +94,10 @@ class GroupMembersList(generics.ListCreateAPIView):
         return Response({"members": serializer.data})
 
     def get_queryset(self):
-        return GroupMembers.objects.filter(group_id=self.kwargs['group_id'])
+        return GroupMembers.objects.filter(group_id=self.kwargs["group_id"])
 
     def perform_create(self, serializer):
-        group = Group.objects.get(id=self.kwargs['group_id'])
+        group = Group.objects.get(id=self.kwargs["group_id"])
         serializer.save(group=group)
 
 
@@ -97,7 +106,9 @@ class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
-        return GroupMembers.objects.get(group=self.kwargs['group_id'], id=self.kwargs['pk'])
+        return GroupMembers.objects.get(
+            group=self.kwargs["group_id"], id=self.kwargs["pk"]
+        )
 
 
 class UserRegisterView(APIView):
@@ -111,11 +122,14 @@ class UserRegisterView(APIView):
 
 class UserLoginView(APIView):
     def post(self, request):
-        identifier = request.data.get('identifier')
-        password = request.data.get('password')
+        identifier = request.data.get("identifier")
+        password = request.data.get("password")
 
         if not identifier or not password:
-            return Response({"error": "Username/email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Username/email and password are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = User.objects.filter(email=identifier).first()
         username = user.username if user else identifier
@@ -123,24 +137,36 @@ class UserLoginView(APIView):
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            })
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            )
+        return Response(
+            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class UserLogoutView(APIView):
     def post(self, request):
         try:
-            refresh_token = request.data.get('refresh')
-            
+            refresh_token = request.data.get("refresh")
+
             if not refresh_token:
-                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Refresh token is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-            return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Successfully logged out"}, status=status.HTTP_200_OK
+            )
         except Exception as e:
-            return Response({"error": "An error occurred during logout"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "An error occurred during logout"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
