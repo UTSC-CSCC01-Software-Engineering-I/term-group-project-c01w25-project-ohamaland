@@ -5,13 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Receipt, Item, Group, GroupMembers, User
+from .models import Receipt, Item, Group, GroupMembers, User, Subscription
 from .serializers import (
     ReceiptSerializer,
     ItemSerializer,
     GroupSerializer,
     GroupMembersSerializer,
     UserSerializer,
+    SubscriptionSerializer
 )
 
 
@@ -170,3 +171,26 @@ class UserLogoutView(APIView):
                 {"error": "An error occurred during logout"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class SubscriptionList(generics.ListCreateAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    # def get_queryset(self):
+    #     return Subscription.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"subscriptions": serializer.data})
+
+
+class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    # def get_queryset(self):
+    #     return Subscription.objects.filter(user=self.request.user)

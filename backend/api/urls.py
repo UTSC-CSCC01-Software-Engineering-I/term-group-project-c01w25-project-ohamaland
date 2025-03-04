@@ -13,6 +13,8 @@ from .views import (
     UserRegisterView,
     UserLoginView,
     UserLogoutView,
+    SubscriptionList,
+    SubscriptionDetail
 )
 
 urlpatterns = [
@@ -42,4 +44,7 @@ urlpatterns = [
     path("user/login/", UserLoginView.as_view()),
     path("user/logout/", UserLogoutView.as_view()),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+
+    path("subscriptions/", SubscriptionList.as_view(), name="subscription-list"),
+    path("subscriptions/<int:pk>/", SubscriptionDetail.as_view(), name="subscription-detail"),
 ]

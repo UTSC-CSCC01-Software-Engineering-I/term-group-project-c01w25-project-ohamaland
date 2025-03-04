@@ -3,7 +3,7 @@ from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Receipt, Item, Group, GroupMembers, User
+from .models import Receipt, Item, Group, GroupMembers, User, Subscription
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -86,4 +86,10 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
+        fields = "__all__"
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
         fields = "__all__"
