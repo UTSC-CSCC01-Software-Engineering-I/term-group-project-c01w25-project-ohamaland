@@ -26,18 +26,18 @@ class ReceiptView(APIView):
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            if serializer.data.get('group') is not None:
-                notify_group_receipt_added(serializer.data.get('group'))
+            if serializer.data.get("group") is not None:
+                notify_group_receipt_added(serializer.data.get("group"))
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def get(self, request):
         # if id is None:
         #     receipt = Receipt.objects.filter(user=request.user, id=id).first()
         #     if receipt is None:
         #         return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+
         #     serializer = ReceiptSerializer(receipt)
         #     return Response(serializer.data, status=status.HTTP_200_OK)
         receipts = Receipt.objects.filter(user=request.user)
