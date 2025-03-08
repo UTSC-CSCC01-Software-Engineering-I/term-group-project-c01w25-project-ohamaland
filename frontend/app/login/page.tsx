@@ -1,5 +1,7 @@
 "use client";
 
+import { getAccessToken } from "@/utils/auth";
+import { getActiveElement } from "@mui/x-date-pickers/internals";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -15,9 +17,11 @@ export default function LoginPage() {
     };
 
     try {
+      const token = getAccessToken();
       const response = await fetch("http://127.0.0.1:8000/api/user/login/", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(loginData),

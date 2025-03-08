@@ -7,6 +7,7 @@ import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
+import { getAccessToken } from "@/utils/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
@@ -41,7 +42,12 @@ export default function GroupDetailPage() {
   useEffect(() => {
     async function fetchGroup() {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/groups/${groupId}/`);
+        const token = getAccessToken();
+        const res = await fetch(`http://127.0.0.1:8000/api/groups/${groupId}/`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         if (!res.ok) {
           throw new Error("Failed to fetch group");
         }
@@ -57,9 +63,13 @@ export default function GroupDetailPage() {
   useEffect(() => {
     async function fetchMembers() {
       try {
+        const token = getAccessToken();
         const res = await fetch(
-          `http://127.0.0.1:8000/api/groups/${groupId}/members/`
-        );
+          `http://127.0.0.1:8000/api/groups/${groupId}/members/`, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            }
+          });
         if (!res.ok) {
           throw new Error("Failed to fetch group members");
         }
@@ -75,11 +85,15 @@ export default function GroupDetailPage() {
   const handleAddMember = async () => {
     if (!newUserId) return;
     try {
+      const token = getAccessToken();
       const res = await fetch(
         `http://127.0.0.1:8000/api/groups/${groupId}/members/`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ user_id: newUserId })
         }
       );
@@ -96,9 +110,15 @@ export default function GroupDetailPage() {
 
   const handleRemoveMember = async (memberId: number) => {
     try {
+      const token = getAccessToken();
       const res = await fetch(
         `http://127.0.0.1:8000/api/groups/${groupId}/members/${memberId}/`,
-        { method: "DELETE" }
+        { 
+          method: "DELETE", 
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        }
       );
       if (!res.ok) {
         throw new Error("Failed to delete member");
@@ -121,11 +141,15 @@ export default function GroupDetailPage() {
 
       const updatedData = { ...updatedReceipt, date: formattedDate };
 
+      const token = getAccessToken();
       const response = await fetch(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json" 
+          },
           body: JSON.stringify(updatedData)
         }
       );
