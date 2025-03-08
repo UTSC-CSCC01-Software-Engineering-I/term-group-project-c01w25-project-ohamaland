@@ -31,7 +31,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True, write_only=True)
+    items = ItemSerializer(many=True)
     receipt_image = serializers.ImageField(required=False)
     user_id = serializers.IntegerField(required=False)
     

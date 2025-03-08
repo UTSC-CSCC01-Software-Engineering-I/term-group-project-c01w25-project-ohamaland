@@ -29,15 +29,21 @@ export default function Page() {
     async function fetchReceipts() {
       try {
         console.log("Fetching receipts..."); // ✅ Debugging log
+
+        const token = localStorage.getItem("access_token");
+        console.log("Access Token:", token);
+        
         const response = await fetch("http://127.0.0.1:8000/api/receipts/");
         if (!response.ok) {
           throw new Error("Failed to fetch receipts");
         }
         const data = await response.json();
+        console.log("📊 Full API Response:", data);
         console.log("Received Data:", data); // ✅ Debugging log
         setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
+        setReceipts([]);
       }
     }
     fetchReceipts();
@@ -70,8 +76,13 @@ export default function Page() {
     formData.append("id", newReceipt.id.toString());
 
     try {
+      const token = localStorage.getItem("access_token");
+      console.log("Token being sent:", token);
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
+        headers: {
+           "Authorization": `Bearer ${token}`,
+        },
         body: formData
       });
       console.log(response);
@@ -79,6 +90,7 @@ export default function Page() {
         throw new Error("Failed to save receipt");
       }
       const savedReceipt = await response.json();
+      
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
