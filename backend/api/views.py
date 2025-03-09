@@ -19,13 +19,14 @@ from .serializers import (
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
 
-class ReceiptView(APIView):
+class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            # Notifications
             if serializer.data.get("group") is not None:
                 notify_group_receipt_added(serializer.data.get("group"))
 
@@ -41,7 +42,6 @@ class ReceiptView(APIView):
         #     serializer = ReceiptSerializer(receipt)
         #     return Response(serializer.data, status=status.HTTP_200_OK)
         receipts = Receipt.objects.filter(user=request.user)
-        print(receipts)
         serializer = ReceiptSerializer(receipts, many=True)
         return Response({"receipts": serializer.data}, status=status.HTTP_200_OK)
 
