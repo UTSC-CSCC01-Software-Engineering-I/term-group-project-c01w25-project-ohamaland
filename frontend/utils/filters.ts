@@ -1,5 +1,6 @@
 import { Group } from "@/types/groups";
 import { Category, Receipt } from "@/types/receipts";
+import { TimePeriod, Subscription } from "@/types/subscriptions";
 import { Dayjs } from "dayjs";
 
 // filter groups by date and text input
@@ -75,4 +76,13 @@ export function filterReceipts(
 
     return true;
   });
+}
+
+// filter subscriptions by renewal time and text input
+export function filterSubscriptions(
+  subscriptions: Subscription[],
+  filterTerm: string,
+  renewalTime: TimePeriod
+): Subscription[] {
+  return subscriptions;
 }
