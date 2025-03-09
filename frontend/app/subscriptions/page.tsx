@@ -7,12 +7,12 @@ import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
-import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [renewalDate, setRenewalDate] = useState<TimePeriod>("All");
+  const [renewalTime, setRenewalTime] = useState<TimePeriod>("All");
+  const [renewalTimeOffset, setRenewalTimeOffset] = useState<number>(-1); // used for filtering subscriptions
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
 //   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +41,28 @@ export default function Page() {
   };
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
-    setRenewalDate(event.target.value as TimePeriod);
+    const selectedTimePeriod = event.target.value as TimePeriod;
+    setRenewalTime(selectedTimePeriod);
+
+    let offset = -1;
+    switch (selectedTimePeriod) {
+      case "This Month":
+        offset = 1;
+        break;
+      case "Within Three Months":
+        offset = 3;
+        break;
+      case "Within Six Months":
+        offset = 6;
+        break;
+      case "This Year":
+        offset = 12;
+        break;
+      case "All":
+        offset = -1;
+        break;
+    }
+    setRenewalTimeOffset(offset);
   };
 
   const handleBillingPeriodChange = (event: SelectChangeEvent) => {
@@ -128,7 +149,7 @@ export default function Page() {
     <PageWrapper>
       <Box sx={filterContainerStyle}>
         <SubscriptionFilter
-          renewalDate={renewalDate}
+          renewalTime={renewalTime}
           billingPeriod={billingPeriod}
           filterTerm={filterTerm}
           setFilterTerm={setFilterTerm}
@@ -147,7 +168,8 @@ export default function Page() {
       <SubscriptionGrid
         subscriptions={subscriptions}
         filterTerm={filterTerm}
-        renewalDate={renewalDate}
+        renewalTime={renewalTime}
+        renewalTimeOffset={renewalTimeOffset}
         billingPeriod={billingPeriod}
         onOpenDialog={handleOpenDialog}
       />

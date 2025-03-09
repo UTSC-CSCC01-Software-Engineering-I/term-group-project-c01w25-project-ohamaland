@@ -6,8 +6,9 @@ import SubscriptionCard from "../subscriptions/SubscriptionCard";
 interface ISubscriptionGridProps {
   subscriptions: Subscription[];
   filterTerm: string;
-  renewalDate: TimePeriod;
-  billingPeriod: BillingPeriod
+  renewalTime: TimePeriod;
+  renewalTimeOffset: number;
+  billingPeriod: BillingPeriod;
   onOpenDialog: (subscription: Subscription) => void;
 }
 
@@ -15,7 +16,7 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
   const filteredSubscriptions = filterSubscriptions(
     props.subscriptions,
     props.filterTerm,
-    props.renewalDate,
+    props.renewalTimeOffset,
     props.billingPeriod
   );
 

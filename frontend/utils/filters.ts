@@ -82,41 +82,30 @@ export function filterReceipts(
 export function filterSubscriptions(
   subscriptions: Subscription[],
   filterTerm: string,
-  renewalDate: TimePeriod,
+  renewalTimeOffset: number,
   billingPeriod: BillingPeriod
 ): Subscription[] {
-  return subscriptions;
-  // return subscriptions.filter((subscription) => {
-  //   const subscriptionRenewalDate = new Date(subscription.renewal_date);
+  return subscriptions.filter((subscription) => {
+    const subscriptionRenewalDate = new Date(subscription.renewal_date);
+    const subscriptionBillingPeriod = subscription.billing_period;
+    const now = new Date();
 
-  //   // checking the date restrictions
-  //   if (subscriptionRenewalDate < toDate(renewalDate)) {
-  //     return false;
-  //   }
+    if (billingPeriod !== "All" && subscriptionBillingPeriod !== billingPeriod) return false;
+    if (renewalTimeOffset !== -1) {
+      const renewalTime = new Date(now);
+      renewalTime.setMonth(now.getMonth() + renewalTimeOffset);
+      if (subscriptionRenewalDate < now || subscriptionRenewalDate > renewalTime) return false;
+    }
 
-  //   if (endDate && receiptDate > endDate.toDate()) {
-  //     return false;
-  //   }
+    const lowercaseFilterTerm = filterTerm.toLowerCase();
+    const merchantMatch = subscription.merchant
+      .toLowerCase()
+      .includes(lowercaseFilterTerm);
 
-  //   const lowercaseFilterTerm = filterTerm.toLowerCase();
-  //   const merchantMatch = receipt.merchant
-  //     .toLowerCase()
-  //     .includes(lowercaseFilterTerm);
-  //   const itemMatch = receipt.items.some((item) =>
-  //     item.name.toLowerCase().includes(lowercaseFilterTerm)
-  //   );
+    if (filterTerm && !merchantMatch) {
+      return false;
+    }
 
-  //   if (filterTerm && !merchantMatch && !itemMatch) {
-  //     return false;
-  //   }
-
-  //   if (
-  //     category !== "All" &&
-  //     !receipt.items.some((item) => item.category === category)
-  //   ) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // });
+    return true;
+  });
 }

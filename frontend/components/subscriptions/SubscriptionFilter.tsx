@@ -7,7 +7,7 @@ import DropDownSelector from "../common/DropDownSelector";
 
 interface ISubscriptionFilterProps {
   filterTerm: string;
-  renewalDate: TimePeriod;
+  renewalTime: TimePeriod;
   billingPeriod: BillingPeriod
   setFilterTerm: Dispatch<SetStateAction<string>>;
   handleTimePeriodChange: (event: SelectChangeEvent) => void;
@@ -26,17 +26,17 @@ export default function ReceiptFilter(props: ISubscriptionFilterProps) {
         value={props.filterTerm}
       />
 
-      {/* Renewal Date Period Filter*/}
+      {/* Renewal Time Filter*/}
       <DropDownSelector
-        value={props.renewalDate}
+        value={props.renewalTime}
         inputId="timeperiod-select-label"
-        label="Renewal Date"
+        label="Renewal Time"
         onChange={props.handleTimePeriodChange}
         options={timePeriods}
         formControlStyle={formControlStyle}
       />
 
-      {/* Renewal Date Period Filter*/}
+      {/* Billing Period Filter*/}
       <DropDownSelector
         value={props.billingPeriod}
         inputId="billingperiod-select-label"
