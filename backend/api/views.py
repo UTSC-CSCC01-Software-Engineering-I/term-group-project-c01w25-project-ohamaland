@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Receipt, Item, Group, GroupMembers, User
+from .notifications import notify_group_receipt_added
 from .serializers import (
     ReceiptSerializer,
     ItemSerializer,
@@ -18,17 +19,31 @@ from .serializers import (
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
 
-class ReceiptList(generics.ListCreateAPIView):
+class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ReceiptSerializer
 
-    def get_queryset(self):
-        return Receipt.objects.filter(user=self.request.user)
+    def post(self, request):
+        serializer = ReceiptSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            # Notifications
+            if serializer.data.get("group") is not None:
+                notify_group_receipt_added(serializer.data.get("group"))
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"receipts": serializer.data})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        # if id is None:
+        #     receipt = Receipt.objects.filter(user=request.user, id=id).first()
+        #     if receipt is None:
+        #         return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        #     serializer = ReceiptSerializer(receipt)
+        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        receipts = Receipt.objects.filter(user=request.user)
+        serializer = ReceiptSerializer(receipts, many=True)
+        return Response({"receipts": serializer.data}, status=status.HTTP_200_OK)
 
 
 class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):

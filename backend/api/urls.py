@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
-    ReceiptList,
+    ReceiptView,
     ReceiptDetail,
     ItemList,
     ItemDetail,
@@ -16,7 +16,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path("receipts/", ReceiptList.as_view(), name="receipt-list-create"),
+    path("receipts/", ReceiptView.as_view(), name="receipt-list-create"),
     path("receipts/<int:pk>/", ReceiptDetail.as_view(), name="receipt-detail"),
     path(
         "receipts/<int:receipt_id>/items/", ItemList.as_view(), name="item-list-create"
