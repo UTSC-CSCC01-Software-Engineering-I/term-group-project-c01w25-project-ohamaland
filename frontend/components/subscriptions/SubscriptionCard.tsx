@@ -35,6 +35,13 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
           <Typography sx={textStyle}>{formattedDate}</Typography>
         </Stack>
 
+        {/* Billing Period */}
+        <Typography sx={totalTextStyle}>
+          Billing Period: {subscription.billing_period}
+        </Typography>
+
+        <Divider sx={{ my: 1 }} />
+
         {/* Total Amount */}
         <Typography sx={totalTextStyle}>
           Total: {subscription.currency} {Number(subscription.total_amount).toFixed(2)}

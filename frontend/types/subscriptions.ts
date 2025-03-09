@@ -6,7 +6,6 @@ export type Subscription = {
     currency: Currency;
     renewal_date: string; // this is a string but is in ISO date format
     billing_period: BillingPeriod;
-    billing_interval: number;
     // TODO: add "associated card account" after plaid integration? ex: Card ending with **1234
   };
 
@@ -17,20 +16,20 @@ export type Subscription = {
   export const allTimePeriods = "All";
 
   export type TimePeriod =
-    | "This Month"
-    | "Within Three Months"
-    | "Within Six Months"
-    | "This Year"
+    | "One Month"
+    | "Three Months"
+    | "Six Months"
+    | "One Year"
     | typeof allTimePeriods;
 
   export const timePeriods = [
-    "This Month",
-    "Within Three Months",
-    "Within Six Months",
-    "This Year",
+    "One Month",
+    "Three Months",
+    "Six Months",
+    "One Year",
     allTimePeriods
   ];
 
-  export type BillingPeriod = "Daily" | "Weekly" | "Monthly" | "Yearly"| "Custom" | typeof allTimePeriods;
+  export type BillingPeriod = "Daily" | "Weekly" | "Monthly" | "Yearly" | typeof allTimePeriods;
 
-  export const billingPeriods = ["Daily", "Weekly", "Monthly", "Yearly", "Custom", allTimePeriods];
+  export const billingPeriods = ["Daily", "Weekly", "Monthly", "Yearly", allTimePeriods];

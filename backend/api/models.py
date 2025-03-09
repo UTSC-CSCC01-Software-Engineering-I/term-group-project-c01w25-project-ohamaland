@@ -122,7 +122,6 @@ class Subscription(models.Model):
     currency = models.CharField(max_length=3)
     renewal_date = models.DateField()
     billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
-    billing_interval = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

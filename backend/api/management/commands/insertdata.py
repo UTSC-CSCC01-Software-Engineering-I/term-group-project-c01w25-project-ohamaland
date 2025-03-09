@@ -107,7 +107,6 @@ class Command(BaseCommand):
                         "currency": "USD",
                         "renewal_date": "2026-01-01",
                         "billing_period": "Yearly",
-                        "billing_interval": "1",
                     },
                 ],
             },
@@ -146,7 +145,6 @@ class Command(BaseCommand):
                         "currency": "USD",
                         "renewal_date": "2024-01-01",
                         "billing_period": "Weekly",
-                        "billing_interval": "1",
                     },
                 ],
             },
@@ -239,7 +237,6 @@ class Command(BaseCommand):
                 "currency": "CAD",
                 "renewal_date": "2025-12-25",
                 "billing_period": "Monthly",
-                "billing_interval": "1",
             },
             {
                 "user_id": users["zaheer@lahima.org"].id,
@@ -248,7 +245,6 @@ class Command(BaseCommand):
                 "currency": "USD",
                 "renewal_date": "2026-11-15",
                 "billing_period": "Yearly",
-                "billing_interval": "1",
             },
             {
                 "user_id": users["bodaciousBenjamin@milk.com"].id,
@@ -257,7 +253,6 @@ class Command(BaseCommand):
                 "currency": "CAD",
                 "renewal_date": "2027-01-01",
                 "billing_period": "Yearly",
-                "billing_interval": "3",
             },
         ]
 
@@ -305,7 +300,6 @@ class Command(BaseCommand):
                     currency=s_data["currency"],
                     renewal_date=s_data["renewal_date"],
                     billing_period=s_data["billing_period"],
-                    billing_interval=s_data["billing_interval"],
                 )
 
         self.stdout.write("Inserting user-based receipts...")
@@ -355,7 +349,6 @@ class Command(BaseCommand):
                 currency=subscription_data["currency"],
                 renewal_date=subscription_data["renewal_date"],
                 billing_period=subscription_data["billing_period"],
-                billing_interval=subscription_data["billing_interval"],
             )
 
         self.stdout.write(

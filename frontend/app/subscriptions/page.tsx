@@ -46,16 +46,16 @@ export default function Page() {
 
     let offset = -1;
     switch (selectedTimePeriod) {
-      case "This Month":
+      case "One Month":
         offset = 1;
         break;
-      case "Within Three Months":
+      case "Three Months":
         offset = 3;
         break;
-      case "Within Six Months":
+      case "Six Months":
         offset = 6;
         break;
-      case "This Year":
+      case "One Year":
         offset = 12;
         break;
       case "All":
