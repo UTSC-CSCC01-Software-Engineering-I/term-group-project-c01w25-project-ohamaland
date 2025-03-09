@@ -12,7 +12,7 @@ from .serializers import (
     GroupSerializer,
     GroupMembersSerializer,
     UserSerializer,
-    SubscriptionSerializer
+    SubscriptionSerializer,
 )
 
 

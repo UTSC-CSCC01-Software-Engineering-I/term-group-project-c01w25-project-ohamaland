@@ -1,9 +1,9 @@
 import {
-  Subscription,
-  Currency,
-  currencies,
   BillingPeriod,
-  billingPeriods
+  Currency,
+  Subscription,
+  billingPeriods,
+  currencies
 } from "@/types/subscriptions";
 import {
   Box,
@@ -39,7 +39,7 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
       total_amount: parseFloat(totalAmount),
       currency: currency,
       renewal_date: renewalDate ? new Date(renewalDate).toISOString() : "",
-      billing_period: billingPeriod as BillingPeriod,
+      billing_period: billingPeriod as BillingPeriod
     };
     onSave(newSubscription);
     onClose();
@@ -51,7 +51,7 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
         <Typography sx={modalTitleStyle}>Add Subscription</Typography>
 
         <Stack spacing={2}>
-        <TextField
+          <TextField
             label="User ID"
             fullWidth
             type="number"

@@ -106,6 +106,7 @@ class Item(models.Model):
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
 
+
 class Subscription(models.Model):
     BILLING_PERIOD_CHOICES = [
         ("Daily", "Daily"),

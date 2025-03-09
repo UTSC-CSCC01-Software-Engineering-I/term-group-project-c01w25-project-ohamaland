@@ -4,7 +4,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
-import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
+import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -15,14 +15,17 @@ export default function Page() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<Subscription | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch subscriptions from API
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/subscriptions/");
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/subscriptions/"
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch subscriptions");
         }
@@ -64,7 +67,7 @@ export default function Page() {
     setBillingPeriod(event.target.value as BillingPeriod);
   };
 
-// to handle adding a new subscription (temporary, hardcoded for now)
+  // to handle adding a new subscription (temporary, hardcoded for now)
   const handleSaveSubscription = async (newSubscription: Subscription) => {
     const formData = new FormData();
     formData.append("merchant", newSubscription.merchant);
@@ -75,7 +78,7 @@ export default function Page() {
     formData.append("payment_method", newSubscription.billing_period);
     formData.append("user_id", "1"); // hardcoded for now
     formData.append("id", newSubscription.id.toString());
-    console.log(newSubscription.user_id)
+    console.log(newSubscription.user_id);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
@@ -87,7 +90,10 @@ export default function Page() {
         throw new Error("Failed to save subscription");
       }
       const savedSubscription = await response.json();
-      setSubscriptions((prevSubscriptions) => [...prevSubscriptions, savedSubscription]);
+      setSubscriptions((prevSubscriptions) => [
+        ...prevSubscriptions,
+        savedSubscription
+      ]);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving subscription:", error);
@@ -99,44 +105,45 @@ export default function Page() {
     setIsDialogOpen(true);
   };
 
-//   const handleCloseDialog = () => {
-//     setIsDialogOpen(false);
-//     setSelectedSubscription(null);
-//   };
+  // TODO: update and delete
+  //   const handleCloseDialog = () => {
+  //     setIsDialogOpen(false);
+  //     setSelectedSubscription(null);
+  //   };
 
-//   const handleSaveSubscriptionUpdate = async (updatedSubscription: Subscription) => {
-//     try {
-//       const formattedDate = new Date(updatedSubscription.renewal_date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+  //   const handleSaveSubscriptionUpdate = async (updatedSubscription: Subscription) => {
+  //     try {
+  //       const formattedDate = new Date(updatedSubscription.renewal_date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
 
-//       const updatedData = {
-//         ...updatedSubscription,
-//         renewal_date: formattedDate,
-//       };
-//       console.log("Contents of receipt: ", updatedReceipt);
-//       const response = await fetch(
-//         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
-//         {
-//           method: "PATCH",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(updatedData),
-//         }
-//       );
-//       if (!response.ok) {
-//         const errorData = await response.json(); // Get the error response body
-//         console.error("Error:", errorData);
-//         throw new Error(errorData.detail || "Failed to save the receipt");
-//       }
-//       const savedReceipt = await response.json();
-//       setReceipts((prevReceipts) =>
-//         prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
-//       );
-//       handleCloseDialog();
-//     } catch (error) {
-//       console.error("Error updating receipt:", error);
-//     }
-//   };
+  //       const updatedData = {
+  //         ...updatedSubscription,
+  //         renewal_date: formattedDate,
+  //       };
+  //       console.log("Contents of receipt: ", updatedReceipt);
+  //       const response = await fetch(
+  //         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+  //         {
+  //           method: "PATCH",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(updatedData),
+  //         }
+  //       );
+  //       if (!response.ok) {
+  //         const errorData = await response.json(); // Get the error response body
+  //         console.error("Error:", errorData);
+  //         throw new Error(errorData.detail || "Failed to save the receipt");
+  //       }
+  //       const savedReceipt = await response.json();
+  //       setReceipts((prevReceipts) =>
+  //         prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
+  //       );
+  //       handleCloseDialog();
+  //     } catch (error) {
+  //       console.error("Error updating receipt:", error);
+  //     }
+  //   };
 
   return (
     <PageWrapper>
@@ -172,15 +179,6 @@ export default function Page() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveSubscription}
       />
-
-      {/* {selectedSubscription && (
-        <SubscriptionDialog
-          subscription={selectedSubscription}
-          open={isDialogOpen}
-          onClose={handleCloseDialog}
-          onSave={handleSaveSubscriptionUpdate}
-        />
-      )} */}
     </PageWrapper>
   );
 }

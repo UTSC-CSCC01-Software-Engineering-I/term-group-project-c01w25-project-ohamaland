@@ -1,6 +1,6 @@
 import { Group } from "@/types/groups";
 import { Category, Receipt } from "@/types/receipts";
-import { Subscription, BillingPeriod } from "@/types/subscriptions";
+import { BillingPeriod, Subscription } from "@/types/subscriptions";
 import { Dayjs } from "dayjs";
 
 // filter groups by date and text input
@@ -90,11 +90,16 @@ export function filterSubscriptions(
     const subscriptionBillingPeriod = subscription.billing_period;
     const now = new Date();
 
-    if (billingPeriod !== "All" && subscriptionBillingPeriod !== billingPeriod) return false;
+    if (billingPeriod !== "All" && subscriptionBillingPeriod !== billingPeriod)
+      return false;
     if (renewalTimeOffset !== -1) {
       const renewalTime = new Date(now);
       renewalTime.setMonth(now.getMonth() + renewalTimeOffset);
-      if (subscriptionRenewalDate < now || subscriptionRenewalDate > renewalTime) return false;
+      if (
+        subscriptionRenewalDate < now ||
+        subscriptionRenewalDate > renewalTime
+      )
+        return false;
     }
 
     const lowercaseFilterTerm = filterTerm.toLowerCase();

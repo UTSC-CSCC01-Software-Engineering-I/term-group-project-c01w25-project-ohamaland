@@ -1,5 +1,10 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
-import { timePeriods, TimePeriod, billingPeriods, BillingPeriod } from "@/types/subscriptions";
+import {
+  BillingPeriod,
+  TimePeriod,
+  billingPeriods,
+  timePeriods
+} from "@/types/subscriptions";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase, SelectChangeEvent } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
@@ -8,7 +13,7 @@ import DropDownSelector from "../common/DropDownSelector";
 interface ISubscriptionFilterProps {
   filterTerm: string;
   renewalTime: TimePeriod;
-  billingPeriod: BillingPeriod
+  billingPeriod: BillingPeriod;
   setFilterTerm: Dispatch<SetStateAction<string>>;
   handleTimePeriodChange: (event: SelectChangeEvent) => void;
   handleBillingPeriodChange: (event: SelectChangeEvent) => void;

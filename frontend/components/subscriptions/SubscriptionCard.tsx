@@ -20,12 +20,12 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
 
   return (
     <Card sx={cardStyle} onClick={onClick}>
-       <CardContent>
-         {/* Merchant Name */}
-         <Typography sx={merchantTextStyle}>{subscription.merchant}</Typography>
+      <CardContent>
+        {/* Merchant Name */}
+        <Typography sx={merchantTextStyle}>{subscription.merchant}</Typography>
 
-         {/* Renewal Date */}
-         <Stack
+        {/* Renewal Date */}
+        <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
@@ -43,7 +43,8 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
 
         {/* Total Amount */}
         <Typography sx={totalTextStyle}>
-          Total: {subscription.currency} {Number(subscription.total_amount).toFixed(2)}
+          Total: {subscription.currency}{" "}
+          {Number(subscription.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />

@@ -1,4 +1,4 @@
-import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
+import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { filterSubscriptions } from "@/utils/filters";
 import { Grid2 } from "@mui/material";
 import SubscriptionCard from "../subscriptions/SubscriptionCard";
