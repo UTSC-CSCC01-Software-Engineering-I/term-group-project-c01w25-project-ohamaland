@@ -11,8 +11,16 @@ from .signals import update_spending_analytics
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "password",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate_password(self, value):
         # This will raise a ValidationError if the password is invalid
@@ -27,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ['id', 'name', 'category', 'price', 'quantity']
+        fields = ["id", "name", "category", "price", "quantity"]
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
@@ -62,10 +70,16 @@ class ReceiptSerializer(serializers.ModelSerializer):
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
             file_key = f"receipts/{image.name}"
 
-            s3_client.upload_fileobj(image, bucket_name, file_key, ExtraArgs={
-                "ContentType": image.content_type})  # Ensures that it opens the image in the browser
+            s3_client.upload_fileobj(
+                image,
+                bucket_name,
+                file_key,
+                ExtraArgs={"ContentType": image.content_type},
+            )  # Ensures that it opens the image in the browser
 
-            validated_data["receipt_image_url"] = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+            validated_data["receipt_image_url"] = (
+                f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+            )
 
         update_spending_analytics(receipt.user_id)
 
@@ -90,8 +104,10 @@ class GroupMembersSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = GroupMembersSerializer(many=True, read_only=True, source='groupmembers_set')
-    receipts = ReceiptSerializer(many=True, read_only=True, source='receipt_set')
+    members = GroupMembersSerializer(
+        many=True, read_only=True, source="groupmembers_set"
+    )
+    receipts = ReceiptSerializer(many=True, read_only=True, source="receipt_set")
 
     class Meta:
         model = Group

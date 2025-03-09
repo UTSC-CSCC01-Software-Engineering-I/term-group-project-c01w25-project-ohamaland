@@ -18,6 +18,23 @@ const categoryColors = {
   Electronics: "#0088FE",  // Blue for Electronics
 };
 
+const renderCustomizedLabel = (props: any) => {
+  const { cx, cy, midAngle, outerRadius, percent, payload } = props;
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius + 20; // Adjust distance from the pie
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  
+  // Get the color from categoryColors
+  const color = categoryColors[payload.category as keyof typeof categoryColors] || "#000";
+
+  return (
+    <text x={x} y={y} fill={color} textAnchor={x > cx ? "start" : "end"} dominantBaseline="central">
+      {`${payload.category}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
 export default function SpendingChart(props: ISpendingChartProps) {
   console.log("Props received:", props);
   console.log("categorySpending:", props.categorySpending);
@@ -38,7 +55,7 @@ export default function SpendingChart(props: ISpendingChartProps) {
       {/* Pie Chart - Spending by Category */}
       <div style={chartStyle}>
         <h3>Spending by Category</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={350}>
           <PieChart>
             <Pie
               data={aggregatedData}
@@ -48,9 +65,8 @@ export default function SpendingChart(props: ISpendingChartProps) {
               cy="50%"
               outerRadius={80}
               fill="#8884d8"
-              label={({ percent, name }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={renderCustomizedLabel}
             >
-              {/* Optionally, add a color to each category */}
               {aggregatedData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={categoryColors[entry.category as keyof typeof categoryColors] || "#8884d8"} />
               ))}
@@ -85,7 +101,7 @@ const chartContainerStyle = {
 
 const chartStyle = {
   width: "45%",
-  minWidth: "300px",
+  minWidth: "450px",
   backgroundColor: "#f0f0f0", 
   padding: "16px",              
   borderRadius: "8px",          

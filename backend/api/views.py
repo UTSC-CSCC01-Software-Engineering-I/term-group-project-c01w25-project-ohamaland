@@ -10,17 +10,21 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 
-from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
-from .serializers import ReceiptSerializer, ItemSerializer, GroupSerializer, GroupMembersSerializer, UserSerializer, SpendingAnalyticsSerializer
-from .signals import get_spending_periods, calculate_category_spending, calculate_total_spending
+from .signals import calculate_category_spending, calculate_total_spending, get_spending_periods
+
+from .models import Receipt, Item, Group, GroupMembers, SpendingAnalytics, User
+from .serializers import (
+    ReceiptSerializer,
+    ItemSerializer,
+    GroupSerializer,
+    GroupMembersSerializer,
+    SpendingAnalyticsSerializer,
+    UserSerializer,
+)
 
 
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
-User = get_user_model()
-
-logging.basicConfig(level=logging.INFO)  # This sets the minimum level to INFO
-logger = logging.getLogger(__name__)
 
 class ReceiptList(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
@@ -60,11 +64,13 @@ class ItemList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Filter items by the receipt_id provided in the URL
-        return Item.objects.filter(receipt_id=self.kwargs['receipt_id'])
+        return Item.objects.filter(receipt_id=self.kwargs["receipt_id"])
 
     # Handle POST request to create a new item under a specific receipt
     def perform_create(self, serializer):
-        receipt = Receipt.objects.get(id=self.kwargs['receipt_id'])  # Checks if the receipt with ID exists
+        receipt = Receipt.objects.get(
+            id=self.kwargs["receipt_id"]
+        )  # Checks if the receipt with ID exists
         serializer.save(receipt=receipt)
 
 
@@ -74,7 +80,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
 
     # Not 100% sure whether this works
     def get_object(self):
-        return Item.objects.get(receipt=self.kwargs['receipt_id'], id=self.kwargs['pk'])
+        return Item.objects.get(receipt=self.kwargs["receipt_id"], id=self.kwargs["pk"])
 
 
 class GroupList(generics.ListCreateAPIView):
@@ -104,10 +110,10 @@ class GroupMembersList(generics.ListCreateAPIView):
         return Response({"members": serializer.data})
 
     def get_queryset(self):
-        return GroupMembers.objects.filter(group_id=self.kwargs['group_id'])
+        return GroupMembers.objects.filter(group_id=self.kwargs["group_id"])
 
     def perform_create(self, serializer):
-        group = Group.objects.get(id=self.kwargs['group_id'])
+        group = Group.objects.get(id=self.kwargs["group_id"])
         serializer.save(group=group)
 
 
@@ -116,7 +122,9 @@ class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
-        return GroupMembers.objects.get(group=self.kwargs['group_id'], id=self.kwargs['pk'])
+        return GroupMembers.objects.get(
+            group=self.kwargs["group_id"], id=self.kwargs["pk"]
+        )
 
 
 class UserRegisterView(APIView):
@@ -130,11 +138,14 @@ class UserRegisterView(APIView):
 
 class UserLoginView(APIView):
     def post(self, request):
-        identifier = request.data.get('identifier')
-        password = request.data.get('password')
+        identifier = request.data.get("identifier")
+        password = request.data.get("password")
 
         if not identifier or not password:
-            return Response({"error": "Username/email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Username/email and password are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = User.objects.filter(email=identifier).first()
         username = user.username if user else identifier
@@ -142,25 +153,34 @@ class UserLoginView(APIView):
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            })
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)    
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            )
+        return Response(
+            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class UserLogoutView(APIView):
     def post(self, request):
         try:
-            refresh_token = request.data.get('refresh')
-            
+            refresh_token = request.data.get("refresh")
+
             if not refresh_token:
-                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Refresh token is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-            return Response({"message": "Successfully logged out"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Successfully logged out"}, status=status.HTTP_200_OK
+            )
         except Exception as e:
             return Response({"error": "An error occurred during logout"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -181,14 +201,14 @@ class SpendingAnalyticsView(generics.ListAPIView):
         :param user_id: The user for whom the analytics are being requested.
         :param period: The time period (e.g., "Weekly", "Monthly", etc.) for which data is needed.
         """
-        logger.info(f"Fetching category spending for user {user_id} and start date {start_date}")
+        # logger.info(f"Fetching category spending for user {user_id} and start date {start_date}")
         # Fetch category spending for the given user_id and start_date
         category_spending = calculate_category_spending(user_id, start_date)
-        logger.info(f"Category spending: {category_spending}")
+        # logger.info(f"Category spending: {category_spending}")
 
-        logger.info(f"Fetching total spending for user {user_id} and start date {start_date}")
+        # logger.info(f"Fetching total spending for user {user_id} and start date {start_date}")
         total_spending = calculate_total_spending(user_id, start_date)
-        logger.info(f"Total spending: {total_spending}")
+        # logger.info(f"Total spending: {total_spending}")
 
         # Return the data as a dictionary (which will later be converted to JSON by JsonResponse)
         return {
@@ -203,7 +223,7 @@ class SpendingAnalyticsView(generics.ListAPIView):
         Handles GET requests to return spending analytics for a user and a specific period.
         """
         # Log the correct user_id and period
-        logger.info(f"Fetching category spending for user {user_id} and period {period}")
+        # logger.info(f"Fetching category spending for user {user_id} and period {period}")
 
         valid_periods = ["Weekly", "Monthly", "Quarterly", "Yearly"]
         if period not in valid_periods:
