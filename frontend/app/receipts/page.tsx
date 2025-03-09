@@ -6,6 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
+import { getAccessToken } from "@/utils/auth";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -29,7 +30,12 @@ export default function Page() {
     async function fetchReceipts() {
       try {
         console.log("Fetching receipts..."); // ✅ Debugging log
-        const response = await fetch("http://127.0.0.1:8000/api/receipts/");
+        const token = getAccessToken();
+        const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch receipts");
         }
@@ -70,8 +76,12 @@ export default function Page() {
     formData.append("id", newReceipt.id.toString());
 
     try {
+      const token = getAccessToken();
       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
         body: formData
       });
       console.log(response);
@@ -107,12 +117,14 @@ export default function Page() {
         date: formattedDate
       };
       console.log("Contents of receipt: ", updatedReceipt);
+      const token = getAccessToken();
       const response = await fetch(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify(updatedData)
         }

@@ -4,6 +4,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
+import { getAccessToken } from "@/utils/auth";
 import { Box } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -22,7 +23,12 @@ export default function GroupsPage() {
     async function fetchGroups() {
       try {
         console.log("Fetching groups...");
-        const response = await fetch("http://127.0.0.1:8000/api/groups/");
+        const token = getAccessToken();
+        const response = await fetch("http://127.0.0.1:8000/api/groups/", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch groups");
         }
