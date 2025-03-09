@@ -346,7 +346,7 @@ class Command(BaseCommand):
                 "user_id" not in subscription_data and "group" not in subscription_data
             ):
                 raise ValueError(
-                    "A receipt must be linked to either a user or a group, but not both."
+                    "A subscription must be linked to either a user or a group, but not both."
                 )
             Subscription.objects.create(
                 user_id=subscription_data["user_id"],

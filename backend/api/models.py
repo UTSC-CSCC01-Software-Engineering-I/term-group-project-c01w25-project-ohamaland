@@ -107,12 +107,6 @@ class Item(models.Model):
         return f"Item {self.name} - {self.quantity}"
 
 class Subscription(models.Model):
-    # PAYMENT_METHOD_CHOICES = [
-    #     ('Debit', 'Debit Card'),
-    #     ('Credit', 'Credit Card'),
-    #     ('Cash', 'Cash'),
-    # ]
-
     BILLING_PERIOD_CHOICES = [
         ("Daily", "Daily"),
         ("Weekly", "Weekly"),
@@ -129,7 +123,6 @@ class Subscription(models.Model):
     renewal_date = models.DateField()
     billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
     billing_interval = models.PositiveIntegerField(default=1)
-    # payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
