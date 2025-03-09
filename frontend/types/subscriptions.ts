@@ -33,4 +33,4 @@ export type Subscription = {
 
   export type BillingPeriod = "Daily" | "Weekly" | "Monthly" | "Yearly"| "Custom" | typeof allTimePeriods;
 
-  export const billingPeriod = ["Daily", "Weekly", "Monthly", "Yearly", "Custom", allTimePeriods];
+  export const billingPeriods = ["Daily", "Weekly", "Monthly", "Yearly", "Custom", allTimePeriods];

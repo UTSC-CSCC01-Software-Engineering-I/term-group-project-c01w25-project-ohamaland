@@ -1,13 +1,13 @@
-import { TimePeriod, Subscription } from "@/types/subscriptions";
+import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
 import { filterSubscriptions } from "@/utils/filters";
 import { Grid2 } from "@mui/material";
-import { Dayjs } from "dayjs";
 import SubscriptionCard from "../subscriptions/SubscriptionCard";
 
 interface ISubscriptionGridProps {
   subscriptions: Subscription[];
   filterTerm: string;
-  renewalTime: TimePeriod;
+  renewalDate: TimePeriod;
+  billingPeriod: BillingPeriod
   onOpenDialog: (subscription: Subscription) => void;
 }
 
@@ -15,7 +15,8 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
   const filteredSubscriptions = filterSubscriptions(
     props.subscriptions,
     props.filterTerm,
-    props.renewalTime
+    props.renewalDate,
+    props.billingPeriod
   );
 
   return (

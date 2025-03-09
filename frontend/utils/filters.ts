@@ -1,6 +1,6 @@
 import { Group } from "@/types/groups";
 import { Category, Receipt } from "@/types/receipts";
-import { TimePeriod, Subscription } from "@/types/subscriptions";
+import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
 import { Dayjs } from "dayjs";
 
 // filter groups by date and text input
@@ -82,7 +82,41 @@ export function filterReceipts(
 export function filterSubscriptions(
   subscriptions: Subscription[],
   filterTerm: string,
-  renewalTime: TimePeriod
+  renewalDate: TimePeriod,
+  billingPeriod: BillingPeriod
 ): Subscription[] {
   return subscriptions;
+  // return subscriptions.filter((subscription) => {
+  //   const subscriptionRenewalDate = new Date(subscription.renewal_date);
+
+  //   // checking the date restrictions
+  //   if (subscriptionRenewalDate < toDate(renewalDate)) {
+  //     return false;
+  //   }
+
+  //   if (endDate && receiptDate > endDate.toDate()) {
+  //     return false;
+  //   }
+
+  //   const lowercaseFilterTerm = filterTerm.toLowerCase();
+  //   const merchantMatch = receipt.merchant
+  //     .toLowerCase()
+  //     .includes(lowercaseFilterTerm);
+  //   const itemMatch = receipt.items.some((item) =>
+  //     item.name.toLowerCase().includes(lowercaseFilterTerm)
+  //   );
+
+  //   if (filterTerm && !merchantMatch && !itemMatch) {
+  //     return false;
+  //   }
+
+  //   if (
+  //     category !== "All" &&
+  //     !receipt.items.some((item) => item.category === category)
+  //   ) {
+  //     return false;
+  //   }
+
+  //   return true;
+  // });
 }

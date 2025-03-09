@@ -20,10 +20,6 @@ export default function Page() {
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // const handleSaveReceipt = (newReceipt: Receipt) => {
-  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
-  // };
-
   // Fetch receipts from API
   useEffect(() => {
     async function fetchReceipts() {

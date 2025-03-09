@@ -5,7 +5,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 // import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
-import { TimePeriod, Subscription } from "@/types/subscriptions";
+import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -13,34 +13,39 @@ import { useEffect, useState } from "react";
 export default function Page() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [renewalDate, setRenewalDate] = useState<TimePeriod>("All");
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
 //   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Fetch subscriptions from API
+  useEffect(() => {
+    async function fetchReceipts() {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/subscriptions/");
+        if (!response.ok) {
+          throw new Error("Failed to fetch subscriptions");
+        }
+        const data = await response.json();
+        setSubscriptions(data.subscriptions);
+      } catch (error) {
+        console.error("Error fetching receipts:", error);
+      }
+    }
+    fetchReceipts();
+  }, []);
+
   const handleSaveSubscription = (newSubscription: Subscription) => {
     setSubscriptions((prevSubscriptions) => [...prevSubscriptions, newSubscription]);
   };
 
-  // Fetch receipts from API
-//   useEffect(() => {
-//     async function fetchReceipts() {
-//       try {
-//         const response = await fetch("http://127.0.0.1:8000/api/receipts/");
-//         if (!response.ok) {
-//           throw new Error("Failed to fetch receipts");
-//         }
-//         const data = await response.json();
-//         setReceipts(data.receipts);
-//       } catch (error) {
-//         console.error("Error fetching receipts:", error);
-//       }
-//     }
-//     fetchReceipts();
-//   }, []);
-
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setRenewalDate(event.target.value as TimePeriod);
+  };
+
+  const handleBillingPeriodChange = (event: SelectChangeEvent) => {
+    setBillingPeriod(event.target.value as BillingPeriod);
   };
 
 //     const formData = new FormData();
@@ -123,10 +128,12 @@ export default function Page() {
     <PageWrapper>
       <Box sx={filterContainerStyle}>
         <SubscriptionFilter
-          renewalTime={renewalDate}
+          renewalDate={renewalDate}
+          billingPeriod={billingPeriod}
           filterTerm={filterTerm}
           setFilterTerm={setFilterTerm}
           handleTimePeriodChange={handleTimePeriodChange}
+          handleBillingPeriodChange={handleBillingPeriodChange}
         />
         <Button
           variant="contained"
@@ -140,7 +147,8 @@ export default function Page() {
       <SubscriptionGrid
         subscriptions={subscriptions}
         filterTerm={filterTerm}
-        renewalTime={renewalDate}
+        renewalDate={renewalDate}
+        billingPeriod={billingPeriod}
         onOpenDialog={handleOpenDialog}
       />
 

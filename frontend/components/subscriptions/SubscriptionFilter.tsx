@@ -1,18 +1,17 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
-import { timePeriods, TimePeriod, billingPeriod, BillingPeriod } from "@/types/subscriptions";
+import { timePeriods, TimePeriod, billingPeriods, BillingPeriod } from "@/types/subscriptions";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase, SelectChangeEvent } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Dayjs } from "dayjs";
 import { Dispatch, SetStateAction } from "react";
 import DropDownSelector from "../common/DropDownSelector";
 
 interface ISubscriptionFilterProps {
   filterTerm: string;
-  renewalTime: TimePeriod;
+  renewalDate: TimePeriod;
+  billingPeriod: BillingPeriod
   setFilterTerm: Dispatch<SetStateAction<string>>;
   handleTimePeriodChange: (event: SelectChangeEvent) => void;
+  handleBillingPeriodChange: (event: SelectChangeEvent) => void;
 }
 
 export default function ReceiptFilter(props: ISubscriptionFilterProps) {
@@ -29,7 +28,7 @@ export default function ReceiptFilter(props: ISubscriptionFilterProps) {
 
       {/* Renewal Date Period Filter*/}
       <DropDownSelector
-        value={props.renewalTime}
+        value={props.renewalDate}
         inputId="timeperiod-select-label"
         label="Renewal Date"
         onChange={props.handleTimePeriodChange}
@@ -39,11 +38,11 @@ export default function ReceiptFilter(props: ISubscriptionFilterProps) {
 
       {/* Renewal Date Period Filter*/}
       <DropDownSelector
-        value={props.renewalTime}
+        value={props.billingPeriod}
         inputId="billingperiod-select-label"
         label="Billing Period"
-        onChange={props.handleTimePeriodChange}
-        options={billingPeriod}
+        onChange={props.handleBillingPeriodChange}
+        options={billingPeriods}
         formControlStyle={formControlStyle}
       />
     </Box>
