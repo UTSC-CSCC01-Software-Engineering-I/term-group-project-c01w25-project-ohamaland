@@ -1,6 +1,6 @@
 import { Group } from "@/types/groups";
 import { Category, Receipt } from "@/types/receipts";
-import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
+import { Subscription, BillingPeriod } from "@/types/subscriptions";
 import { Dayjs } from "dayjs";
 
 // filter groups by date and text input

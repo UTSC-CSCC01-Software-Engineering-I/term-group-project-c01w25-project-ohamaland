@@ -1,8 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-// import ReceiptModal from "@/components/receipts/AddReceipt";
-// import ReceiptDialog from "@/components/receipts/ReceiptDialog";
+import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import { TimePeriod, Subscription, BillingPeriod } from "@/types/subscriptions";
@@ -15,7 +14,7 @@ export default function Page() {
   const [renewalTimeOffset, setRenewalTimeOffset] = useState<number>(-1); // used for filtering subscriptions
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("All");
   const [filterTerm, setFilterTerm] = useState("");
-//   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -35,10 +34,6 @@ export default function Page() {
     }
     fetchReceipts();
   }, []);
-
-  const handleSaveSubscription = (newSubscription: Subscription) => {
-    setSubscriptions((prevSubscriptions) => [...prevSubscriptions, newSubscription]);
-  };
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     const selectedTimePeriod = event.target.value as TimePeriod;
@@ -69,37 +64,35 @@ export default function Page() {
     setBillingPeriod(event.target.value as BillingPeriod);
   };
 
-//     const formData = new FormData();
+// to handle adding a new subscription (temporary, hardcoded for now)
+  const handleSaveSubscription = async (newSubscription: Subscription) => {
+    const formData = new FormData();
+    formData.append("merchant", newSubscription.merchant);
+    formData.append("total_amount", newSubscription.total_amount.toString()); // Convert to string if necessary
+    formData.append("currency", newSubscription.currency);
+    formData.append("billing_period", newSubscription.billing_period);
+    formData.append("renewal_date", newSubscription.renewal_date);
+    formData.append("payment_method", newSubscription.billing_period);
+    formData.append("user_id", "1"); // hardcoded for now
+    formData.append("id", newSubscription.id.toString());
+    console.log(newSubscription.user_id)
 
-//     // Append the receipt image (file)
-//     formData.append("receipt_image", file);
-
-//     // Append each field of newReceipt separately as form fields
-//     formData.append("merchant", newReceipt.merchant);
-//     formData.append("total_amount", newReceipt.total_amount.toString());  // Convert to string if necessary
-//     formData.append("currency", newReceipt.currency);
-//     formData.append("date", newReceipt.date);
-//     formData.append("payment_method", newReceipt.payment_method);
-//     formData.append("items", JSON.stringify(newReceipt.items));
-//     formData.append("user_id", "1"); // hardcoded
-//     formData.append("id", newReceipt.id.toString());
-
-//     try {
-//       const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
-//         method: "POST",
-//         body: formData,
-//       });
-//       console.log(response);
-//       if (!response.ok) {
-//         throw new Error("Failed to save receipt");
-//       }
-//       const savedReceipt = await response.json();
-//       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
-//       setIsModalOpen(false);
-//     } catch (error) {
-//       console.error("Error saving receipt:", error);
-//     }
-//   };
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
+        method: "POST",
+        body: formData
+      });
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to save subscription");
+      }
+      const savedSubscription = await response.json();
+      setSubscriptions((prevSubscriptions) => [...prevSubscriptions, savedSubscription]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving subscription:", error);
+    }
+  };
 
   const handleOpenDialog = (subscription: Subscription) => {
     setSelectedSubscription(subscription);
@@ -108,16 +101,16 @@ export default function Page() {
 
 //   const handleCloseDialog = () => {
 //     setIsDialogOpen(false);
-//     setSelectedReceipt(null);
+//     setSelectedSubscription(null);
 //   };
 
-//   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+//   const handleSaveSubscriptionUpdate = async (updatedSubscription: Subscription) => {
 //     try {
-//       const formattedDate = new Date(updatedReceipt.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+//       const formattedDate = new Date(updatedSubscription.renewal_date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
 
 //       const updatedData = {
-//         ...updatedReceipt,
-//         date: formattedDate,
+//         ...updatedSubscription,
+//         renewal_date: formattedDate,
 //       };
 //       console.log("Contents of receipt: ", updatedReceipt);
 //       const response = await fetch(
@@ -159,7 +152,7 @@ export default function Page() {
         <Button
           variant="contained"
           color="primary"
-        //   onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsModalOpen(true)}
           sx={buttonStyle}
         >
           Add Subscription
@@ -174,18 +167,18 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
       />
 
-      {/* <ReceiptModal
+      <SubscriptionDialog
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveReceipt}
+        onSave={handleSaveSubscription}
       />
 
-      {selectedReceipt && (
-        <ReceiptDialog
-          receipt={selectedReceipt}
+      {/* {selectedSubscription && (
+        <SubscriptionDialog
+          subscription={selectedSubscription}
           open={isDialogOpen}
           onClose={handleCloseDialog}
-          onSave={handleSaveReceiptUpdate}
+          onSave={handleSaveSubscriptionUpdate}
         />
       )} */}
     </PageWrapper>

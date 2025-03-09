@@ -6,7 +6,6 @@ export type Subscription = {
     currency: Currency;
     renewal_date: string; // this is a string but is in ISO date format
     billing_period: BillingPeriod;
-    // TODO: add "associated card account" after plaid integration? ex: Card ending with **1234
   };
 
   export type Currency = "USD" | "CAD" | "";
