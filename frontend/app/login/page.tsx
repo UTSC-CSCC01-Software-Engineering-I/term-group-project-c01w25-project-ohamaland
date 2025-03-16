@@ -55,7 +55,7 @@ export default function LoginPage() {
           variant="body2"
           sx={{ textAlign: 'right' }}
         >
-          New to Catalog? <a href="/login" style={{ color: '#1E90FF' }}>Create an account</a>
+          New to Catalog? <a href="/register" style={{ color: '#1E90FF' }}>Create an account</a>
         </Typography>
       </Box>
 
