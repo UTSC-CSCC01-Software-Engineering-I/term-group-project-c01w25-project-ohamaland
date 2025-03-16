@@ -12,7 +12,9 @@ from django.contrib.auth import get_user_model
 
 from .signals import calculate_category_spending, calculate_total_spending, get_spending_periods
 
-from .models import Receipt, Item, Group, GroupMembers, SpendingAnalytics, User
+from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
+from .notifications import notify_group_receipt_added
+
 from .serializers import (
     ReceiptSerializer,
     ItemSerializer,
@@ -26,35 +28,42 @@ from .serializers import (
 # TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
 
 
-class ReceiptList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
-    serializer_class = ReceiptSerializer
+class ReceiptOverview(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        # return Receipt.objects.filter(user=self.request.user)
-        # return Receipt.objects.all()
-        return Receipt.objects.prefetch_related("items").all()
+    def post(self, request):
+        serializer = ReceiptSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            # Notifications
+            if serializer.data.get("group") is not None:
+                notify_group_receipt_added(serializer.data.get("group"))
 
-    def perform_create(self, serializer):
-        """
-        This ensures that nested 'items' data gets properly saved.
-        """
-        serializer.save()
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"receipts": serializer.data})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        # if id is None:
+        #     receipt = Receipt.objects.filter(user=request.user, id=id).first()
+        #     if receipt is None:
+        #         return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        #     serializer = ReceiptSerializer(receipt)
+        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        receipts = Receipt.objects.filter(user=request.user)
+        serializer = ReceiptSerializer(receipts, many=True)
+        return Response({"receipts": serializer.data}, status=status.HTTP_200_OK)
 
 
 class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ReceiptSerializer
     queryset = Receipt.objects.all()
 
 
 class ItemList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     def list(self, request, *args, **kwargs):
@@ -75,7 +84,7 @@ class ItemList(generics.ListCreateAPIView):
 
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     # Not 100% sure whether this works
@@ -84,7 +93,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GroupList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
@@ -95,13 +104,13 @@ class GroupList(generics.ListCreateAPIView):
 
 
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
 
 class GroupMembersList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def list(self, request, *args, **kwargs):
@@ -118,7 +127,7 @@ class GroupMembersList(generics.ListCreateAPIView):
 
 
 class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
@@ -187,7 +196,7 @@ class UserLogoutView(APIView):
 
 class SpendingAnalyticsView(generics.ListAPIView):
     serializer_class = SpendingAnalyticsSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
