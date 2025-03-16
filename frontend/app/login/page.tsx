@@ -74,7 +74,14 @@ export default function LoginPage() {
           variant="h4"
           sx={{ fontWeight: 'bold' }}
         >
-          Sign in to <span style={{color: "#E2C00A"}}>Catalog</span>
+          Sign in to {' '}
+          <span 
+            style={{ color: "#E2C00A" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#F5D21A"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#E2C00A"}
+          >
+            Catalog
+          </span>
         </Typography>
         <TextField
           label="Username"
