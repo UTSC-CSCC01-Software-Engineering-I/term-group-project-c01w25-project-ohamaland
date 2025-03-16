@@ -40,10 +40,12 @@ export default function Page() {
           throw new Error("Failed to fetch receipts");
         }
         const data = await response.json();
+        console.log("📊 Full API Response:", data);
         console.log("Received Data:", data); // ✅ Debugging log
         setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
+        setReceipts([]);
       }
     }
     fetchReceipts();
@@ -89,6 +91,7 @@ export default function Page() {
         throw new Error("Failed to save receipt");
       }
       const savedReceipt = await response.json();
+      
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
