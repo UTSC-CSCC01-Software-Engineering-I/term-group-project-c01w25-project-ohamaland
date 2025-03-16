@@ -1,12 +1,15 @@
 "use client";
 
 import { getAccessToken } from "@/utils/auth";
-import { getActiveElement } from "@mui/x-date-pickers/internals";
 import { useState } from "react";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,66 +48,113 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={containerStyle}>
-      <h1 style={headingStyle}>Login</h1>
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <input
-          type="text"
-          placeholder="Email or Username"
+    <Box sx={outerBoxStyle}>
+      {/* Create an account */}
+      <Box sx={headerStyle}>
+        <Typography
+          variant="body2"
+          sx={{ textAlign: 'right' }}
+        >
+          New to Catalog? <a href="/login" style={{ color: '#1E90FF' }}>Create an account</a>
+        </Typography>
+      </Box>
+
+      {/* Register form */}
+      <Container
+        maxWidth='xs'
+        sx={{
+          padding: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+      >
+        <Image src="/catalog.png" width={90} height={90} alt={""} />
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 'bold' }}
+        >
+          Sign in to <span style={{color: "#E2C00A"}}>Catalog</span>
+        </Typography>
+        <TextField
+          label="Username"
+          fullWidth
+          size="small"
+          margin="normal"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          required
-          style={inputStyle}
+          sx={textFieldStyle}
         />
-        <input
-          type="password"
-          placeholder="Password"
+        <TextField
+          label="Password"
+          fullWidth
+          size="small"
+          margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
-          style={inputStyle}
+          type={showPassword ? "text" : "password"}
+          sx={textFieldStyle}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
-        <button type="submit" style={buttonStyle}>Login</button>
-      </form>
-    </div>
+        <Button
+          variant="contained"
+          fullWidth
+          color="primary"
+          onClick={handleSubmit}
+          sx={continueButtonStyle}
+        >
+          Sign in
+        </Button>
+      </Container>
+    </Box>
   );
 }
 
-const containerStyle = {
-  display: "flex",
-  flexDirection: "column" as const,
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100vh",
-  backgroundColor: "#f0f0f0",
-};
+const outerBoxStyle = {
+  bgcolor: 'white',
+  display: 'flex',
+  flexDirection: 'column',
+}
 
-const headingStyle = {
-  marginBottom: "20px",
-};
+const headerStyle = {
+  padding: 3,
+  paddingRight: 5,
+}
 
-const formStyle = {
-  display: "flex",
-  flexDirection: "column" as const,
-  width: "300px",
-};
+const textFieldStyle = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 2,
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#E2C00A',
+    }
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#E2C00A',
+  }
+}
 
-const inputStyle = {
-  marginBottom: "10px",
-  padding: "10px",
-  border: "1px solid #ccc",
-  borderRadius: "4px",
-};
-
-const buttonStyle = {
-  padding: "10px",
-  backgroundColor: "#0070f3",
-  color: "white",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer",
-};
-
-const buttonHoverStyle = {
-  backgroundColor: "#005bb5",
-};
+const continueButtonStyle = {
+  marginTop: 2,
+  borderRadius: 2,
+  height: 50,
+  textTransform: 'none',
+  fontWeight: 'bold',
+  fontSize: 18,
+  backgroundColor: '#E2C00A',
+  boxShadow: 'none',
+  '&:hover': {
+    backgroundColor: '#F5D21A',
+  }
+}
