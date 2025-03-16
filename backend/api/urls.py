@@ -10,10 +10,12 @@ from .views import (
     GroupDetail,
     GroupMembersList,
     GroupMembersDetail,
-    UserRegisterView,
-    UserLoginView,
-    UserLogoutView,
-    SpendingAnalyticsView
+    register,
+    login,
+    logout,
+    me,
+    SpendingAnalyticsView,
+
 )
 
 urlpatterns = [
@@ -39,9 +41,10 @@ urlpatterns = [
         GroupMembersDetail.as_view(),
         name="group-members-detail",
     ),
-    path("user/register/", UserRegisterView.as_view()),
-    path("user/login/", UserLoginView.as_view()),
-    path("user/logout/", UserLogoutView.as_view()),
+    path("user/register/", register, name="user-register"),
+    path("user/login/", login, name="user-login"),
+    path("user/logout/", logout, name="user-logout"),
+    path("user/me/", me, name="me"),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
 
     path("analytics/spending/<int:user_id>/<str:period>/", SpendingAnalyticsView.as_view(), name="spending-analytics"),
