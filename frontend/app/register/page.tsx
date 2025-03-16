@@ -130,6 +130,7 @@ export default function RegisterPage() {
           label="Password"
           fullWidth
           required
+          helperText="Passwords must be at least 8 characters long."
           size="small"
           margin="normal"
           value={password}
@@ -150,11 +151,6 @@ export default function RegisterPage() {
             ),
           }}
         />
-        <Typography
-          variant="body2"
-          sx={{ color: 'text.secondary' }}>
-          Passwords must be at least 8 characters long.
-        </Typography>
         <TextField
           label="Confirm Password"
           fullWidth
