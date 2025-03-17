@@ -48,22 +48,51 @@ class ReceiptOverview(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        # if id is None:
-        #     receipt = Receipt.objects.filter(user=request.user, id=id).first()
-        #     if receipt is None:
-        #         return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        #     serializer = ReceiptSerializer(receipt)
-        #     return Response(serializer.data, status=status.HTTP_200_OK)
         receipts = Receipt.objects.filter(user=request.user)
         serializer = ReceiptSerializer(receipts, many=True)
         return Response({"receipts": serializer.data}, status=status.HTTP_200_OK)
 
 
-class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
+class ReceiptDetail(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ReceiptSerializer
-    queryset = Receipt.objects.all()
+
+    def patch(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ReceiptSerializer(receipt, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ReceiptSerializer(receipt, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        receipt.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ReceiptSerializer(receipt)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ItemList(generics.ListCreateAPIView):
