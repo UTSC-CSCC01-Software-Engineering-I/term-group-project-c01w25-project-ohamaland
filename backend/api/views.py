@@ -58,13 +58,13 @@ class ReceiptOverview(APIView):
 
 
 class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ReceiptSerializer
     queryset = Receipt.objects.all()
 
 
 class ItemList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     def list(self, request, *args, **kwargs):
@@ -85,7 +85,7 @@ class ItemList(generics.ListCreateAPIView):
 
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     # Not 100% sure whether this works
@@ -94,7 +94,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GroupList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
@@ -105,13 +105,13 @@ class GroupList(generics.ListCreateAPIView):
 
 
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
 
 class GroupMembersList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def list(self, request, *args, **kwargs):
@@ -128,7 +128,7 @@ class GroupMembersList(generics.ListCreateAPIView):
 
 
 class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
@@ -210,7 +210,7 @@ def me(request):
 
 class SpendingAnalyticsView(generics.ListAPIView):
     serializer_class = SpendingAnalyticsSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
