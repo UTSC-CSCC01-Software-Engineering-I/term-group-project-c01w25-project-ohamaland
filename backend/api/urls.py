@@ -15,7 +15,6 @@ from .views import (
     logout,
     me,
     SpendingAnalyticsView,
-
 )
 
 urlpatterns = [
@@ -46,6 +45,9 @@ urlpatterns = [
     path("user/logout/", logout, name="user-logout"),
     path("user/me/", me, name="me"),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
-
-    path("analytics/spending/<int:user_id>/<str:period>/", SpendingAnalyticsView.as_view(), name="spending-analytics"),
+    path(
+        "analytics/spending/<int:user_id>/<str:period>/",
+        SpendingAnalyticsView.as_view(),
+        name="spending-analytics",
+    ),
 ]

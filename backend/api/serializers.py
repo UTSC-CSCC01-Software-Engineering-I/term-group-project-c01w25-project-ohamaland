@@ -42,17 +42,21 @@ class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
     receipt_image = serializers.ImageField(required=False)
     user_id = serializers.IntegerField(required=False)
-    
+
     class Meta:
         model = Receipt
         fields = "__all__"
 
     def create(self, validated_data):
         image = validated_data.pop("receipt_image", None)
-        items_data = validated_data.pop('items', [])
+        items_data = validated_data.pop("items", [])
 
-        user_id = validated_data.pop('user', None)
-        validated_data['user'] = User.objects.filter(id=user_id).first() if isinstance(user_id, int) else user_id
+        user_id = validated_data.pop("user", None)
+        validated_data["user"] = (
+            User.objects.filter(id=user_id).first()
+            if isinstance(user_id, int)
+            else user_id
+        )
 
         receipt = Receipt.objects.create(**validated_data)
 
@@ -84,7 +88,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
         update_spending_analytics(receipt.user_id)
 
         return receipt
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
@@ -94,7 +98,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 data[key] = float(value)
 
         return data
-
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
@@ -113,15 +116,20 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = "__all__"
 
+
 class SpendingAnalyticsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
+
     class Meta:
         model = SpendingAnalytics
-        fields = ['user', 'total_spent', 'category_spending', 'period', 'date']
+        fields = ["user", "total_spent", "category_spending", "period", "date"]
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""
-        return [{"category": key, "amount": float(value)} for key, value in obj.category_spending.items()]
+        return [
+            {"category": key, "amount": float(value)}
+            for key, value in obj.category_spending.items()
+        ]
 
     def to_representation(self, instance):
         """Convert Decimal fields to float for JSON serialization."""

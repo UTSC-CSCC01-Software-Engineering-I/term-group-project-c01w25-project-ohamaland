@@ -11,7 +11,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 
-from .signals import calculate_category_spending, calculate_total_spending, get_spending_periods
+from .signals import (
+    calculate_category_spending,
+    calculate_total_spending,
+    get_spending_periods,
+)
 
 from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
 from .notifications import notify_group_receipt_added
@@ -39,7 +43,6 @@ class ReceiptOverview(APIView):
             # Notifications
             if serializer.data.get("group") is not None:
                 notify_group_receipt_added(serializer.data.get("group"))
-
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -171,7 +174,7 @@ def login(request):
         )
     return Response(
         {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-        )
+    )
 
 
 @api_view(["POST"])
@@ -197,21 +200,18 @@ def logout(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def me(request):
     user = request.user
-    return Response({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-    })
+    return Response({"id": user.id, "username": user.username, "email": user.email})
 
 
 class SpendingAnalyticsView(generics.ListAPIView):
     serializer_class = SpendingAnalyticsSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
 
@@ -240,7 +240,7 @@ class SpendingAnalyticsView(generics.ListAPIView):
             "period": period,
             "date": start_date,
         }
-    
+
     def get(self, request, user_id, period):
         """
         Handles GET requests to return spending analytics for a user and a specific period.
@@ -256,7 +256,9 @@ class SpendingAnalyticsView(generics.ListAPIView):
         start_date = periods.get(period)
 
         if not start_date:
-            return JsonResponse({"error": "Could not find start date for the period"}, status=400)
+            return JsonResponse(
+                {"error": "Could not find start date for the period"}, status=400
+            )
 
         try:
             # Pass the correct parameters to get_spending_analytics
