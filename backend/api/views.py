@@ -59,18 +59,22 @@ class ReceiptDetail(APIView):
     def patch(self, request, pk):
         receipt = Receipt.objects.filter(user=request.user, id=pk).first()
         if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         serializer = ReceiptSerializer(receipt, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def put(self, request, pk):
         receipt = Receipt.objects.filter(user=request.user, id=pk).first()
         if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         serializer = ReceiptSerializer(receipt, data=request.data)
         if serializer.is_valid():
@@ -81,7 +85,9 @@ class ReceiptDetail(APIView):
     def delete(self, request, pk):
         receipt = Receipt.objects.filter(user=request.user, id=pk).first()
         if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         receipt.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -89,7 +95,9 @@ class ReceiptDetail(APIView):
     def get(self, request, pk):
         receipt = Receipt.objects.filter(user=request.user, id=pk).first()
         if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         serializer = ReceiptSerializer(receipt)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -234,7 +242,16 @@ def logout(request):
 @permission_classes([IsAuthenticated])
 def me(request):
     user = request.user
-    return Response({"id": user.id, "username": user.username, "email": user.email})
+    return Response(
+        {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone_number": user.phone_number,
+        }
+    )
 
 
 class SpendingAnalyticsView(generics.ListAPIView):
