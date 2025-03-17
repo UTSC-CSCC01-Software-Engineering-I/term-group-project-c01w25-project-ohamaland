@@ -4,8 +4,8 @@ from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
-from .signals import update_spending_analytics
+from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .signals import update_insights
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,8 +41,8 @@ class ItemSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
     receipt_image = serializers.ImageField(required=False)
-    user_id = serializers.IntegerField(required=False)
-    
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
     class Meta:
         model = Receipt
         fields = "__all__"
@@ -51,8 +51,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
         image = validated_data.pop("receipt_image", None)
         items_data = validated_data.pop('items', [])
 
-        user_id = validated_data.pop('user', None)
-        validated_data['user'] = User.objects.filter(id=user_id).first() if isinstance(user_id, int) else user_id
+        user = validated_data.pop("user")
+        validated_data["user"] = User.objects.get(id=user.id)
 
         receipt = Receipt.objects.create(**validated_data)
 
@@ -81,7 +81,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
             )
 
-        update_spending_analytics(receipt.user_id)
+        update_insights(receipt.user)
 
         return receipt
     
@@ -113,10 +113,10 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = "__all__"
 
-class SpendingAnalyticsSerializer(serializers.ModelSerializer):
+class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
     class Meta:
-        model = SpendingAnalytics
+        model = Insights
         fields = ['user', 'total_spent', 'category_spending', 'period', 'date']
 
     def get_category_spending(self, obj):

@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from .models import Receipt, SpendingAnalytics, Item, User
+from .models import Receipt, Insights, Item, User
 from django.db.models import Sum
 from datetime import timedelta
 from django.utils.timezone import now
@@ -31,9 +31,8 @@ def get_all_dates_in_period(start_date, end_date):
         current_date += timedelta(days=1)
     return date_list
 
-def calculate_category_spending(user_id, start_date):
+def calculate_category_spending(user, start_date):
     """Calculate category spending for the user."""
-    user = User.objects.filter(id=user_id).first()
     if not user:
         return {}
 
@@ -50,9 +49,8 @@ def calculate_category_spending(user_id, start_date):
 
     return category_spending
 
-def calculate_total_spending(user_id, start_date):
+def calculate_total_spending(user, start_date):
     """Calculate total spending over time for the user."""
-    user = User.objects.filter(id=user_id).first()
     if not user:
         return {}
 
@@ -78,15 +76,15 @@ def calculate_total_spending(user_id, start_date):
 
     return total_spending_per_date
 
-def update_spending_analytics(user_id):
-    print("Updating spending analytics...")
-    user = User.objects.filter(id=user_id).first()
+def update_insights(user):
+
+    if not isinstance(user, User):  # Ensure it's a User instance
+        user = User.objects.filter(id=user).first()
+
     if not user:
         return
 
     today = now().date()
-
-    # Compute total spending over different periods
     periods = get_spending_periods()
 
     # Calculate category spending for the user
@@ -97,10 +95,10 @@ def update_spending_analytics(user_id):
         print(f"Processing period: {period}, start_date: {start_date}")
 
         # Calculate category spending for this period
-        category_spending[period] = calculate_category_spending(user_id, start_date)
+        category_spending[period] = calculate_category_spending(user, start_date)
         
         # Calculate total spending for this period
-        total_spending[period] = calculate_total_spending(user_id, start_date)
+        total_spending[period] = calculate_total_spending(user, start_date)
 
         # Calculate total spending in this period
         total_spent = sum(total_spending[period].values())
@@ -114,7 +112,7 @@ def update_spending_analytics(user_id):
         }
 
         # Update the spending analytics for this period
-        analytics, created = SpendingAnalytics.objects.update_or_create(
+        analytics, created = Insights.objects.update_or_create(
             user=user,
             period=period,
             date=today,
@@ -133,9 +131,9 @@ def update_spending_analytics(user_id):
 @receiver(post_save, sender=Receipt)
 def update_analytics_on_receipt_change(sender, instance, created,**kwargs):
     if created:  # Only trigger when a new receipt is created
-        update_spending_analytics(instance.user_id)
+        update_insights(instance.user)
 
 @receiver(post_delete, sender=Receipt)
 def update_analytics_on_receipt_delete(sender, instance, **kwargs):
     # Optionally update analytics when a receipt is deleted
-    update_spending_analytics(instance.user_id)
+    update_insights(instance.user)

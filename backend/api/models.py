@@ -108,7 +108,7 @@ class Item(models.Model):
         return f"Item {self.name} - {self.quantity}"
     
     
-class SpendingAnalytics(models.Model):
+class Insights(models.Model):
     TIME_CHOICES = [
         ('Weekly', 'Weekly'),
         ('Monthly', 'Monthly'),
@@ -122,7 +122,7 @@ class SpendingAnalytics(models.Model):
     date = models.DateField(default=now)
 
     class Meta:
-        db_table = "spending_analytics"
+        db_table = "Insights"
         unique_together = ('user', 'period', 'date')
 
     def __str__(self):

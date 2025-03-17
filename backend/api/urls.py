@@ -13,7 +13,7 @@ from .views import (
     UserRegisterView,
     UserLoginView,
     UserLogoutView,
-    SpendingAnalyticsView
+    InsightsView
 )
 
 urlpatterns = [
@@ -44,5 +44,5 @@ urlpatterns = [
     path("user/logout/", UserLogoutView.as_view()),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
 
-    path("analytics/spending/<int:user_id>/<str:period>/", SpendingAnalyticsView.as_view(), name="spending-analytics"),
+    path("analytics/insights/<str:period>/", InsightsView.as_view(), name="insights"),
 ]
