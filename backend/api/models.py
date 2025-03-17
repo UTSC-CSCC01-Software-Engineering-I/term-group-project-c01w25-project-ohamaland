@@ -58,6 +58,9 @@ class Receipt(models.Model):
     payment_method = models.CharField(
         max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True
     )
+    tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True) # default=0 ?
+    tip = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True) # default=0 ?
+    tax_last = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
