@@ -1,6 +1,6 @@
 import { Category, Receipt } from "@/types/receipts";
 import { filterReceipts } from "@/utils/filters";
-import { Grid2 } from "@mui/material";
+import { Alert, Grid2, Snackbar } from "@mui/material";
 import { Dayjs } from "dayjs";
 import ReceiptCard from "./ReceiptCard";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ interface IReceiptGridProps {
 export default function ReceiptGrid(props: IReceiptGridProps) {
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const [receiptToDelete, setReceiptToDelete] = useState<Receipt | null>(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [dontRemindMe, setDontRemindMe] = useState(() => {
     return localStorage.getItem("dont_remind_delete_receipt") === "true";
   });
@@ -40,6 +41,7 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   const confirmDelete = async () => {
     if (receiptToDelete) {
       props.onDeleteReceipt(receiptToDelete.id);
+      setOpenSnackbar(true);
     }
     if (dontRemindMe) {
       localStorage.setItem("dont_remind_delete_receipt", "true");
@@ -83,6 +85,17 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
         dontRemindMe={dontRemindMe}
         setDontRemindMe={setDontRemindMe}
       />
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+          Receipt has been successfully deleted.
+        </Alert>
+      </Snackbar>
     </Grid2>
   );
 }
