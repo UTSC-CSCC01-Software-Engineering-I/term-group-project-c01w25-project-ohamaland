@@ -7,6 +7,7 @@ import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
+import { getAccessToken } from "@/utils/auth";
 
 export default function Page() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -21,21 +22,24 @@ export default function Page() {
 
   // Fetch subscriptions from API
   useEffect(() => {
-    async function fetchReceipts() {
+    async function fetchSubscriptions() {
       try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/subscriptions/"
-        );
+        const token = getAccessToken();
+        const response = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch subscriptions");
         }
         const data = await response.json();
         setSubscriptions(data.subscriptions);
       } catch (error) {
-        console.error("Error fetching receipts:", error);
+        console.error("Error fetching subscriptions:", error);
       }
     }
-    fetchReceipts();
+    fetchSubscriptions();
   }, []);
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
@@ -76,20 +80,35 @@ export default function Page() {
     formData.append("billing_period", newSubscription.billing_period);
     formData.append("renewal_date", newSubscription.renewal_date);
     formData.append("payment_method", newSubscription.billing_period);
-    formData.append("user_id", "1"); // hardcoded for now
     formData.append("id", newSubscription.id.toString());
     console.log(newSubscription.user_id);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
+      const token = getAccessToken();
+      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+      if (!meResponse.ok) {
+        throw new Error("Failed to get user information.");
+      }
+      const data = await meResponse.json()
+      formData.append("user", data.id);
+
+      const subscriptionResponse = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
         body: formData
       });
-      console.log(response);
-      if (!response.ok) {
+      console.log(subscriptionResponse);
+      if (!subscriptionResponse.ok) {
         throw new Error("Failed to save subscription");
       }
-      const savedSubscription = await response.json();
+      const savedSubscription = await subscriptionResponse.json();
       setSubscriptions((prevSubscriptions) => [
         ...prevSubscriptions,
         savedSubscription

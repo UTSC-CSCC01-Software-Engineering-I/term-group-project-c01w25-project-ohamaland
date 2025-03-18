@@ -208,12 +208,12 @@ def me(request):
 
 
 class SubscriptionList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
 
-    # def get_queryset(self):
-    #     return Subscription.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -222,12 +222,12 @@ class SubscriptionList(generics.ListCreateAPIView):
 
 
 class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
 
-    # def get_queryset(self):
-    #     return Subscription.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
 
 
 class SpendingAnalyticsView(generics.ListAPIView):
