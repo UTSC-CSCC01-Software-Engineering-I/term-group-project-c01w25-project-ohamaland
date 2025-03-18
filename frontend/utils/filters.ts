@@ -56,12 +56,14 @@ export function filterReceipts(
     }
 
     const lowercaseFilterTerm = filterTerm.toLowerCase();
-    const merchantMatch = receipt.merchant
-      .toLowerCase()
-      .includes(lowercaseFilterTerm);
-    const itemMatch = receipt.items.some((item) =>
-      item.name.toLowerCase().includes(lowercaseFilterTerm)
-    );
+    const merchantMatch =
+      receipt.merchant &&
+      receipt.merchant.toLowerCase().includes(lowercaseFilterTerm);
+      const itemMatch =
+        Array.isArray(receipt.items) &&
+        receipt.items.some((item) =>
+          item.name.toLowerCase().includes(lowercaseFilterTerm)
+      );
 
     if (filterTerm && !merchantMatch && !itemMatch) {
       return false;

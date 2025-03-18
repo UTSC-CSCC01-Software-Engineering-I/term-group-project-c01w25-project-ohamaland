@@ -6,6 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
+import { getAccessToken } from "@/utils/auth";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -25,15 +26,22 @@ export default function Page() {
     async function fetchReceipts() {
       try {
         console.log("Fetching receipts..."); // ✅ Debugging log
-        const response = await fetch("http://127.0.0.1:8000/api/receipts/");
+        const token = getAccessToken();
+        const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch receipts");
         }
         const data = await response.json();
+        console.log("📊 Full API Response:", data);
         console.log("Received Data:", data); // ✅ Debugging log
         setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
+        setReceipts([]);
       }
     }
     fetchReceipts();
@@ -62,19 +70,34 @@ export default function Page() {
     formData.append("date", newReceipt.date);
     formData.append("payment_method", newReceipt.payment_method);
     formData.append("items", JSON.stringify(newReceipt.items));
-    formData.append("user_id", "1"); // hardcoded
     formData.append("id", newReceipt.id.toString());
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
+      const token = getAccessToken();
+      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+      if (!meResponse.ok) {
+        throw new Error("Failed to get user information.");
+      }
+      const data = await meResponse.json()
+      formData.append("user", data.id);
+
+      const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
         body: formData
       });
-      console.log(response);
-      if (!response.ok) {
+      console.log(receiptResponse);
+      if (!receiptResponse.ok) {
         throw new Error("Failed to save receipt");
       }
-      const savedReceipt = await response.json();
+      const savedReceipt = await receiptResponse.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
@@ -103,12 +126,14 @@ export default function Page() {
         date: formattedDate
       };
       console.log("Contents of receipt: ", updatedReceipt);
+      const token = getAccessToken();
       const response = await fetch(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify(updatedData)
         }

@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
-    ReceiptList,
+    ReceiptOverview,
     ReceiptDetail,
     ItemList,
     ItemDetail,
@@ -10,15 +10,17 @@ from .views import (
     GroupDetail,
     GroupMembersList,
     GroupMembersDetail,
-    UserRegisterView,
-    UserLoginView,
-    UserLogoutView,
     SubscriptionList,
     SubscriptionDetail,
+    register,
+    login,
+    logout,
+    me,
+    SpendingAnalyticsView,
 )
 
 urlpatterns = [
-    path("receipts/", ReceiptList.as_view(), name="receipt-list-create"),
+    path("receipts/", ReceiptOverview.as_view(), name="receipt-list-create"),
     path("receipts/<int:pk>/", ReceiptDetail.as_view(), name="receipt-detail"),
     path(
         "receipts/<int:receipt_id>/items/", ItemList.as_view(), name="item-list-create"
@@ -40,9 +42,10 @@ urlpatterns = [
         GroupMembersDetail.as_view(),
         name="group-members-detail",
     ),
-    path("user/register/", UserRegisterView.as_view()),
-    path("user/login/", UserLoginView.as_view()),
-    path("user/logout/", UserLogoutView.as_view()),
+    path("user/register/", register, name="user-register"),
+    path("user/login/", login, name="user-login"),
+    path("user/logout/", logout, name="user-logout"),
+    path("user/me/", me, name="me"),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("subscriptions/", SubscriptionList.as_view(), name="subscription-list"),
     path(
@@ -50,4 +53,5 @@ urlpatterns = [
         SubscriptionDetail.as_view(),
         name="subscription-detail",
     ),
+    path("analytics/spending/<int:user_id>/<str:period>/", SpendingAnalyticsView.as_view(), name="spending-analytics"),
 ]

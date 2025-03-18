@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.timezone import now
 
 
 class User(AbstractUser):
@@ -46,7 +47,7 @@ class Receipt(models.Model):
         ("Cash", "Cash"),
     ]
 
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="receipts")
     group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     merchant = models.TextField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -145,3 +146,24 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"Subscription {self.id} - {self.merchant}"
+
+
+class SpendingAnalytics(models.Model):
+    TIME_CHOICES = [
+        ('Weekly', 'Weekly'),
+        ('Monthly', 'Monthly'),
+        ('Quarterly', 'Quarterly'),
+        ('Yearly', 'Yearly')
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category_spending =models.JSONField(default=dict)
+    total_spent = models.DecimalField(max_digits=10, decimal_places=2)
+    period = models.TextField(max_length=20, choices = TIME_CHOICES)
+    date = models.DateField(default=now)
+
+    class Meta:
+        db_table = "spending_analytics"
+        unique_together = ('user', 'period', 'date')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.period} - {self.date} - Total Spent: {self.total_spent}"
