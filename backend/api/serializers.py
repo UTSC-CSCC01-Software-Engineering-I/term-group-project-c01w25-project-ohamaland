@@ -1,5 +1,7 @@
 from decimal import Decimal
+
 import boto3
+from django.db import transaction
 from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
@@ -39,31 +41,19 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True)
+    items = ItemSerializer(many=True) # Nested serializer
     receipt_image = serializers.ImageField(required=False)
-    user_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Receipt
         fields = "__all__"
 
-    def create(self, validated_data):
-        image = validated_data.pop("receipt_image", None)
-        items_data = validated_data.pop("items", [])
+    def _handle_image_upload(self, image):
+        """Handle S3 image upload and return the URL."""
+        if not image:
+            return None
 
-        user_id = validated_data.pop("user", None)
-        validated_data["user"] = (
-            User.objects.filter(id=user_id).first()
-            if isinstance(user_id, int)
-            else user_id
-        )
-
-        receipt = Receipt.objects.create(**validated_data)
-
-        for item_data in items_data:
-            Item.objects.create(receipt=receipt, **item_data)
-
-        if image:
+        try:
             s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -79,25 +69,41 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 bucket_name,
                 file_key,
                 ExtraArgs={"ContentType": image.content_type},
-            )  # Ensures that it opens the image in the browser
-
-            validated_data["receipt_image_url"] = (
-                f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
             )
 
-        update_spending_analytics(receipt.user_id)
+            return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        except Exception as e:
+            raise serializers.ValidationError(f"Image upload failed: {str(e)}")
 
-        return receipt
+    def create(self, validated_data):
+        items_data = validated_data.pop("items", [])
+        image = validated_data.pop("receipt_image", None)
+
+        # Handle image upload
+        receipt_image_url = self._handle_image_upload(image)
+        if receipt_image_url:
+            validated_data["receipt_image_url"] = receipt_image_url
+
+        try:
+            # Create receipt and items in a transaction
+            with transaction.atomic():
+                receipt = Receipt.objects.create(**validated_data)
+                Item.objects.bulk_create([
+                    Item(receipt=receipt, **item_data)
+                    for item_data in items_data
+                ])
+
+                update_spending_analytics(receipt.user_id)
+                return receipt
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-
-        # Convert Decimal fields to float
-        for key, value in data.items():
-            if isinstance(value, Decimal):
-                data[key] = float(value)
-
-        return data
+        return {
+            key: float(value) if isinstance(value, Decimal) else value
+            for key, value in data.items()
+        }
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
