@@ -75,6 +75,13 @@ class ReceiptSerializer(serializers.ModelSerializer):
         except Exception as e:
             raise serializers.ValidationError(f"Image upload failed: {str(e)}")
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return {
+            key: float(value) if isinstance(value, Decimal) else value
+            for key, value in data.items()
+        }
+
     def create(self, validated_data):
         items_data = validated_data.pop("items", [])
         image = validated_data.pop("receipt_image", None)
@@ -93,18 +100,39 @@ class ReceiptSerializer(serializers.ModelSerializer):
                     for item_data in items_data
                 ])
 
-                update_spending_analytics(receipt.user_id)
+                update_spending_analytics(receipt.user.id)
                 return receipt
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        return {
-            key: float(value) if isinstance(value, Decimal) else value
-            for key, value in data.items()
-        }
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop("items", [])
+        image = validated_data.pop("receipt_image", None)
 
+        # TO DO: Handle image deletion
+        # Handle image upload
+        receipt_image_url = self._handle_image_upload(image)
+        if receipt_image_url:
+            validated_data["receipt_image_url"] = receipt_image_url
+
+        try:
+            with transaction.atomic():
+                # Update receipt fields
+                for key, value in validated_data.items():
+                    setattr(instance, key, value)
+                instance.save()
+
+                # Update items
+                Item.objects.filter(receipt=instance).delete()
+                Item.objects.bulk_create([
+                    Item(receipt=instance, **item_data)
+                    for item_data in items_data
+                ])
+
+                update_spending_analytics(instance.user.id)
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
 
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
