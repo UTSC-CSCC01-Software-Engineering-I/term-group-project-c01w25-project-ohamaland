@@ -13,7 +13,13 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
+  const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
+  const [lastNameErrorMessage, setLastNameErrorMessage] = useState("");
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +91,24 @@ export default function RegisterPage() {
           size="small"
           margin="normal"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          error={usernameErrorMessage !== ""}
+          helperText={usernameErrorMessage}
+          inputProps={{
+            pattern: "^[a-zA-Z0-9_]+$",
+            maxLength: 150,
+          }}
+          onChange={(e) => {
+            setUsername(e.target.value)
+            if (e.target.validity.valueMissing) {
+              setUsernameErrorMessage("Username is required");
+            } else if (e.target.validity.patternMismatch) {
+              setUsernameErrorMessage("Username can only contain alphanumeric characters and underscores");
+            } else if (e.target.validity.tooLong) {
+              setUsernameErrorMessage("Username is too long");
+            } else if (e.target.validity.valid) {
+              setUsernameErrorMessage("");
+            }
+          }}
           sx={textFieldStyle}
         />
         
@@ -103,7 +126,21 @@ export default function RegisterPage() {
             size="small"
             margin="normal"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            error={firstNameErrorMessage !== ""}
+            helperText={firstNameErrorMessage}
+            inputProps={{
+              pattern: "^[a-zA-Z'-.]+$",
+            }}
+            onChange={(e) => {
+              setFirstName(e.target.value)
+              if (e.target.validity.valueMissing) {
+                setFirstNameErrorMessage("First name is required");
+              } else if (e.target.validity.patternMismatch) {
+                setFirstNameErrorMessage("First name must contain valid characters");
+              } else if (e.target.validity.valid) {
+                setFirstNameErrorMessage("");
+              }
+            }}
             sx={nameFieldStyle}
           />
           <TextField
@@ -112,7 +149,21 @@ export default function RegisterPage() {
             size="small"
             margin="normal"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            error={lastNameErrorMessage !== ""}
+            helperText={lastNameErrorMessage}
+            inputProps={{
+              pattern: "^[a-zA-Z'-.]+$",
+            }}
+            onChange={(e) => {
+              setLastName(e.target.value)
+              if (e.target.validity.valueMissing) {
+                setLastNameErrorMessage("Last name is required");
+              } else if (e.target.validity.patternMismatch) {
+                setLastNameErrorMessage("Last name must contain valid characters");
+              } else if (e.target.validity.valid) {
+                setLastNameErrorMessage("");
+              }
+            }}
             sx={nameFieldStyle}
           />
         </Box>
@@ -123,7 +174,21 @@ export default function RegisterPage() {
           size="small"
           margin="normal"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          error={emailErrorMessage !== ""}
+          helperText={emailErrorMessage}
+          inputProps={{
+            pattern: "^[^\s@]+@[^\s@]+\.[^\s@]+$",
+          }}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (e.target.validity.valueMissing) {
+              setEmailErrorMessage("Email address is required");
+            } else if (e.target.validity.patternMismatch) {
+              setEmailErrorMessage("Email address is invalid");
+            } else if (e.target.validity.valid) {
+              setEmailErrorMessage("");
+            }
+          }}
           sx={textFieldStyle}
         />
         <TextField
@@ -158,6 +223,8 @@ export default function RegisterPage() {
           size="small"
           margin="normal"
           value={confirmPassword}
+          error={password !== confirmPassword}
+          helperText={password !== confirmPassword ? "Passwords do not match" : ""}
           onChange={(e) => setConfirmPassword(e.target.value)}
           type={showPassword ? "text" : "password"}
           sx={textFieldStyle}
