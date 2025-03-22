@@ -6,7 +6,7 @@ from .views import (
     ReceiptDetail,
     ItemOverview,
     ItemDetail,
-    GroupList,
+    GroupOverview,
     GroupDetail,
     GroupMembersList,
     GroupMembersDetail,
@@ -28,7 +28,7 @@ urlpatterns = [
         ItemDetail.as_view(),
         name="item-detail",
     ),
-    path("groups/", GroupList.as_view(), name="group-list-create"),
+    path("groups/", GroupOverview.as_view(), name="group-list-create"),
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path(
         "groups/<int:group_id>/members/",

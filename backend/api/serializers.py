@@ -41,7 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True) # Nested serializer
+    items = ItemSerializer(many=True)  # Nested serializer
     receipt_image = serializers.ImageField(required=False)
 
     class Meta:
@@ -95,10 +95,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
             # Create receipt and items in a transaction
             with transaction.atomic():
                 receipt = Receipt.objects.create(**validated_data)
-                Item.objects.bulk_create([
-                    Item(receipt=receipt, **item_data)
-                    for item_data in items_data
-                ])
+                Item.objects.bulk_create(
+                    [Item(receipt=receipt, **item_data) for item_data in items_data]
+                )
 
                 update_spending_analytics(receipt.user.id)
                 return receipt
@@ -124,15 +123,15 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
                 # Update items
                 Item.objects.filter(receipt=instance).delete()
-                Item.objects.bulk_create([
-                    Item(receipt=instance, **item_data)
-                    for item_data in items_data
-                ])
+                Item.objects.bulk_create(
+                    [Item(receipt=instance, **item_data) for item_data in items_data]
+                )
 
                 update_spending_analytics(instance.user.id)
                 return instance
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
+
 
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
@@ -141,14 +140,72 @@ class GroupMembersSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = GroupMembersSerializer(
-        many=True, read_only=True, source="groupmembers_set"
-    )
-    receipts = ReceiptSerializer(many=True, read_only=True, source="receipt_set")
+    members = GroupMembersSerializer(many=True)
+    receipts = ReceiptSerializer(many=True)
 
     class Meta:
         model = Group
         fields = "__all__"
+
+    def create(self, validated_data):
+        members_data = validated_data.pop("members", [])
+        receipts_data = validated_data.pop("receipts", [])
+
+        try:
+            with transaction.atomic():
+                group = Group.objects.create(**validated_data)
+                GroupMembers.objects.bulk_create(
+                    [
+                        GroupMembers(group=group, **member_data)
+                        for member_data in members_data
+                    ]
+                )
+                Receipt.objects.bulk_create(
+                    [
+                        Receipt(group=group, **receipt_data)
+                        for receipt_data in receipts_data
+                    ]
+                )
+
+                return group
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create group: {str(e)}")
+
+    def update(self, instance, validated_data):
+        members_data = validated_data.pop("members", [])
+        receipts_data = validated_data.pop("receipts", [])
+
+        try:
+            with transaction.atomic():
+                # Update group fields
+                for key, value in validated_data.items():
+                    setattr(instance, key, value)
+                instance.save()
+
+                # Update members
+                # Should prevent deletion of creator from group
+                GroupMembers.objects.filter(group=instance).exclude(
+                    user=instance.creator
+                ).delete()
+                GroupMembers.objects.bulk_create(
+                    [
+                        GroupMembers(group=instance, **member_data)
+                        for member_data in members_data
+                    ]
+                )
+
+                # Update receipts
+                Receipt.objects.filter(group=instance).delete()
+                Receipt.objects.bulk_create(
+                    [
+                        Receipt(group=instance, **receipt_data)
+                        for receipt_data in receipts_data
+                    ]
+                )
+
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
 
 class SpendingAnalyticsSerializer(serializers.ModelSerializer):

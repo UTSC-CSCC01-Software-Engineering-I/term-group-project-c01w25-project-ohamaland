@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth import authenticate
 from django.forms import ValidationError
 from django.http import JsonResponse
@@ -102,7 +104,11 @@ class ItemOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, receipt_pk):
-        receipt = Receipt.objects.get(id=receipt_pk)
+        receipt = Receipt.objects.filter(user=request.user, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(receipt=receipt)
@@ -172,21 +178,68 @@ class ItemDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GroupList(generics.ListCreateAPIView):
+class GroupOverview(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupSerializer
-    queryset = Group.objects.all()
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"groups": serializer.data})
+    def get(self, request):
+        groups = Group.objects.filter(creator=request.user)
+        serializer = GroupSerializer(groups, many=True)
+        return Response({"groups": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            group = serializer.save()
+            # Add creator as a member
+            GroupMembers.objects.create(group=group, user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+class GroupDetail(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupSerializer
-    queryset = Group.objects.all()
+
+    def patch(self, request, pk):
+        group = Group.objects.filter(creator=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        group = Group.objects.filter(creator=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        group = Group.objects.filter(creator=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, pk):
+        group = Group.objects.filter(creator=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GroupMembersList(generics.ListCreateAPIView):
