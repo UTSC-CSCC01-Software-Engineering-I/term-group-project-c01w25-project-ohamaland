@@ -1,4 +1,4 @@
-**Security Measures & Testing**
+# **Security Measures & Testing**
 
 ### Authentication, Authorization, and Data Protection
 - **Authentication**: The application employs JSON Web Tokens (JWT) for secure user authentication, ensuring that only authorized users can access protected resources.

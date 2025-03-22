@@ -1,6 +1,6 @@
-# Ohama Land - Sprint 2 Planning
+# Ohama Land - Sprint 3 Planning
 
-## Iteration 02
+## Iteration 03
 **Start Date:** March 10, 2025  
 **End Date:** March 21, 2025  
 
