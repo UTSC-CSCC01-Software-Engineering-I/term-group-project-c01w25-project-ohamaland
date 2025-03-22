@@ -1,6 +1,6 @@
 # System Design Document (SDD)
 
-## Ohama Land - Sprint 1
+## Ohama Land - Sprint 3
 
 ### 1. Introduction
 This document provides an overview of the system design for Ohama Land, including the class structure, system interactions, architecture, and error handling mechanisms. Since the system is in early development, the design may undergo changes in future iterations.
