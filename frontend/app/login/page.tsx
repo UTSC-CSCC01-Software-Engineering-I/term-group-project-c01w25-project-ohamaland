@@ -1,21 +1,39 @@
 "use client";
 
-import { getAccessToken } from "@/utils/auth";
-import { useState } from "react";
+import { getAccessToken, setAccessToken } from "@/utils/auth";
+import { useState, useEffect } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography, CircularProgress } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import Image from "next/image";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { brand, error as errorColors, background } from '@/styles/colors';
+
+interface LoginError {
+  message: string;
+  type: 'auth' | 'network' | 'server';
+}
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showError, setShowError] = useState(false);
+  const [error, setError] = useState<LoginError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // If already authenticated, redirect to receipts
+    if (getAccessToken()) {
+      router.push('/receipts');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowError(false);
+    setError(null);
+    setIsLoading(true);
 
     const loginData = {
       identifier,
@@ -23,7 +41,6 @@ export default function LoginPage() {
     };
 
     try {
-      const token = getAccessToken();
       const response = await fetch("http://127.0.0.1:8000/api/user/login/", {
         method: "POST",
         headers: {
@@ -32,23 +49,69 @@ export default function LoginPage() {
         body: JSON.stringify(loginData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        setShowError(true);
-        throw new Error("Failed to login");
+        // Handle specific error cases
+        if (response.status === 401) {
+          setError({
+            message: "Incorrect username or password. Please try again.",
+            type: 'auth'
+          });
+        } else if (response.status === 400) {
+          setError({
+            message: "Please check your input and try again.",
+            type: 'auth'
+          });
+        } else {
+          setError({
+            message: "An error occurred. Please try again later.",
+            type: 'server'
+          });
+        }
+        return;
       }
 
-      const data = await response.json();
-      console.log("Login successful:", data);
+      // Store access token in cookie
+      setAccessToken(data.access);
 
-      // Store tokens in local storage
-      localStorage.setItem("accessToken", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
-
-      // Redirect to dashboard or another page
-      window.location.href = "/receipts";
+      // Redirect to the original requested page or receipts
+      const from = searchParams.get('from') || '/receipts';
+      router.push(from);
     } catch (error) {
-      setShowError(true);
       console.error("Error during login:", error);
+      setError({
+        message: "Unable to connect to the server. Please check your internet connection.",
+        type: 'network'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getErrorColor = (type: LoginError['type']) => {
+    switch (type) {
+      case 'auth':
+        return errorColors.dark;
+      case 'network':
+        return errorColors.warning;
+      case 'server':
+        return errorColors.dark;
+      default:
+        return errorColors.dark;
+    }
+  };
+
+  const getErrorBackground = (type: LoginError['type']) => {
+    switch (type) {
+      case 'auth':
+        return errorColors.light;
+      case 'network':
+        return errorColors.warningLight;
+      case 'server':
+        return errorColors.light;
+      default:
+        return errorColors.light;
     }
   };
 
@@ -60,7 +123,7 @@ export default function LoginPage() {
           variant="body2"
           sx={{ textAlign: 'right' }}
         >
-          New to Catalog? <a href="/register" style={{ color: '#1E90FF' }}>Create an account</a>
+          New to Catalog? <a href="/register" style={{ color: brand.secondary }}>Create an account</a>
         </Typography>
       </Box>
 
@@ -81,23 +144,24 @@ export default function LoginPage() {
         >
           Sign in to {' '}
           <span
-            style={{ color: "#E2C00A" }}
-            onMouseEnter={(e) => e.currentTarget.style.color = "#F5D21A"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "#E2C00A"}
+            style={{ color: brand.primary }}
+            onMouseEnter={(e) => e.currentTarget.style.color = brand.primaryHover}
+            onMouseLeave={(e) => e.currentTarget.style.color = brand.primary}
           >
             Catalog
           </span>
         </Typography>
 
-        {showError && (
+        {error && (
           <Box
             sx={{
-              bgcolor: "#FAA0A0",
-              height: "50px",
+              bgcolor: getErrorBackground(error.type),
+              height: "auto",
+              minHeight: "50px",
               width: "100%",
               display: "flex",
               alignItems: "center",
-              padding: "20px",
+              padding: "12px 20px",
               borderRadius: 2,
               marginTop: 2,
               marginBottom: 1,
@@ -105,21 +169,21 @@ export default function LoginPage() {
           >
             <Typography
               variant="body2"
-              sx={{ color: "#870707" }}
+              sx={{ color: getErrorColor(error.type) }}
             >
-              Incorrect username or password.
+              {error.message}
             </Typography>
             <IconButton
               size="small"
               sx={{
                 marginLeft: "auto",
-                color: "#870707",
+                color: getErrorColor(error.type),
                 padding: "2px",
                 "& .MuiSvgIcon-root": {
                   fontSize: "19px"
                 }
               }}
-              onClick={() => setShowError(false)}
+              onClick={() => setError(null)}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -133,6 +197,7 @@ export default function LoginPage() {
           margin="normal"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
+          disabled={isLoading}
           sx={textFieldStyle}
         />
         <TextField
@@ -143,6 +208,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           type={showPassword ? "text" : "password"}
+          disabled={isLoading}
           sx={textFieldStyle}
           InputProps={{
             endAdornment: (
@@ -163,9 +229,14 @@ export default function LoginPage() {
           fullWidth
           color="primary"
           onClick={handleSubmit}
+          disabled={isLoading}
           sx={continueButtonStyle}
         >
-          Sign in
+          {isLoading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Sign in"
+          )}
         </Button>
       </Container>
     </Box>
@@ -173,7 +244,7 @@ export default function LoginPage() {
 }
 
 const outerBoxStyle = {
-  bgcolor: 'white',
+  bgcolor: background.white,
   display: 'flex',
   flexDirection: 'column',
 }
@@ -187,11 +258,11 @@ const textFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -202,9 +273,13 @@ const continueButtonStyle = {
   textTransform: 'none',
   fontWeight: 'bold',
   fontSize: 18,
-  backgroundColor: '#E2C00A',
+  backgroundColor: brand.primary,
   boxShadow: 'none',
   '&:hover': {
-    backgroundColor: '#F5D21A',
+    backgroundColor: brand.primaryHover,
+  },
+  '&.Mui-disabled': {
+    backgroundColor: brand.primary,
+    opacity: 0.7,
   }
 }

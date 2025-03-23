@@ -6,10 +6,10 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import { getAccessToken } from "@/utils/auth";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/utils/api";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -25,17 +25,11 @@ export default function Page() {
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        const token = getAccessToken();
-        const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          }
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch receipts");
+        const response = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/");
+        if (response && response.ok) {
+          const data = await response.json();
+          setReceipts(data.receipts);
         }
-        const data = await response.json();
-        setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
         setReceipts([]);
@@ -102,26 +96,19 @@ export default function Page() {
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const token = getAccessToken();
-      const response = await fetch(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
+      const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete receipt");
-      }
+      if (response && response.ok) {
+        setReceipts((prevReceipts) =>
+          prevReceipts.filter((receipt) => receipt.id !== receiptId)
+        );
 
-      // Remove the deleted receipt from the state
-      setReceipts((prevReceipts) =>
-        prevReceipts.filter((receipt) => receipt.id !== receiptId)
-      );
-
-      if (selectedReceipt && selectedReceipt.id === receiptId) {
-        setIsDialogOpen(false);
-        setSelectedReceipt(null);
+        if (selectedReceipt && selectedReceipt.id === receiptId) {
+          setIsDialogOpen(false);
+          setSelectedReceipt(null);
+        }
       }
     } catch (error) {
       console.error("Error deleting receipt:", error);
@@ -144,35 +131,31 @@ export default function Page() {
     try {
       const formattedDate = new Date(updatedReceipt.date)
         .toISOString()
-        .split("T")[0]; // Convert to YYYY-MM-DD
+        .split("T")[0];
 
       const updatedData = {
         ...updatedReceipt,
         date: formattedDate
       };
-      console.log("Contents of receipt: ", updatedReceipt);
-      const token = getAccessToken();
-      const response = await fetch(
+
+      const response = await fetchWithAuth(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(updatedData)
         }
       );
-      if (!response.ok) {
-        const errorData = await response.json(); // Get the error response body
-        console.error("Error:", errorData);
-        throw new Error(errorData.detail || "Failed to save the receipt");
+
+      if (response && response.ok) {
+        const savedReceipt = await response.json();
+        setReceipts((prevReceipts) =>
+          prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
+        );
+        handleCloseDialog();
       }
-      const savedReceipt = await response.json();
-      setReceipts((prevReceipts) =>
-        prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
-      );
-      handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
     }

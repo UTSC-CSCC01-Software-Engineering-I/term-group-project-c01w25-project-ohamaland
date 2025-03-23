@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { getAccessToken } from "@/utils/auth";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import Image from "next/image";
+import { brand } from '@/styles/colors';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -38,7 +38,6 @@ export default function RegisterPage() {
     };
 
     try {
-      const token = getAccessToken();
       const response = await fetch("http://127.0.0.1:8000/api/user/register/", {
         method: "POST",
         headers: {
@@ -82,7 +81,7 @@ export default function RegisterPage() {
           variant="body2"
           sx={{ textAlign: 'right' }}
         >
-          Already have an account? <a href="/login" style={{ color: '#1E90FF' }}>Sign in &rarr;</a>
+          Already have an account? <a href="/login" style={{ color: brand.secondary }}>Sign in &rarr;</a>
         </Typography>
       </Box>
 
@@ -193,14 +192,14 @@ export default function RegisterPage() {
           error={emailErrorMessage !== ""}
           helperText={emailErrorMessage}
           inputProps={{
-            pattern: "^[^\s@]+@[^\s@]+\.[^\s@]+$",
+            type: "email",
           }}
           onChange={(e) => {
             setEmail(e.target.value)
             if (e.target.validity.valueMissing) {
               setEmailErrorMessage("Email address is required");
-            } else if (e.target.validity.patternMismatch) {
-              setEmailErrorMessage("Email address is invalid");
+            } else if (e.target.validity.typeMismatch) {
+              setEmailErrorMessage("Please enter a valid email address");
             } else if (e.target.validity.valid) {
               setEmailErrorMessage("");
             }
@@ -290,7 +289,7 @@ export default function RegisterPage() {
         <Typography
           variant="body2"
           sx={{ color: 'text.secondary', marginTop: 2 }}>
-          By creating an account, you agree to the <a href="/policy" style={{ textDecoration: 'underline', color: '#1E90FF' }}>Terms of Service</a>. For more information about Catalog's privacy practices, see the <a href="/privacy" style={{ textDecoration: 'underline', color: '#1E90FF' }}>Catalog Privacy Statement</a>. We'll occasionally send you account-related emails.
+          By creating an account, you agree to the <a href="/policy" style={{ textDecoration: 'underline', color: brand.secondary }}>Terms of Service</a>. For more information about Catalog&apos;s privacy practices, see the <a href="/privacy" style={{ textDecoration: 'underline', color: brand.secondary }}>Catalog Privacy Statement</a>. We&apos;ll occasionally send you account-related emails.
         </Typography>
       </Container>
     </Box>
@@ -312,11 +311,11 @@ const textFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -325,11 +324,11 @@ const nameFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -340,9 +339,9 @@ const continueButtonStyle = {
   textTransform: 'none',
   fontWeight: 'bold',
   fontSize: 18,
-  backgroundColor: '#E2C00A',
-  boxShadow: 'none', // Remove the shadow
+  backgroundColor: brand.primary,
+  boxShadow: 'none',
   '&:hover': {
-    backgroundColor: '#F5D21A',
+    backgroundColor: brand.primaryHover,
   }
 }

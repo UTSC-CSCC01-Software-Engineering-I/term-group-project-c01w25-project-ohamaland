@@ -5,6 +5,7 @@ import { Dayjs } from "dayjs";
 import ReceiptCard from "./ReceiptCard";
 import { useEffect, useState } from "react";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import { fetchWithAuth } from "@/utils/api";
 
 interface IReceiptGridProps {
   receipts: Receipt[];
@@ -20,13 +21,12 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const [receiptToDelete, setReceiptToDelete] = useState<Receipt | null>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [dontRemindMe, setDontRemindMe] = useState(() => {
-    return localStorage.getItem("dont_remind_delete_receipt") === "true";
-  });
+  const [dontRemindMe, setDontRemindMe] = useState(false);
   
   useEffect(() => {
-    localStorage.removeItem("dont_remind_delete_receipt");
-    setDontRemindMe(false);
+    // Only access localStorage on the client side
+    const dontRemind = localStorage.getItem("dont_remind_delete_receipt") === "true";
+    setDontRemindMe(dontRemind);
   }, []);
 
   const filteredReceipts = filterReceipts(
@@ -36,7 +36,6 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
     props.filterTerm,
     props.category
   );
-
 
   const confirmDelete = async () => {
     if (receiptToDelete) {
@@ -55,14 +54,24 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
     setReceiptToDelete(null); 
   };
 
-  const handleDeleteClick = (receipt: Receipt) => {
-    console.log("Delete clicked for receipt:", receipt); // Debugging log
+  const handleDeleteClick = async (receipt: Receipt) => {
+    console.log("Delete clicked for receipt:", receipt);
     setReceiptToDelete(receipt);
 
     if (!dontRemindMe) {
       setOpenConfirmationDialog(true);
     } else {
-      props.onDeleteReceipt(receipt.id); // Auto-delete if "Don't remind me" is checked
+      try {
+        const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receipt.id}/`, {
+          method: "DELETE",
+        });
+
+        if (response && response.ok) {
+          props.onDeleteReceipt(receipt.id);
+        }
+      } catch (error) {
+        console.error("Error deleting receipt:", error);
+      }
     }
   };
 
@@ -77,7 +86,6 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
         />
       ))}
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={openConfirmationDialog}
         onClose={cancelDelete} 
@@ -101,7 +109,7 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 }
 
 const gridStyle = {
-  maxHeight: "60vh", // TODO: change this in the future using vh is not good should take max possible
+  maxHeight: "60vh",
   overflowY: "auto",
   marginTop: "24px"
 };

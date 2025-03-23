@@ -17,26 +17,38 @@ export const currencies = ["USD", "CAD"];
 export const allCategory = "All";
 
 export type Category =
-  | "Home Goods"
+  | "Home"
   | "Food"
   | "Clothing"
-  | "Fixture"
+  | "Utilities"
+  | "Entertainment"
+  | "Fixtures"
+  | "Furniture"
+  | "Health"
+  | "Beauty"
+  | "Electronics"
   | typeof allCategory;
 
 export const categories = [
-  "Home Goods",
+  "Home",
   "Food",
   "Clothing",
-  "Fixture",
+  "Utilities",
+  "Entertainment",
+  "Fixtures",
+  "Furniture",
+  "Health",
+  "Beauty",
+  "Electronics",
   allCategory
 ];
 
-export type PaymentMethod = "Credit Card" | "Debit Card" | "Cash" | "";
+export type PaymentMethod = "Debit" | "Credit" | "Cash" | "";
 
-export const paymentMethods = ["Credit", "Debit", "Cash"];
+export const paymentMethods = ["Debit", "Credit", "Cash"];
 
 export type ReceiptItem = {
-  id: number;
+  id?: number; // Make id optional for new items
   name: string;
   category: Category;
   price: number;

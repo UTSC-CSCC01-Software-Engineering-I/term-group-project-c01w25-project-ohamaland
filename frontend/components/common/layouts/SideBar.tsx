@@ -16,12 +16,14 @@ import {
   Receipt,
   Settings,
   Subscriptions,
-  SvgIconComponent
+  SvgIconComponent,
+  Logout
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
+import { getAccessToken, getRefreshToken, logout } from "@/utils/auth";
 
 interface ISideBarProps {
   page: string;
@@ -34,7 +36,8 @@ const loggedInSections = [
   "Receipts",
   "Subscriptions",
   "Insights",
-  "Settings"
+  "Settings",
+  "Logout"
 ];
 
 const loggedOutSections = ["Sign In"];
@@ -45,7 +48,8 @@ const routeMap: { [key: string]: string } = {
   Receipts: "receipts",
   Subscriptions: "subscriptions",
   Insights: "insights",
-  Settings: "settings"
+  Settings: "settings",
+  Logout: "logout"
 };
 
 const iconMap: { [key: string]: SvgIconComponent } = {
@@ -53,7 +57,8 @@ const iconMap: { [key: string]: SvgIconComponent } = {
   Receipts: Receipt,
   Subscriptions: Subscriptions,
   Insights: Insights,
-  Settings: Settings
+  Settings: Settings,
+  Logout: Logout
 };
 
 function getIcon(section: string, active: boolean) {
@@ -79,6 +84,35 @@ export default function SideBar(props: ISideBarProps) {
     setOpen(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      const token = getAccessToken();
+      const refreshToken = getRefreshToken();
+      
+      const response = await fetch("http://127.0.0.1:8000/api/user/logout/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          refresh: refreshToken
+        }),
+      });
+
+      if (response.ok) {
+        logout(); // This will remove both tokens and redirect to login
+      } else {
+        // Even if the server request fails, we should still clear local tokens
+        logout();
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Even if there's an error, we should still clear local tokens
+      logout();
+    }
+  };
+
   function getBackgroundColor(iconPage: string) {
     return props.page === iconPage ? lightGrey : darkGrey;
   }
@@ -88,24 +122,39 @@ export default function SideBar(props: ISideBarProps) {
       <CssBaseline />
       <Drawer variant="permanent" open={open}>
         {sections.map((section, index) => (
-          <Link
-            href={`/${routeMap[section]}`}
-            key={index}
-            passHref
-            style={{ textDecoration: "none" }}
-          >
-            <Box
-              key={index}
-              sx={getSectionContainerStyle(getBackgroundColor(section))}
-            >
-              <Box style={iconContainerStyle}>
-                {getIcon(section, section == props.page)}
+          <Box key={index}>
+            {section === "Logout" ? (
+              <Box
+                onClick={handleLogout}
+                sx={getSectionContainerStyle(getBackgroundColor(section))}
+                style={{ cursor: "pointer" }}
+              >
+                <Box style={iconContainerStyle}>
+                  {getIcon(section, section === props.page)}
+                </Box>
+                <Typography sx={{ ...sectionTextStyle }}>
+                  {open ? section : ""}
+                </Typography>
               </Box>
-              <Typography sx={{ ...sectionTextStyle }}>
-                {open ? section : ""}
-              </Typography>
-            </Box>
-          </Link>
+            ) : (
+              <Link
+                href={`/${routeMap[section]}`}
+                passHref
+                style={{ textDecoration: "none" }}
+              >
+                <Box
+                  sx={getSectionContainerStyle(getBackgroundColor(section))}
+                >
+                  <Box style={iconContainerStyle}>
+                    {getIcon(section, section === props.page)}
+                  </Box>
+                  <Typography sx={{ ...sectionTextStyle }}>
+                    {open ? section : ""}
+                  </Typography>
+                </Box>
+              </Link>
+            )}
+          </Box>
         ))}
         <Button
           aria-label="open drawer"

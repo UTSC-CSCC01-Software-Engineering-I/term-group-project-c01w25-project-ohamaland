@@ -34,6 +34,8 @@ class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # Add the user to the request data
+        request.data['user'] = request.user.id
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
