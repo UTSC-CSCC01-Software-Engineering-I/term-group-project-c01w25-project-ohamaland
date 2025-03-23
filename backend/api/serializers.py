@@ -1,8 +1,6 @@
 from decimal import Decimal
 
-import boto3
 from django.db import transaction
-from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
@@ -42,39 +40,10 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)  # Nested serializer
-    receipt_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Receipt
         fields = "__all__"
-
-    def _handle_image_upload(self, image):
-        """Handle S3 image upload and return the URL."""
-        if not image:
-            return None
-
-        try:
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                region_name=settings.AWS_S3_REGION_NAME,
-            )
-
-            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            file_key = f"receipts/{image.name}"
-
-            s3_client.upload_fileobj(
-                image,
-                bucket_name,
-                file_key,
-                ExtraArgs={"ContentType": image.content_type},
-            )
-
-            return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
-        except Exception as e:
-            raise serializers.ValidationError(f"Image upload failed: {str(e)}")
-
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -85,12 +54,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop("items", [])
-        image = validated_data.pop("receipt_image", None)
-
-        # Handle image upload
-        receipt_image_url = self._handle_image_upload(image)
-        if receipt_image_url:
-            validated_data["receipt_image_url"] = receipt_image_url
 
         try:
             # Create receipt and items in a transaction
@@ -107,13 +70,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         items_data = validated_data.pop("items", [])
-        image = validated_data.pop("receipt_image", None)
-
-        # TO DO: Handle image deletion
-        # Handle image upload
-        receipt_image_url = self._handle_image_upload(image)
-        if receipt_image_url:
-            validated_data["receipt_image_url"] = receipt_image_url
 
         try:
             with transaction.atomic():
