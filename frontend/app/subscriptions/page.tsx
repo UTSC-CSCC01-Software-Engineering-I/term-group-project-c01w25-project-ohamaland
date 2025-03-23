@@ -124,45 +124,48 @@ export default function Page() {
     setIsDialogOpen(true);
   };
 
-  // TODO: update and delete
-  //   const handleCloseDialog = () => {
-  //     setIsDialogOpen(false);
-  //     setSelectedSubscription(null);
-  //   };
+    const handleCloseDialog = () => {
+      setIsDialogOpen(false);
+      setSelectedSubscription(null);
+    };
 
-  //   const handleSaveSubscriptionUpdate = async (updatedSubscription: Subscription) => {
-  //     try {
-  //       const formattedDate = new Date(updatedSubscription.renewal_date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+    const handleSaveSubscriptionUpdate = async (updatedSubscription: Subscription) => {
+        try {
+          const formattedDate = new Date(updatedSubscription.renewal_date)
+            .toISOString()
+            .split("T")[0]; // Convert to YYYY-MM-DD
 
-  //       const updatedData = {
-  //         ...updatedSubscription,
-  //         renewal_date: formattedDate,
-  //       };
-  //       console.log("Contents of receipt: ", updatedReceipt);
-  //       const response = await fetch(
-  //         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
-  //         {
-  //           method: "PATCH",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify(updatedData),
-  //         }
-  //       );
-  //       if (!response.ok) {
-  //         const errorData = await response.json(); // Get the error response body
-  //         console.error("Error:", errorData);
-  //         throw new Error(errorData.detail || "Failed to save the receipt");
-  //       }
-  //       const savedReceipt = await response.json();
-  //       setReceipts((prevReceipts) =>
-  //         prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
-  //       );
-  //       handleCloseDialog();
-  //     } catch (error) {
-  //       console.error("Error updating receipt:", error);
-  //     }
-  //   };
+          const updatedData = {
+            ...updatedSubscription,
+            date: formattedDate
+          };
+          console.log("Contents of receipt: ", updatedSubscription);
+          const token = getAccessToken();
+          const response = await fetch(
+            `http://127.0.0.1:8000/api/receipts/${updatedSubscription.id}/`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify(updatedData)
+            }
+          );
+          if (!response.ok) {
+            const errorData = await response.json(); // Get the error response body
+            console.error("Error:", errorData);
+            throw new Error(errorData.detail || "Failed to save the subscription");
+          }
+          const savedSubscription = await response.json();
+          setSubscriptions((prevSubscriptions) =>
+            prevSubscriptions.map((r) => (r.id === savedSubscription.id ? savedSubscription : r))
+          );
+          handleCloseDialog();
+        } catch (error) {
+          console.error("Error updating subscription:", error);
+        }
+      };
 
   return (
     <PageWrapper>
@@ -194,10 +197,21 @@ export default function Page() {
       />
 
       <SubscriptionDialog
+        title="Add Subscription"
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveSubscription}
       />
+
+      {selectedSubscription && (
+              <SubscriptionDialog
+                subscription={selectedSubscription}
+                title="Update Subscription"
+                open={isDialogOpen}
+                onClose={handleCloseDialog}
+                onSave={handleSaveSubscriptionUpdate}
+              />
+            )}
     </PageWrapper>
   );
 }

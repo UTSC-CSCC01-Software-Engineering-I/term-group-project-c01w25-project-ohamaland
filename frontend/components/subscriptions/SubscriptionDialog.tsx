@@ -17,13 +17,15 @@ import {
 import { useState } from "react";
 
 interface ISubscriptionDialogProps {
+  subscription?: Subscription;
+  title: string;
   open: boolean;
   onClose: () => void;
   onSave: (newSubscription: Subscription) => void;
 }
 
 export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
-  const { open, onClose, onSave } = props;
+  const { open, onClose, onSave, title } = props;
   const [merchant, setMerchant] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState<Currency>("");
@@ -48,7 +50,7 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle}>
-        <Typography sx={modalTitleStyle}>Add Subscription</Typography>
+        <Typography sx={modalTitleStyle}>{title}</Typography>
 
         <Stack spacing={2}>
           <TextField
