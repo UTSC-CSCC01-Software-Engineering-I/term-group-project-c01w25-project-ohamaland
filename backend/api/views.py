@@ -478,8 +478,8 @@ def receipt_upload(request):
             ExtraArgs={"ContentType": receipt_image.content_type},
         )
 
-        image_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
-        return Response({"image_url": image_url}, status=status.HTTP_200_OK)
+        receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
     
     except Exception as e:
         return Response(

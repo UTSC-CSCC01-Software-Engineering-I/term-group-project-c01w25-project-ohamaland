@@ -21,10 +21,6 @@ export default function Page() {
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // const handleSaveReceipt = (newReceipt: Receipt) => {
-  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
-  // };
-
   // Fetch receipts from API
   useEffect(() => {
     async function fetchReceipts() {
@@ -52,13 +48,12 @@ export default function Page() {
     setCategory(event.target.value as Category);
   };
 
-  // to handle adding a new receipt (temporary, hardcoded for now)
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     try {
       const token = getAccessToken();
 
       // Upload image if provided
-      let imageUrl;
+      let receiptURL;
       if (file) {
         const formData = new FormData();
         formData.append("receipt_image", file);
@@ -67,13 +62,14 @@ export default function Page() {
           headers: {"Authorization": `Bearer ${token}`},
           body: formData,
         });
-        if (!imageResponse.ok) throw new Error("Image upload failed");
+        if (!imageResponse.ok) throw new Error("Receipt image upload failed");
         const imageData = await imageResponse.json();
-        imageUrl = imageData.image_url;
+        receiptURL = imageData.receipt_url;
       }
 
       // Get user info
       const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+        method: "GET",
         headers: {"Authorization": `Bearer ${token}`,},
       });
       if (!meResponse.ok) throw new Error("Failed to get user information");
@@ -83,7 +79,7 @@ export default function Page() {
       const receiptData = {
         ...newReceipt,
         user: userId,
-        receipt_image_url: imageUrl,
+        receipt_image_url: receiptURL,
       };
 
       const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
@@ -99,7 +95,7 @@ export default function Page() {
       if (!receiptResponse.ok) throw new Error("Failed to save receipt");
       
       const savedReceipt = await receiptResponse.json();
-      setReceipts(prev => [...prev, savedReceipt]);
+      setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
