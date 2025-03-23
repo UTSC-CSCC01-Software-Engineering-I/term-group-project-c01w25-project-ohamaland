@@ -23,8 +23,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { getAccessToken, removeAccessToken } from "@/utils/auth";
-import { useRouter } from "next/navigation";
+import { getAccessToken, getRefreshToken, logout } from "@/utils/auth";
 
 interface ISideBarProps {
   page: string;
@@ -76,7 +75,6 @@ function getIcon(section: string, active: boolean) {
 export default function SideBar(props: ISideBarProps) {
   const [open, setOpen] = useState(false);
   const sections = props.loggedIn ? loggedInSections : loggedOutSections;
-  const router = useRouter();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -89,6 +87,8 @@ export default function SideBar(props: ISideBarProps) {
   const handleLogout = async () => {
     try {
       const token = getAccessToken();
+      const refreshToken = getRefreshToken();
+      
       const response = await fetch("http://127.0.0.1:8000/api/user/logout/", {
         method: "POST",
         headers: {
@@ -96,17 +96,20 @@ export default function SideBar(props: ISideBarProps) {
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
-          refresh: localStorage.getItem("refreshToken")
+          refresh: refreshToken
         }),
       });
 
       if (response.ok) {
-        removeAccessToken();
-        localStorage.removeItem("refreshToken");
-        router.push("/login");
+        logout(); // This will remove both tokens and redirect to login
+      } else {
+        // Even if the server request fails, we should still clear local tokens
+        logout();
       }
     } catch (error) {
       console.error("Error during logout:", error);
+      // Even if there's an error, we should still clear local tokens
+      logout();
     }
   };
 
