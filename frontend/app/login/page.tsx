@@ -4,15 +4,18 @@ import { getAccessToken } from "@/utils/auth";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import Image from "next/image";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setShowError(false);
 
     const loginData = {
       identifier,
@@ -30,6 +33,7 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
+        setShowError(true);
         throw new Error("Failed to login");
       }
 
@@ -43,6 +47,7 @@ export default function LoginPage() {
       // Redirect to dashboard or another page
       window.location.href = "/receipts";
     } catch (error) {
+      setShowError(true);
       console.error("Error during login:", error);
     }
   };
@@ -75,7 +80,7 @@ export default function LoginPage() {
           sx={{ fontWeight: 'bold' }}
         >
           Sign in to {' '}
-          <span 
+          <span
             style={{ color: "#E2C00A" }}
             onMouseEnter={(e) => e.currentTarget.style.color = "#F5D21A"}
             onMouseLeave={(e) => e.currentTarget.style.color = "#E2C00A"}
@@ -83,6 +88,44 @@ export default function LoginPage() {
             Catalog
           </span>
         </Typography>
+
+        {showError && (
+          <Box
+            sx={{
+              bgcolor: "#FAA0A0",
+              height: "50px",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              padding: "20px",
+              borderRadius: 2,
+              marginTop: 2,
+              marginBottom: 1,
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{ color: "#870707" }}
+            >
+              Incorrect username or password.
+            </Typography>
+            <IconButton
+              size="small"
+              sx={{
+                marginLeft: "auto",
+                color: "#870707",
+                padding: "2px",
+                "& .MuiSvgIcon-root": {
+                  fontSize: "19px"
+                }
+              }}
+              onClick={() => setShowError(false)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        )}
+
         <TextField
           label="Username"
           fullWidth
