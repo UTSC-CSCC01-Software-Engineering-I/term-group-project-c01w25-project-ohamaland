@@ -12,6 +12,7 @@ from django.db import transaction
 
 User = get_user_model()
 
+
 def get_spending_periods():
     """Generate spending periods."""
     today = now().date()
@@ -22,6 +23,7 @@ def get_spending_periods():
         "Yearly": today - relativedelta(years=1),  # Exactly one year ago
     }
 
+
 def get_all_dates_in_period(start_date, end_date):
     """Generate a list of dates from start_date to end_date."""
     date_list = []
@@ -30,6 +32,7 @@ def get_all_dates_in_period(start_date, end_date):
         date_list.append(current_date)
         current_date += timedelta(days=1)
     return date_list
+
 
 def calculate_category_spending(user_id, start_date):
     """Calculate category spending for the user."""
@@ -43,12 +46,15 @@ def calculate_category_spending(user_id, start_date):
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
     for receipt in receipts:
         for item in receipt.items.all():
-            category_spending[item.category] = category_spending.get(item.category, 0) + item.price
+            category_spending[item.category] = (
+                category_spending.get(item.category, 0) + item.price
+            )
 
     # Ensure the amounts are floats
     category_spending = {key: float(value) for key, value in category_spending.items()}
 
     return category_spending
+
 
 def calculate_total_spending(user_id, start_date):
     """Calculate total spending over time for the user."""
@@ -64,19 +70,26 @@ def calculate_total_spending(user_id, start_date):
     # Sum total spending by receipt for each date
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
     for receipt in receipts:
-        receipt_date = receipt.date  # Get the date part of the receipt date (e.g., '2025-03-01')
+        receipt_date = (
+            receipt.date
+        )  # Get the date part of the receipt date (e.g., '2025-03-01')
         receipt_date_str = receipt_date.isoformat()
-        total_spending_per_date[receipt_date_str] = total_spending_per_date.get(receipt_date_str, Decimal('0.0')) + Decimal(receipt.total_amount)
+        total_spending_per_date[receipt_date_str] = total_spending_per_date.get(
+            receipt_date_str, Decimal("0.0")
+        ) + Decimal(receipt.total_amount)
 
     # Ensure the amounts are floats
     for date in all_dates:
         date_str = date.isoformat()
         if date_str not in total_spending_per_date:
             total_spending_per_date[date_str] = 0.0
-    
-    total_spending_per_date = {key: float(value) for key, value in total_spending_per_date.items()}
+
+    total_spending_per_date = {
+        key: float(value) for key, value in total_spending_per_date.items()
+    }
 
     return total_spending_per_date
+
 
 def update_spending_analytics(user_id):
     print("Updating spending analytics...")
@@ -98,7 +111,7 @@ def update_spending_analytics(user_id):
 
         # Calculate category spending for this period
         category_spending[period] = calculate_category_spending(user_id, start_date)
-        
+
         # Calculate total spending for this period
         total_spending[period] = calculate_total_spending(user_id, start_date)
 
@@ -106,10 +119,14 @@ def update_spending_analytics(user_id):
         total_spent = sum(total_spending[period].values())
 
         print(f"Total spent for period {period}: {total_spent}")
-        print(f"Category spending for period {period}: {category_spending.get(period, {})}")
+        print(
+            f"Category spending for period {period}: {category_spending.get(period, {})}"
+        )
 
         category_spending_str = {
-            key: (value.isoformat() if isinstance(value, date) else float(value))  # Convert date to string & Decimal to float
+            key: (
+                value.isoformat() if isinstance(value, date) else float(value)
+            )  # Convert date to string & Decimal to float
             for key, value in category_spending[period].items()
         }
 
@@ -121,7 +138,7 @@ def update_spending_analytics(user_id):
             defaults={
                 "total_spent": total_spent,
                 "category_spending": category_spending_str,
-            }
+            },
         )
 
         if created:
@@ -131,9 +148,10 @@ def update_spending_analytics(user_id):
 
 
 @receiver(post_save, sender=Receipt)
-def update_analytics_on_receipt_change(sender, instance, created,**kwargs):
+def update_analytics_on_receipt_change(sender, instance, created, **kwargs):
     if created:  # Only trigger when a new receipt is created
         update_spending_analytics(instance.user_id)
+
 
 @receiver(post_delete, sender=Receipt)
 def update_analytics_on_receipt_delete(sender, instance, **kwargs):
