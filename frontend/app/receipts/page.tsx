@@ -6,10 +6,10 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import { getAccessToken } from "@/utils/auth";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/utils/api";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -21,25 +21,15 @@ export default function Page() {
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // const handleSaveReceipt = (newReceipt: Receipt) => {
-  //   setReceipts((prevReceipts) => [...prevReceipts, newReceipt]);
-  // };
-
   // Fetch receipts from API
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        const token = getAccessToken();
-        const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          }
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch receipts");
+        const response = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/");
+        if (response && response.ok) {
+          const data = await response.json();
+          setReceipts(data.receipts);
         }
-        const data = await response.json();
-        setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
         setReceipts([]);
@@ -52,7 +42,6 @@ export default function Page() {
     setCategory(event.target.value as Category);
   };
 
-  // to handle adding a new receipt (temporary, hardcoded for now)
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     if (!file) {
       console.error("No file selected");
@@ -60,13 +49,9 @@ export default function Page() {
     }
 
     const formData = new FormData();
-
-    // Append the receipt image (file)
     formData.append("receipt_image", file);
-
-    // Append each field of newReceipt separately as form fields
     formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString()); // Convert to string if necessary
+    formData.append("total_amount", newReceipt.total_amount.toString());
     formData.append("currency", newReceipt.currency);
     formData.append("date", newReceipt.date);
     formData.append("payment_method", newReceipt.payment_method);
@@ -74,33 +59,22 @@ export default function Page() {
     formData.append("id", newReceipt.id.toString());
 
     try {
-      const token = getAccessToken();
-      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        }
-      });
-      if (!meResponse.ok) {
-        throw new Error("Failed to get user information.");
-      }
-      const data = await meResponse.json()
-      formData.append("user", data.id);
+      const meResponse = await fetchWithAuth("http://127.0.0.1:8000/api/user/me/");
+      if (meResponse && meResponse.ok) {
+        const data = await meResponse.json();
+        formData.append("user", data.id);
 
-      const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData
-      });
-      console.log(receiptResponse);
-      if (!receiptResponse.ok) {
-        throw new Error("Failed to save receipt");
+        const receiptResponse = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/", {
+          method: "POST",
+          body: formData
+        });
+
+        if (receiptResponse && receiptResponse.ok) {
+          const savedReceipt = await receiptResponse.json();
+          setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
+          setIsModalOpen(false);
+        }
       }
-      const savedReceipt = await receiptResponse.json();
-      setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
-      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
     }
@@ -108,26 +82,19 @@ export default function Page() {
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const token = getAccessToken();
-      const response = await fetch(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
+      const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete receipt");
-      }
+      if (response && response.ok) {
+        setReceipts((prevReceipts) =>
+          prevReceipts.filter((receipt) => receipt.id !== receiptId)
+        );
 
-      // Remove the deleted receipt from the state
-      setReceipts((prevReceipts) =>
-        prevReceipts.filter((receipt) => receipt.id !== receiptId)
-      );
-
-      if (selectedReceipt && selectedReceipt.id === receiptId) {
-        setIsDialogOpen(false);
-        setSelectedReceipt(null);
+        if (selectedReceipt && selectedReceipt.id === receiptId) {
+          setIsDialogOpen(false);
+          setSelectedReceipt(null);
+        }
       }
     } catch (error) {
       console.error("Error deleting receipt:", error);
@@ -150,35 +117,31 @@ export default function Page() {
     try {
       const formattedDate = new Date(updatedReceipt.date)
         .toISOString()
-        .split("T")[0]; // Convert to YYYY-MM-DD
+        .split("T")[0];
 
       const updatedData = {
         ...updatedReceipt,
         date: formattedDate
       };
-      console.log("Contents of receipt: ", updatedReceipt);
-      const token = getAccessToken();
-      const response = await fetch(
+
+      const response = await fetchWithAuth(
         `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(updatedData)
         }
       );
-      if (!response.ok) {
-        const errorData = await response.json(); // Get the error response body
-        console.error("Error:", errorData);
-        throw new Error(errorData.detail || "Failed to save the receipt");
+
+      if (response && response.ok) {
+        const savedReceipt = await response.json();
+        setReceipts((prevReceipts) =>
+          prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
+        );
+        handleCloseDialog();
       }
-      const savedReceipt = await response.json();
-      setReceipts((prevReceipts) =>
-        prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
-      );
-      handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
     }
