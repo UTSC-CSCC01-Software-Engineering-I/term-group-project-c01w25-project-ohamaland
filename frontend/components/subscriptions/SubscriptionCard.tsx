@@ -12,11 +12,17 @@ import {
 interface ISubscriptionCardProps {
   subscription: Subscription;
   onClick: () => void;
+  onDeleteSubscription: (subscriptionId: number) => void;
 }
 
 export default function SubscriptionCard(props: ISubscriptionCardProps) {
-  const { subscription, onClick } = props;
+  const { subscription, onClick, onDeleteSubscription } = props;
   const formattedDate = subscription.renewal_date.split("T")[0]; // Ensures YYYY-MM-DD
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDeleteSubscription(subscription.id);
+  };
 
   return (
     <Card sx={cardStyle} onClick={onClick}>
@@ -52,6 +58,9 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
         {/* View Details Button */}
         <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
           View Details
+        </Button>
+        <Button variant="outlined" sx={deleteButtonStyle} onClick={handleDelete}>
+                  Delete Receipt
         </Button>
       </CardContent>
     </Card>
@@ -109,4 +118,10 @@ const moreItemsStyle = {
 
 const buttonStyle = {
   marginTop: "8px"
+};
+
+const deleteButtonStyle = {
+  marginTop: "8px",
+  BorderColor: "red",
+  color: "red"
 };

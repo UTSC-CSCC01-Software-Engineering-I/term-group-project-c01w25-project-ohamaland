@@ -167,6 +167,34 @@ export default function Page() {
         }
       };
 
+      const handleDeleteSubscription = async (subscriptionId: number) => {
+        try {
+          const token = getAccessToken();
+          const response = await fetch(`http://127.0.0.1:8000/api/subscriptions/${subscriptionId}/`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to delete subscription");
+          }
+
+          // Remove the deleted subscription from the state
+          setSubscriptions((prevSubscriptions) =>
+            prevSubscriptions.filter((subscription) => subscription.id !== subscriptionId)
+          );
+
+          if (selectedSubscription && selectedSubscription.id === subscriptionId) {
+            setIsDialogOpen(false);
+            setSelectedSubscription(null);
+          }
+        } catch (error) {
+          console.error("Error deleting subscription:", error);
+        }
+      };
+
   return (
     <PageWrapper>
       <Box sx={filterContainerStyle}>
@@ -194,6 +222,7 @@ export default function Page() {
         renewalTimeOffset={renewalTimeOffset}
         billingPeriod={billingPeriod}
         onOpenDialog={handleOpenDialog}
+        onDeleteSubscription={handleDeleteSubscription}
       />
 
       <SubscriptionDialog
