@@ -2,6 +2,9 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    GetUserIdView,
+    GroupDelete,
+    GroupMembersLeave,
     ReceiptOverview,
     ReceiptDetail,
     ItemOverview,
@@ -14,7 +17,7 @@ from .views import (
     login,
     logout,
     me,
-    SpendingAnalyticsView,
+    InsightsView,
 )
 
 urlpatterns = [
@@ -40,14 +43,19 @@ urlpatterns = [
         GroupMembersDetail.as_view(),
         name="group-members-detail",
     ),
+
+    path('groups/<int:pk>/delete/', GroupDelete.as_view(), name='group-delete'),
+    path('groups/<int:group_id>/members/<int:user_id>/leave/', GroupMembersLeave.as_view(), name='group-leave'),
+    path('user_id/', GetUserIdView.as_view(), name='get_user_id'),
     path("user/register/", register, name="user-register"),
     path("user/login/", login, name="user-login"),
     path("user/logout/", logout, name="user-logout"),
     path("user/me/", me, name="me"),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path(
-        "analytics/spending/<int:user_id>/<str:period>/",
-        SpendingAnalyticsView.as_view(),
-        name="spending-analytics",
+        "analytics/insights/<str:period>/",
+        InsightsView.as_view(),
+        name="InsightsView",
     ),
+
 ]

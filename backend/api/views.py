@@ -17,7 +17,7 @@ from .signals import (
     get_spending_periods,
 )
 
-from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
+from .models import Receipt, Item, Group, GroupMembers, User, Insights
 from .notifications import notify_group_receipt_added
 
 from .serializers import (
@@ -25,7 +25,7 @@ from .serializers import (
     ItemSerializer,
     GroupSerializer,
     GroupMembersSerializer,
-    SpendingAnalyticsSerializer,
+    InsightsSerializer,
     UserSerializer,
 )
 
@@ -99,6 +99,64 @@ class ReceiptDetail(APIView):
         serializer = ReceiptSerializer(receipt)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
+class GetUserIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_id = request.user.id
+        return Response({"user_id": user_id}, status=status.HTTP_200_OK)
+
+class GroupDelete(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Group.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        group_id = kwargs.get('group_id')
+        group = self.get_object()
+        if group.creator != request.user:
+            return Response({"error": "You are not the creator of the group."}, status=status.HTTP_403_FORBIDDEN)
+
+        group.delete()
+        return Response({"message": "Group deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+class GroupMembersLeave(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupMembersSerializer
+
+    def get_object(self):
+        return GroupMembers.objects.get(
+            group=self.kwargs["group_id"], user=self.request.user
+        )
+
+    def delete(self, request, *args, **kwargs):
+        group_member = self.get_object()
+        group = group_member.group
+        
+        if group.creator == request.user:
+            return Response({"error": "Use the 'deleteGroup' route to delete the entire group."}, status=status.HTTP_400_BAD_REQUEST)
+
+        group_member.delete()
+        return Response({"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT)
+
+class GroupList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+    
+    def get_queryset(self):
+        """Return only the groups where the user is a member."""
+        return Group.objects.filter(groupmembers__user=self.request.user)
+    
+    def perform_create(self, serializer):
+        group = serializer.save(creator=self.request.user)
+        GroupMembers.objects.create(group=group, user=self.request.user)
+
+
+class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
 
 class ItemOverview(APIView):
     permission_classes = [IsAuthenticated]
@@ -390,45 +448,28 @@ def me(request):
     )
 
 
-class SpendingAnalyticsView(generics.ListAPIView):
-    serializer_class = SpendingAnalyticsSerializer
-    permission_classes = [IsAuthenticated]
 
+class InsightsView(generics.ListAPIView):
+    serializer_class = InsightsSerializer
+    permission_classes = [IsAuthenticated]
+    
     def get_queryset(self):
         user = self.request.user
+        return Insights.objects.filter(user=user).order_by("-date")
 
-        # return SpendingAnalytics.objects.filter(user=user).order_by("-date")
-        return SpendingAnalytics.objects.all().order_by("-date")
+    def get_insights(self, user, period, start_date):
+        category_spending = calculate_category_spending(user, start_date)
+        total_spending = calculate_total_spending(user, start_date)
 
-    def get_spending_analytics(self, user_id, period, start_date):
-        """
-        View to return spending analytics for a specific user and period.
-        :param user_id: The user for whom the analytics are being requested.
-        :param period: The time period (e.g., "Weekly", "Monthly", etc.) for which data is needed.
-        """
-        # logger.info(f"Fetching category spending for user {user_id} and start date {start_date}")
-        # Fetch category spending for the given user_id and start_date
-        category_spending = calculate_category_spending(user_id, start_date)
-        # logger.info(f"Category spending: {category_spending}")
-
-        # logger.info(f"Fetching total spending for user {user_id} and start date {start_date}")
-        total_spending = calculate_total_spending(user_id, start_date)
-        # logger.info(f"Total spending: {total_spending}")
-
-        # Return the data as a dictionary (which will later be converted to JSON by JsonResponse)
         return {
             "category_spending": category_spending,
             "total_spending": total_spending,
             "period": period,
             "date": start_date,
         }
-
-    def get(self, request, user_id, period):
-        """
-        Handles GET requests to return spending analytics for a user and a specific period.
-        """
-        # Log the correct user_id and period
-        # logger.info(f"Fetching category spending for user {user_id} and period {period}")
+    
+    def get(self, request, period):
+        user = request.user
 
         valid_periods = ["Weekly", "Monthly", "Quarterly", "Yearly"]
         if period not in valid_periods:
@@ -443,9 +484,8 @@ class SpendingAnalyticsView(generics.ListAPIView):
             )
 
         try:
-            # Pass the correct parameters to get_spending_analytics
-            analytics = self.get_spending_analytics(user_id, period, start_date)
-            return Response(analytics)
+            insights = self.get_insights(user, period, start_date)
+            return Response(insights)
 
         except ValidationError as e:
             return Response({"error": str(e)}, status=400)

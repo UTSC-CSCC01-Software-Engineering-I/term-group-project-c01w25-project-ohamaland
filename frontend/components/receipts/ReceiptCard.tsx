@@ -1,5 +1,6 @@
 import { textGrey } from "@/styles/colors";
 import { Receipt } from "@/types/receipts";
+
 import {
   Button,
   Card,
@@ -13,11 +14,17 @@ import {
 interface IReceiptCardProps {
   receipt: Receipt;
   onClick: () => void;
+  onDeleteReceipt: (receiptId: number) => void;
 }
 
 export default function ReceiptCard(props: IReceiptCardProps) {
-  const { receipt, onClick } = props;
+  const { receipt, onClick, onDeleteReceipt } = props;
   const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDeleteReceipt(receipt.id); 
+  };
 
   return (
     <Card sx={cardStyle} onClick={onClick}>
@@ -72,6 +79,9 @@ export default function ReceiptCard(props: IReceiptCardProps) {
         {/* View Details Button */}
         <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
           View Details
+        </Button>
+        <Button variant="outlined" sx={deleteButtonStyle} onClick={handleDelete}>
+          Delete Receipt
         </Button>
       </CardContent>
     </Card>
@@ -129,4 +139,10 @@ const moreItemsStyle = {
 
 const buttonStyle = {
   marginTop: "8px"
+};
+
+const deleteButtonStyle = {
+  marginTop: "8px",
+  BorderColor: "red",
+  color: "red"
 };

@@ -6,8 +6,8 @@ from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Receipt, Item, Group, GroupMembers, User, SpendingAnalytics
-from .signals import update_spending_analytics
+from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .signals import update_insights
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -74,6 +74,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
             return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
         except Exception as e:
             raise serializers.ValidationError(f"Image upload failed: {str(e)}")
+
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -143,9 +144,15 @@ class GroupSerializer(serializers.ModelSerializer):
     members = GroupMembersSerializer(many=True)
     receipts = ReceiptSerializer(many=True)
 
+
     class Meta:
         model = Group
         fields = "__all__"
+    
+    def get_members(self, obj):
+        """Return members as a list of user IDs and usernames."""
+        return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
+
 
     def create(self, validated_data):
         members_data = validated_data.pop("members", [])
@@ -208,12 +215,13 @@ class GroupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
 
-class SpendingAnalyticsSerializer(serializers.ModelSerializer):
+class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
 
     class Meta:
-        model = SpendingAnalytics
+        model = Insights
         fields = ["user", "total_spent", "category_spending", "period", "date"]
+
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""

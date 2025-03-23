@@ -1,11 +1,13 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import SpendingFilter from "@/components/spending/SpendingFilter";
-import SpendingChart from "@/components/spending/SpendingChart";
+import SpendingFilter from "@/components/insights/SpendingFilter";
+import SpendingChart from "@/components/insights/SpendingChart";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
+import { getAccessToken } from "@/utils/auth";
+import { useRouter } from "next/navigation";
 
 interface SpendingData {
   category: string;
@@ -28,12 +30,26 @@ export default function Page() {
   const [filterTerm, setFilterTerm] = useState<string>("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("Weekly");
   const [categorySpending, setCategorySpending] = useState<Record<string, number>>({});
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchSpendingData() {
       try {
         console.log("Fetching spending data...");
-        const response = await fetch(`http://127.0.0.1:8000/api/analytics/spending/1/${selectedPeriod}/`);
+        const token = getAccessToken();
+        const response = await fetch(`http://127.0.0.1:8000/api/analytics/insights/${selectedPeriod}/`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,  
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (response.status === 401) {
+          router.push("/login");  
+          return;
+        }
+
         if (!response.ok) {
           throw new Error("Failed to fetch spending data");
         }
@@ -56,7 +72,7 @@ export default function Page() {
       }
     }
     fetchSpendingData();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, router]);
 
 
   const handlePeriodChange = (event: SelectChangeEvent<string>) => {
