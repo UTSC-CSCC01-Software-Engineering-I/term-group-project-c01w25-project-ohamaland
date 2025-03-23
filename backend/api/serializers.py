@@ -65,6 +65,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
                 update_insights(receipt.user.id)
                 return receipt
+        except (ValueError, TypeError) as e:
+            raise serializers.ValidationError(f"Invalid data format: {str(e)}")
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
 
