@@ -10,6 +10,7 @@ import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { fetchWithAuth } from "@/utils/api";
+import { getAccessToken } from "@/utils/auth";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
