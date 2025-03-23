@@ -48,11 +48,27 @@ export default function RegisterPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to register");
+        const data = await response.json();
+        const errorFields = {
+          username: setUsernameErrorMessage,
+          first_name: setFirstNameErrorMessage,
+          last_name: setLastNameErrorMessage,
+          email: setEmailErrorMessage,
+          password: setPasswordErrorMessage,
+        };
+
+        Object.entries(errorFields).forEach(([field, setError]) => {
+          if (data[field]) {
+        setError(data[field][0]);
+          }
+        });
+        
+        return;
       }
 
       const data = await response.json();
       console.log("Registration successful:", data);
+      window.location.href = '/login';
     } catch (error) {
       console.error("Error during registration:", error);
     }
@@ -195,11 +211,22 @@ export default function RegisterPage() {
           label="Password"
           fullWidth
           required
-          helperText="Passwords must be at least 8 characters long."
           size="small"
           margin="normal"
+          error={passwordErrorMessage !== ""}
+          helperText={passwordErrorMessage
+            ? passwordErrorMessage
+            : "Passwords must be at least 8 characters long."
+          }
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (e.target.validity.valueMissing) {
+              setPasswordErrorMessage("Password is required");
+            } else if (e.target.validity.valid) {
+              setPasswordErrorMessage("");
+            }
+          }}
           type={showPassword ? "text" : "password"}
           sx={textFieldStyle}
           InputProps={{
