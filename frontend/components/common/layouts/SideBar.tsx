@@ -16,12 +16,15 @@ import {
   Receipt,
   Settings,
   Subscriptions,
-  SvgIconComponent
+  SvgIconComponent,
+  Logout
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
+import { getAccessToken, removeAccessToken } from "@/utils/auth";
+import { useRouter } from "next/navigation";
 
 interface ISideBarProps {
   page: string;
@@ -34,7 +37,8 @@ const loggedInSections = [
   "Receipts",
   "Subscriptions",
   "Insights",
-  "Settings"
+  "Settings",
+  "Logout"
 ];
 
 const loggedOutSections = ["Sign In"];
@@ -45,7 +49,8 @@ const routeMap: { [key: string]: string } = {
   Receipts: "receipts",
   Subscriptions: "subscriptions",
   Insights: "insights",
-  Settings: "settings"
+  Settings: "settings",
+  Logout: "logout"
 };
 
 const iconMap: { [key: string]: SvgIconComponent } = {
@@ -53,7 +58,8 @@ const iconMap: { [key: string]: SvgIconComponent } = {
   Receipts: Receipt,
   Subscriptions: Subscriptions,
   Insights: Insights,
-  Settings: Settings
+  Settings: Settings,
+  Logout: Logout
 };
 
 function getIcon(section: string, active: boolean) {
@@ -70,6 +76,7 @@ function getIcon(section: string, active: boolean) {
 export default function SideBar(props: ISideBarProps) {
   const [open, setOpen] = useState(false);
   const sections = props.loggedIn ? loggedInSections : loggedOutSections;
+  const router = useRouter();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -77,6 +84,30 @@ export default function SideBar(props: ISideBarProps) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const token = getAccessToken();
+      const response = await fetch("http://127.0.0.1:8000/api/user/logout/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          refresh: localStorage.getItem("refreshToken")
+        }),
+      });
+
+      if (response.ok) {
+        removeAccessToken();
+        localStorage.removeItem("refreshToken");
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   function getBackgroundColor(iconPage: string) {
@@ -88,24 +119,39 @@ export default function SideBar(props: ISideBarProps) {
       <CssBaseline />
       <Drawer variant="permanent" open={open}>
         {sections.map((section, index) => (
-          <Link
-            href={`/${routeMap[section]}`}
-            key={index}
-            passHref
-            style={{ textDecoration: "none" }}
-          >
-            <Box
-              key={index}
-              sx={getSectionContainerStyle(getBackgroundColor(section))}
-            >
-              <Box style={iconContainerStyle}>
-                {getIcon(section, section == props.page)}
+          <Box key={index}>
+            {section === "Logout" ? (
+              <Box
+                onClick={handleLogout}
+                sx={getSectionContainerStyle(getBackgroundColor(section))}
+                style={{ cursor: "pointer" }}
+              >
+                <Box style={iconContainerStyle}>
+                  {getIcon(section, section === props.page)}
+                </Box>
+                <Typography sx={{ ...sectionTextStyle }}>
+                  {open ? section : ""}
+                </Typography>
               </Box>
-              <Typography sx={{ ...sectionTextStyle }}>
-                {open ? section : ""}
-              </Typography>
-            </Box>
-          </Link>
+            ) : (
+              <Link
+                href={`/${routeMap[section]}`}
+                passHref
+                style={{ textDecoration: "none" }}
+              >
+                <Box
+                  sx={getSectionContainerStyle(getBackgroundColor(section))}
+                >
+                  <Box style={iconContainerStyle}>
+                    {getIcon(section, section === props.page)}
+                  </Box>
+                  <Typography sx={{ ...sectionTextStyle }}>
+                    {open ? section : ""}
+                  </Typography>
+                </Box>
+              </Link>
+            )}
+          </Box>
         ))}
         <Button
           aria-label="open drawer"
