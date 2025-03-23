@@ -62,7 +62,7 @@ export default function GroupsPage() {
         const data = await response.json();
         console.log("Received Group Data:", data);
 
-        setGroups(data);
+        setGroups(Array.isArray(data.groups) ? data.groups : []);
       } catch (error) {
         console.error("Error fetching groups:", error);
       }
@@ -76,7 +76,7 @@ export default function GroupsPage() {
   }, []);
 
   const handleGroupDeleted = (groupId: number) => {
-    setGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId));
+    setGroups((prevGroups) => (prevGroups ? prevGroups.filter((group) => group.id !== groupId) : []));
   };
 
 
@@ -97,12 +97,12 @@ export default function GroupsPage() {
       {/* GroupGrid*/}
       <Box sx={gridWrapperStyle}>
         <GroupGrid
-          initialGroups={groups}
+          initialGroups={groups ?? []}
           startDate={startDate}
           endDate={endDate}
           filterTerm={filterTerm}
           onGroupDeleted={handleGroupDeleted}
-          userId={userId!}
+          userId={userId ?? -1}
         />
       </Box>
     </PageWrapper>

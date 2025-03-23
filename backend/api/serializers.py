@@ -100,7 +100,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
                     [Item(receipt=receipt, **item_data) for item_data in items_data]
                 )
 
-                update_spending_analytics(receipt.user.id)
+                update_insights(receipt.user.id)
                 return receipt
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
@@ -128,7 +128,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
                     [Item(receipt=instance, **item_data) for item_data in items_data]
                 )
 
-                update_spending_analytics(instance.user.id)
+                update_insights(instance.user.id)
                 return instance
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
@@ -141,8 +141,8 @@ class GroupMembersSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = GroupMembersSerializer(many=True)
-    receipts = ReceiptSerializer(many=True)
+    members = GroupMembersSerializer(many=True, required=False)
+    receipts = ReceiptSerializer(many=True, required=False)
 
 
     class Meta:
