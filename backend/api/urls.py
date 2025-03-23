@@ -2,13 +2,16 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    GetUserIdView,
+    GroupDelete,
+    GroupMembersLeave,
     ReceiptOverview,
     ReceiptDetail,
-    ItemList,
+    ItemOverview,
     ItemDetail,
-    GroupList,
+    GroupOverview,
     GroupDetail,
-    GroupMembersList,
+    GroupMembersOverview,
     GroupMembersDetail,
     SubscriptionList,
     SubscriptionDetail,
@@ -16,32 +19,36 @@ from .views import (
     login,
     logout,
     me,
-    SpendingAnalyticsView,
+    InsightsView,
 )
 
 urlpatterns = [
     path("receipts/", ReceiptOverview.as_view(), name="receipt-list-create"),
     path("receipts/<int:pk>/", ReceiptDetail.as_view(), name="receipt-detail"),
     path(
-        "receipts/<int:receipt_id>/items/", ItemList.as_view(), name="item-list-create"
+        "receipts/<int:receipt_pk>/items/", ItemOverview.as_view(), name="item-list-create"
     ),
     path(
-        "receipts/<int:receipt_id>/items/<int:pk>/",
+        "receipts/<int:receipt_pk>/items/<int:pk>/",
         ItemDetail.as_view(),
         name="item-detail",
     ),
-    path("groups/", GroupList.as_view(), name="group-list-create"),
+    path("groups/", GroupOverview.as_view(), name="group-list-create"),
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path(
-        "groups/<int:group_id>/members/",
-        GroupMembersList.as_view(),
+        "groups/<int:group_pk>/members/",
+        GroupMembersOverview.as_view(),
         name="group-members-list",
     ),
     path(
-        "groups/<int:group_id>/members/<int:pk>/",
+        "groups/<int:group_pk>/members/<int:pk>/",
         GroupMembersDetail.as_view(),
         name="group-members-detail",
     ),
+
+    path('groups/<int:pk>/delete/', GroupDelete.as_view(), name='group-delete'),
+    path('groups/<int:group_id>/members/<int:user_id>/leave/', GroupMembersLeave.as_view(), name='group-leave'),
+    path('user_id/', GetUserIdView.as_view(), name='get_user_id'),
     path("user/register/", register, name="user-register"),
     path("user/login/", login, name="user-login"),
     path("user/logout/", logout, name="user-logout"),
@@ -53,5 +60,10 @@ urlpatterns = [
         SubscriptionDetail.as_view(),
         name="subscription-detail",
     ),
-    path("analytics/spending/<int:user_id>/<str:period>/", SpendingAnalyticsView.as_view(), name="spending-analytics"),
+    path(
+        "analytics/insights/<str:period>/",
+        InsightsView.as_view(),
+        name="InsightsView",
+    ),
+
 ]

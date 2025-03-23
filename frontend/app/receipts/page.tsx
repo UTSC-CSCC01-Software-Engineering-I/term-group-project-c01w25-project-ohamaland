@@ -25,7 +25,6 @@ export default function Page() {
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        console.log("Fetching receipts..."); // ✅ Debugging log
         const token = getAccessToken();
         const response = await fetch("http://127.0.0.1:8000/api/receipts/", {
           headers: {
@@ -36,8 +35,6 @@ export default function Page() {
           throw new Error("Failed to fetch receipts");
         }
         const data = await response.json();
-        console.log("📊 Full API Response:", data);
-        console.log("Received Data:", data); // ✅ Debugging log
         setReceipts(data.receipts);
       } catch (error) {
         console.error("Error fetching receipts:", error);
@@ -105,9 +102,39 @@ export default function Page() {
     }
   };
 
+  const handleDeleteReceipt = async (receiptId: number) => {
+    try {
+      const token = getAccessToken();
+      const response = await fetch(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete receipt");
+      }
+
+      // Remove the deleted receipt from the state
+      setReceipts((prevReceipts) =>
+        prevReceipts.filter((receipt) => receipt.id !== receiptId)
+      );
+
+      if (selectedReceipt && selectedReceipt.id === receiptId) {
+        setIsDialogOpen(false);
+        setSelectedReceipt(null);
+      }
+    } catch (error) {
+      console.error("Error deleting receipt:", error);
+    }
+  };
+
   const handleOpenDialog = (receipt: Receipt) => {
-    setSelectedReceipt(receipt);
-    setIsDialogOpen(true);
+    if (receipts.find(r => r.id === receipt.id)) {
+      setSelectedReceipt(receipt);
+      setIsDialogOpen(true);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -182,6 +209,7 @@ export default function Page() {
         filterTerm={filterTerm}
         category={category}
         onOpenDialog={handleOpenDialog}
+        onDeleteReceipt={handleDeleteReceipt}
       />
 
       <AddReceipt

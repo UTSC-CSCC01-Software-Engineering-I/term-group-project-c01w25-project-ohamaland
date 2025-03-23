@@ -9,16 +9,43 @@ import { Box } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
-export default function GroupsPage() {
-  // State for the fetched groups
-  const [groups, setGroups] = useState<Group[]>([]);
+async function getUserIdFromBackend() {
+  const token = getAccessToken(); // Ensure this function is returning the access token
 
-  // State for filters
+  if (token) {
+    try {
+      const response = await fetch("http://localhost:8000/api/user_id/", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`, // Sending the JWT token for authentication
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.user_id; // Return user_id from backend
+      } else {
+        console.error("Failed to fetch user_id");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user_id:", error);
+      return null;
+    }
+  } else {
+    console.error("No token found in localStorage");
+    return null;
+  }
+}
+
+export default function GroupsPage() {
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [userId, setUserId] = useState<number | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
 
-  // Fetch groups from the API upon mount
+
   useEffect(() => {
     async function fetchGroups() {
       try {
@@ -35,13 +62,23 @@ export default function GroupsPage() {
         const data = await response.json();
         console.log("Received Group Data:", data);
 
-        setGroups(data.groups);
+        setGroups(Array.isArray(data.groups) ? data.groups : []);
       } catch (error) {
         console.error("Error fetching groups:", error);
       }
     }
+    async function fetchUserId() {
+      const id = await getUserIdFromBackend();
+      setUserId(id);
+    } 
     fetchGroups();
+    fetchUserId();
   }, []);
+
+  const handleGroupDeleted = (groupId: number) => {
+    setGroups((prevGroups) => (prevGroups ? prevGroups.filter((group) => group.id !== groupId) : []));
+  };
+
 
   return (
     <PageWrapper>
@@ -60,10 +97,12 @@ export default function GroupsPage() {
       {/* GroupGrid*/}
       <Box sx={gridWrapperStyle}>
         <GroupGrid
-          groups={groups}
+          initialGroups={groups ?? []}
           startDate={startDate}
           endDate={endDate}
           filterTerm={filterTerm}
+          onGroupDeleted={handleGroupDeleted}
+          userId={userId ?? -1}
         />
       </Box>
     </PageWrapper>

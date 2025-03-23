@@ -31,8 +31,10 @@ class Group(models.Model):
 
 
 class GroupMembers(models.Model):
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="member_groups"
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -47,8 +49,12 @@ class Receipt(models.Model):
         ("Cash", "Cash"),
     ]
 
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="receipts")
-    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.CASCADE, related_name="receipts"
+    )
+    group = models.ForeignKey(
+        Group, null=True, blank=True, on_delete=models.CASCADE, related_name="receipts"
+    )
     merchant = models.TextField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3)
@@ -56,6 +62,13 @@ class Receipt(models.Model):
     payment_method = models.CharField(
         max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True
     )
+    tax = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )  # default=0 ?
+    tip = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )  # default=0 ?
+    tax_last = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -148,22 +161,22 @@ class Subscription(models.Model):
         return f"Subscription {self.id} - {self.merchant}"
 
 
-class SpendingAnalytics(models.Model):
+class Insights(models.Model):
     TIME_CHOICES = [
-        ('Weekly', 'Weekly'),
-        ('Monthly', 'Monthly'),
-        ('Quarterly', 'Quarterly'),
-        ('Yearly', 'Yearly')
+        ("Weekly", "Weekly"),
+        ("Monthly", "Monthly"),
+        ("Quarterly", "Quarterly"),
+        ("Yearly", "Yearly"),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category_spending =models.JSONField(default=dict)
+    category_spending = models.JSONField(default=dict)
     total_spent = models.DecimalField(max_digits=10, decimal_places=2)
-    period = models.TextField(max_length=20, choices = TIME_CHOICES)
+    period = models.TextField(max_length=20, choices=TIME_CHOICES)
     date = models.DateField(default=now)
 
     class Meta:
-        db_table = "spending_analytics"
-        unique_together = ('user', 'period', 'date')
+        db_table = "Insights"
+        unique_together = ("user", "period", "date")
 
     def __str__(self):
         return f"{self.user.username} - {self.period} - {self.date} - Total Spent: {self.total_spent}"

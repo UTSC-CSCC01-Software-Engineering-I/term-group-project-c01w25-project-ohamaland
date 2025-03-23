@@ -13,21 +13,33 @@ export function filterGroups(
   return groups.filter((group) => {
     // Convert group creation to Date object
     const createdDate = new Date(group.created_at);
+    console.log("Group Created Date:", createdDate);
 
     // Date range filtering
-    if (startDate && createdDate < startDate.toDate()) {
-      return false;
+    if (startDate) {
+      console.log("Start Date:", startDate.toDate(), "Created Date:", createdDate);
+      if (createdDate < startDate.toDate()) {
+        console.log("Group is before start date, skipping");
+        return false;
+      }
     }
-    if (endDate && createdDate > endDate.toDate()) {
-      return false;
+
+    if (endDate) {
+      console.log("End Date:", endDate.toDate(), "Created Date:", createdDate);
+      if (createdDate > endDate.toDate()) {
+        console.log("Group is after end date, skipping");
+        return false;
+      }
     }
 
     // Text-based filtering on group name
     const nameMatchesFilter = group.name
       .toLowerCase()
       .includes(filterTerm.toLowerCase());
+    console.log("Group Name:", group.name, "Matches Filter:", nameMatchesFilter);
 
     if (filterTerm && !nameMatchesFilter) {
+      console.log("Group name does not match filter, skipping");
       return false;
     }
 
