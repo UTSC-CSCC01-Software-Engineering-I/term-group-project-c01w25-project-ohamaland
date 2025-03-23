@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import Image from "next/image";
+import { brand } from '@/styles/colors';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -80,7 +81,7 @@ export default function RegisterPage() {
           variant="body2"
           sx={{ textAlign: 'right' }}
         >
-          Already have an account? <a href="/login" style={{ color: '#1E90FF' }}>Sign in &rarr;</a>
+          Already have an account? <a href="/login" style={{ color: brand.secondary }}>Sign in &rarr;</a>
         </Typography>
       </Box>
 
@@ -288,7 +289,7 @@ export default function RegisterPage() {
         <Typography
           variant="body2"
           sx={{ color: 'text.secondary', marginTop: 2 }}>
-          By creating an account, you agree to the <a href="/policy" style={{ textDecoration: 'underline', color: '#1E90FF' }}>Terms of Service</a>. For more information about Catalog&apos;s privacy practices, see the <a href="/privacy" style={{ textDecoration: 'underline', color: '#1E90FF' }}>Catalog Privacy Statement</a>. We&apos;ll occasionally send you account-related emails.
+          By creating an account, you agree to the <a href="/policy" style={{ textDecoration: 'underline', color: brand.secondary }}>Terms of Service</a>. For more information about Catalog&apos;s privacy practices, see the <a href="/privacy" style={{ textDecoration: 'underline', color: brand.secondary }}>Catalog Privacy Statement</a>. We&apos;ll occasionally send you account-related emails.
         </Typography>
       </Container>
     </Box>
@@ -310,11 +311,11 @@ const textFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -323,11 +324,11 @@ const nameFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -338,9 +339,9 @@ const continueButtonStyle = {
   textTransform: 'none',
   fontWeight: 'bold',
   fontSize: 18,
-  backgroundColor: '#E2C00A',
-  boxShadow: 'none', // Remove the shadow
+  backgroundColor: brand.primary,
+  boxShadow: 'none',
   '&:hover': {
-    backgroundColor: '#F5D21A',
+    backgroundColor: brand.primaryHover,
   }
 }

@@ -7,6 +7,7 @@ import { Box, Button, Container, IconButton, InputAdornment, TextField, Typograp
 import CloseIcon from '@mui/icons-material/Close';
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
+import { brand, error as errorColors, background } from '@/styles/colors';
 
 interface LoginError {
   message: string;
@@ -91,26 +92,26 @@ export default function LoginPage() {
   const getErrorColor = (type: LoginError['type']) => {
     switch (type) {
       case 'auth':
-        return '#870707';
+        return errorColors.dark;
       case 'network':
-        return '#875207';
+        return errorColors.warning;
       case 'server':
-        return '#870707';
+        return errorColors.dark;
       default:
-        return '#870707';
+        return errorColors.dark;
     }
   };
 
   const getErrorBackground = (type: LoginError['type']) => {
     switch (type) {
       case 'auth':
-        return '#FAA0A0';
+        return errorColors.light;
       case 'network':
-        return '#FAD7A0';
+        return errorColors.warningLight;
       case 'server':
-        return '#FAA0A0';
+        return errorColors.light;
       default:
-        return '#FAA0A0';
+        return errorColors.light;
     }
   };
 
@@ -122,7 +123,7 @@ export default function LoginPage() {
           variant="body2"
           sx={{ textAlign: 'right' }}
         >
-          New to Catalog? <a href="/register" style={{ color: '#1E90FF' }}>Create an account</a>
+          New to Catalog? <a href="/register" style={{ color: brand.secondary }}>Create an account</a>
         </Typography>
       </Box>
 
@@ -143,9 +144,9 @@ export default function LoginPage() {
         >
           Sign in to {' '}
           <span
-            style={{ color: "#E2C00A" }}
-            onMouseEnter={(e) => e.currentTarget.style.color = "#F5D21A"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "#E2C00A"}
+            style={{ color: brand.primary }}
+            onMouseEnter={(e) => e.currentTarget.style.color = brand.primaryHover}
+            onMouseLeave={(e) => e.currentTarget.style.color = brand.primary}
           >
             Catalog
           </span>
@@ -243,7 +244,7 @@ export default function LoginPage() {
 }
 
 const outerBoxStyle = {
-  bgcolor: 'white',
+  bgcolor: background.white,
   display: 'flex',
   flexDirection: 'column',
 }
@@ -257,11 +258,11 @@ const textFieldStyle = {
   '& .MuiOutlinedInput-root': {
     borderRadius: 2,
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#E2C00A',
+      borderColor: brand.primary,
     }
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#E2C00A',
+    color: brand.primary,
   }
 }
 
@@ -272,13 +273,13 @@ const continueButtonStyle = {
   textTransform: 'none',
   fontWeight: 'bold',
   fontSize: 18,
-  backgroundColor: '#E2C00A',
+  backgroundColor: brand.primary,
   boxShadow: 'none',
   '&:hover': {
-    backgroundColor: '#F5D21A',
+    backgroundColor: brand.primaryHover,
   },
   '&.Mui-disabled': {
-    backgroundColor: '#E2C00A',
+    backgroundColor: brand.primary,
     opacity: 0.7,
   }
 }
