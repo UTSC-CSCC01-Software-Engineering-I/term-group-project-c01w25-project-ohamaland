@@ -57,13 +57,13 @@ class ReceiptOverview(APIView):
 
 
 class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ReceiptSerializer
     queryset = Receipt.objects.all()
 
 
 class ItemList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     def list(self, request, *args, **kwargs):
@@ -84,7 +84,7 @@ class ItemList(generics.ListCreateAPIView):
 
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ItemSerializer
 
     # Not 100% sure whether this works
@@ -92,25 +92,66 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
         return Item.objects.get(receipt=self.kwargs["receipt_id"], id=self.kwargs["pk"])
 
 
-class GroupList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
-    serializer_class = GroupSerializer
+class GetUserIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_id = request.user.id
+        return Response({"user_id": user_id}, status=status.HTTP_200_OK)
+
+class GroupDelete(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Group.objects.all()
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"groups": serializer.data})
+    def delete(self, request, *args, **kwargs):
+        group_id = kwargs.get('group_id')
+        group = self.get_object()
+        if group.creator != request.user:
+            return Response({"error": "You are not the creator of the group."}, status=status.HTTP_403_FORBIDDEN)
+
+        group.delete()
+        return Response({"message": "Group deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+class GroupMembersLeave(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupMembersSerializer
+
+    def get_object(self):
+        return GroupMembers.objects.get(
+            group=self.kwargs["group_id"], user=self.request.user
+        )
+
+    def delete(self, request, *args, **kwargs):
+        group_member = self.get_object()
+        group = group_member.group
+        
+        if group.creator == request.user:
+            return Response({"error": "Use the 'deleteGroup' route to delete the entire group."}, status=status.HTTP_400_BAD_REQUEST)
+
+        group_member.delete()
+        return Response({"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT)
+
+class GroupList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
+    
+    def get_queryset(self):
+        """Return only the groups where the user is a member."""
+        return Group.objects.filter(groupmembers__user=self.request.user)
+    
+    def perform_create(self, serializer):
+        group = serializer.save(creator=self.request.user)
+        GroupMembers.objects.create(group=group, user=self.request.user)
 
 
 class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
 
 class GroupMembersList(generics.ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def list(self, request, *args, **kwargs):
@@ -122,18 +163,30 @@ class GroupMembersList(generics.ListCreateAPIView):
         return GroupMembers.objects.filter(group_id=self.kwargs["group_id"])
 
     def perform_create(self, serializer):
+        print(f"Adding member to group {self.kwargs['group_id']}")
         group = Group.objects.get(id=self.kwargs["group_id"])
         serializer.save(group=group)
 
 
 class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
 
     def get_object(self):
+        user_id = self.kwargs["pk"]
         return GroupMembers.objects.get(
-            group=self.kwargs["group_id"], id=self.kwargs["pk"]
+            group=self.kwargs["group_id"], user=user_id
         )
+
+    def delete(self, request, *args, **kwargs):
+        group_member = self.get_object()
+        group = group_member.group
+        if group.creator == group_member.user:
+            group.delete()
+            return Response({"message": "Group deleted as creator left"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            group_member.delete()
+            return Response({"message": "User has left the group"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class UserRegisterView(APIView):
@@ -196,7 +249,7 @@ class UserLogoutView(APIView):
 
 class InsightsView(generics.ListAPIView):
     serializer_class = InsightsSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user

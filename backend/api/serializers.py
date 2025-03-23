@@ -104,14 +104,16 @@ class GroupMembersSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = GroupMembersSerializer(
-        many=True, read_only=True, source="groupmembers_set"
-    )
+    members = serializers.SerializerMethodField()
     receipts = ReceiptSerializer(many=True, read_only=True, source="receipt_set")
 
     class Meta:
         model = Group
         fields = "__all__"
+    
+    def get_members(self, obj):
+        """Return members as a list of user IDs and usernames."""
+        return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
 
 class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
