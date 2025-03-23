@@ -54,55 +54,56 @@ export default function Page() {
 
   // to handle adding a new receipt (temporary, hardcoded for now)
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    const formData = new FormData();
-
-    // Append the receipt image (file)
-    formData.append("receipt_image", file);
-
-    // Append each field of newReceipt separately as form fields
-    formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString()); // Convert to string if necessary
-    formData.append("currency", newReceipt.currency);
-    formData.append("date", newReceipt.date);
-    formData.append("payment_method", newReceipt.payment_method);
-    formData.append("items", JSON.stringify(newReceipt.items));
-    formData.append("id", newReceipt.id.toString());
-
     try {
       const token = getAccessToken();
-      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        }
-      });
-      if (!meResponse.ok) {
-        throw new Error("Failed to get user information.");
+
+      // Upload image if provided
+      let imageUrl;
+      if (file) {
+        const formData = new FormData();
+        formData.append("receipt_image", file);
+        const imageResponse = await fetch("http://127.0.0.1:8000/api/receipts/upload/", {
+          method: "POST",
+          headers: {"Authorization": `Bearer ${token}`},
+          body: formData,
+        });
+        if (!imageResponse.ok) throw new Error("Image upload failed");
+        const imageData = await imageResponse.json();
+        imageUrl = imageData.image_url;
       }
-      const data = await meResponse.json()
-      formData.append("user", data.id);
+
+      // Get user info
+      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+        headers: {"Authorization": `Bearer ${token}`,},
+      });
+      if (!meResponse.ok) throw new Error("Failed to get user information");
+      const { id: userId } = await meResponse.json();
+
+      // Save receipt
+      const receiptData = {
+        ...newReceipt,
+        user: userId,
+        receipt_image_url: imageUrl,
+      };
 
       const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData
+        body: JSON.stringify(receiptData),
       });
-      console.log(receiptResponse);
-      if (!receiptResponse.ok) {
-        throw new Error("Failed to save receipt");
-      }
+
+      console.log(receiptData);
+      if (!receiptResponse.ok) throw new Error("Failed to save receipt");
+      
       const savedReceipt = await receiptResponse.json();
-      setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
+      setReceipts(prev => [...prev, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
+      throw error;
     }
   };
 
