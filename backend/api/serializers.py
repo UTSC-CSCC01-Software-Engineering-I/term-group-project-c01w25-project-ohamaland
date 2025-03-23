@@ -136,7 +136,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembers
-        fields = "__all__"
+        fields = ["id", "user", "joined_at"]
 
 
 class GroupSerializer(serializers.ModelSerializer):

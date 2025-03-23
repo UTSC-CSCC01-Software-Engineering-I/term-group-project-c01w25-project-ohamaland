@@ -182,7 +182,7 @@ class GroupOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        groups = Group.objects.filter(creator=request.user)
+        groups = Group.objects.filter(members__user=request.user)
         serializer = GroupSerializer(groups, many=True)
         return Response({"groups": serializer.data}, status=status.HTTP_200_OK)
 
@@ -200,7 +200,7 @@ class GroupDetail(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
-        group = Group.objects.filter(creator=request.user, id=pk).first()
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
         if group is None:
             return Response(
                 {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
@@ -212,7 +212,7 @@ class GroupDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
-        group = Group.objects.filter(creator=request.user, id=pk).first()
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
         if group is None:
             return Response(
                 {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
@@ -224,7 +224,7 @@ class GroupDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        group = Group.objects.filter(creator=request.user, id=pk).first()
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
         if group is None:
             return Response(
                 {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
@@ -233,7 +233,7 @@ class GroupDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get(self, request, pk):
-        group = Group.objects.filter(creator=request.user, id=pk).first()
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
         if group is None:
             return Response(
                 {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
@@ -242,31 +242,75 @@ class GroupDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GroupMembersList(generics.ListCreateAPIView):
+class GroupMembersOverview(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupMembersSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+    def get(self, request, group_pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        members = GroupMembers.objects.filter(group_id=group_pk)
+        serializer = GroupMembersSerializer(members, many=True)
         return Response({"members": serializer.data})
 
-    def get_queryset(self):
-        return GroupMembers.objects.filter(group_id=self.kwargs["group_id"])
+    def post(self, request, group_pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if not group:
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = GroupMembersSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(group=group)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def perform_create(self, serializer):
-        group = Group.objects.get(id=self.kwargs["group_id"])
-        serializer.save(group=group)
 
-
-class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
+class GroupMembersDetail(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupMembersSerializer
 
-    def get_object(self):
-        return GroupMembers.objects.get(
-            group=self.kwargs["group_id"], id=self.kwargs["pk"]
-        )
+    def get(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupMembersSerializer(member)
+        return Response(serializer.data)
+
+    def put(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupMembersSerializer(member, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        member.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["POST"])
