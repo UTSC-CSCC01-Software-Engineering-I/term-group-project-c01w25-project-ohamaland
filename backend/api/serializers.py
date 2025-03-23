@@ -1,5 +1,7 @@
 from decimal import Decimal
+
 import boto3
+from django.db import transaction
 from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
@@ -39,27 +41,19 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True)
+    items = ItemSerializer(many=True)  # Nested serializer
     receipt_image = serializers.ImageField(required=False)
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Receipt
         fields = "__all__"
 
-    def create(self, validated_data):
-        image = validated_data.pop("receipt_image", None)
-        items_data = validated_data.pop('items', [])
+    def _handle_image_upload(self, image):
+        """Handle S3 image upload and return the URL."""
+        if not image:
+            return None
 
-        user = validated_data.pop("user")
-        validated_data["user"] = User.objects.get(id=user.id)
-
-        receipt = Receipt.objects.create(**validated_data)
-
-        for item_data in items_data:
-            Item.objects.create(receipt=receipt, **item_data)
-
-        if image:
+        try:
             s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -75,37 +69,81 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 bucket_name,
                 file_key,
                 ExtraArgs={"ContentType": image.content_type},
-            )  # Ensures that it opens the image in the browser
-
-            validated_data["receipt_image_url"] = (
-                f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
             )
 
-        update_insights(receipt.user)
+            return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        except Exception as e:
+            raise serializers.ValidationError(f"Image upload failed: {str(e)}")
 
-        return receipt
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        return {
+            key: float(value) if isinstance(value, Decimal) else value
+            for key, value in data.items()
+        }
 
-        # Convert Decimal fields to float
-        for key, value in data.items():
-            if isinstance(value, Decimal):
-                data[key] = float(value)
+    def create(self, validated_data):
+        items_data = validated_data.pop("items", [])
+        image = validated_data.pop("receipt_image", None)
 
-        return data
+        # Handle image upload
+        receipt_image_url = self._handle_image_upload(image)
+        if receipt_image_url:
+            validated_data["receipt_image_url"] = receipt_image_url
 
+        try:
+            # Create receipt and items in a transaction
+            with transaction.atomic():
+                receipt = Receipt.objects.create(**validated_data)
+                Item.objects.bulk_create(
+                    [Item(receipt=receipt, **item_data) for item_data in items_data]
+                )
+
+                update_spending_analytics(receipt.user.id)
+                return receipt
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
+
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop("items", [])
+        image = validated_data.pop("receipt_image", None)
+
+        # TO DO: Handle image deletion
+        # Handle image upload
+        receipt_image_url = self._handle_image_upload(image)
+        if receipt_image_url:
+            validated_data["receipt_image_url"] = receipt_image_url
+
+        try:
+            with transaction.atomic():
+                # Update receipt fields
+                for key, value in validated_data.items():
+                    setattr(instance, key, value)
+                instance.save()
+
+                # Update items
+                Item.objects.filter(receipt=instance).delete()
+                Item.objects.bulk_create(
+                    [Item(receipt=instance, **item_data) for item_data in items_data]
+                )
+
+                update_spending_analytics(instance.user.id)
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembers
-        fields = "__all__"
+        fields = ["id", "user", "joined_at"]
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = serializers.SerializerMethodField()
-    receipts = ReceiptSerializer(many=True, read_only=True, source="receipt_set")
+    members = GroupMembersSerializer(many=True)
+    receipts = ReceiptSerializer(many=True)
+
 
     class Meta:
         model = Group
@@ -115,15 +153,82 @@ class GroupSerializer(serializers.ModelSerializer):
         """Return members as a list of user IDs and usernames."""
         return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
 
+
+    def create(self, validated_data):
+        members_data = validated_data.pop("members", [])
+        receipts_data = validated_data.pop("receipts", [])
+
+        try:
+            with transaction.atomic():
+                group = Group.objects.create(**validated_data)
+                GroupMembers.objects.bulk_create(
+                    [
+                        GroupMembers(group=group, **member_data)
+                        for member_data in members_data
+                    ]
+                )
+                Receipt.objects.bulk_create(
+                    [
+                        Receipt(group=group, **receipt_data)
+                        for receipt_data in receipts_data
+                    ]
+                )
+
+                return group
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create group: {str(e)}")
+
+    def update(self, instance, validated_data):
+        members_data = validated_data.pop("members", [])
+        receipts_data = validated_data.pop("receipts", [])
+
+        try:
+            with transaction.atomic():
+                # Update group fields
+                for key, value in validated_data.items():
+                    setattr(instance, key, value)
+                instance.save()
+
+                # Update members
+                # Should prevent deletion of creator from group
+                GroupMembers.objects.filter(group=instance).exclude(
+                    user=instance.creator
+                ).delete()
+                GroupMembers.objects.bulk_create(
+                    [
+                        GroupMembers(group=instance, **member_data)
+                        for member_data in members_data
+                    ]
+                )
+
+                # Update receipts
+                Receipt.objects.filter(group=instance).delete()
+                Receipt.objects.bulk_create(
+                    [
+                        Receipt(group=instance, **receipt_data)
+                        for receipt_data in receipts_data
+                    ]
+                )
+
+                return instance
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to update group: {str(e)}")
+
+
 class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
+
     class Meta:
         model = Insights
-        fields = ['user', 'total_spent', 'category_spending', 'period', 'date']
+        fields = ["user", "total_spent", "category_spending", "period", "date"]
+
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""
-        return [{"category": key, "amount": float(value)} for key, value in obj.category_spending.items()]
+        return [
+            {"category": key, "amount": float(value)}
+            for key, value in obj.category_spending.items()
+        ]
 
     def to_representation(self, instance):
         """Convert Decimal fields to float for JSON serialization."""

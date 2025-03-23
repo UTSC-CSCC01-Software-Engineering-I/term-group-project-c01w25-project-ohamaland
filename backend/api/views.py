@@ -1,16 +1,21 @@
-import logging
+from datetime import timedelta
+
 from django.contrib.auth import authenticate
 from django.forms import ValidationError
 from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
 
-from .signals import calculate_category_spending, calculate_total_spending, get_spending_periods
+from .signals import (
+    calculate_category_spending,
+    calculate_total_spending,
+    get_spending_periods,
+)
 
 from .models import Receipt, Item, Group, GroupMembers, User, Insights
 from .notifications import notify_group_receipt_added
@@ -25,9 +30,6 @@ from .serializers import (
 )
 
 
-# TODO: When Account and Authentication are implemented, GET request for items should only return items from the Account
-
-
 class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -39,57 +41,64 @@ class ReceiptOverview(APIView):
             if serializer.data.get("group") is not None:
                 notify_group_receipt_added(serializer.data.get("group"))
 
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        # if id is None:
-        #     receipt = Receipt.objects.filter(user=request.user, id=id).first()
-        #     if receipt is None:
-        #         return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        #     serializer = ReceiptSerializer(receipt)
-        #     return Response(serializer.data, status=status.HTTP_200_OK)
         receipts = Receipt.objects.filter(user=request.user)
         serializer = ReceiptSerializer(receipts, many=True)
         return Response({"receipts": serializer.data}, status=status.HTTP_200_OK)
 
 
-class ReceiptDetail(generics.RetrieveUpdateDestroyAPIView):
+class ReceiptDetail(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ReceiptSerializer
-    queryset = Receipt.objects.all()
 
+    def patch(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-class ItemList(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ItemSerializer
+        serializer = ReceiptSerializer(receipt, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"items": serializer.data})
+    def put(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-    def get_queryset(self):
-        # Filter items by the receipt_id provided in the URL
-        return Item.objects.filter(receipt_id=self.kwargs["receipt_id"])
+        serializer = ReceiptSerializer(receipt, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Handle POST request to create a new item under a specific receipt
-    def perform_create(self, serializer):
-        receipt = Receipt.objects.get(
-            id=self.kwargs["receipt_id"]
-        )  # Checks if the receipt with ID exists
-        serializer.save(receipt=receipt)
+    def delete(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
+        receipt.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ItemSerializer
+    def get(self, request, pk):
+        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-    # Not 100% sure whether this works
-    def get_object(self):
-        return Item.objects.get(receipt=self.kwargs["receipt_id"], id=self.kwargs["pk"])
+        serializer = ReceiptSerializer(receipt)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class GetUserIdView(APIView):
@@ -149,102 +158,295 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
-
-class GroupMembersList(generics.ListCreateAPIView):
+class ItemOverview(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupMembersSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({"members": serializer.data})
+    def post(self, request, receipt_pk):
+        receipt = Receipt.objects.filter(user=request.user, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(receipt=receipt)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        return GroupMembers.objects.filter(group_id=self.kwargs["group_id"])
-
-    def perform_create(self, serializer):
-        print(f"Adding member to group {self.kwargs['group_id']}")
-        group = Group.objects.get(id=self.kwargs["group_id"])
-        serializer.save(group=group)
+    def get(self, request, receipt_pk):
+        items = Item.objects.filter(receipt__user=request.user, receipt_id=receipt_pk)
+        serializer = ItemSerializer(items, many=True)
+        return Response({"items": serializer.data}, status=status.HTTP_200_OK)
 
 
-class GroupMembersDetail(generics.RetrieveUpdateDestroyAPIView):
+class ItemDetail(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = GroupMembersSerializer
 
-    def get_object(self):
-        user_id = self.kwargs["pk"]
-        return GroupMembers.objects.get(
-            group=self.kwargs["group_id"], user=user_id
-        )
+    def patch(self, request, receipt_pk, pk):
+        item = Item.objects.filter(
+            receipt__user=request.user, receipt_id=receipt_pk, id=pk
+        ).first()
+        if item is None:
+            return Response(
+                {"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-    def delete(self, request, *args, **kwargs):
-        group_member = self.get_object()
-        group = group_member.group
-        if group.creator == group_member.user:
-            group.delete()
-            return Response({"message": "Group deleted as creator left"}, status=status.HTTP_204_NO_CONTENT)
-        else:
-            group_member.delete()
-            return Response({"message": "User has left the group"}, status=status.HTTP_204_NO_CONTENT)
-
-
-class UserRegisterView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = ItemSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, receipt_pk, pk):
+        item = Item.objects.filter(
+            receipt__user=request.user, receipt_id=receipt_pk, id=pk
+        ).first()
+        if item is None:
+            return Response(
+                {"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = ItemSerializer(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, receipt_pk, pk):
+        item = Item.objects.filter(
+            receipt__user=request.user, receipt_id=receipt_pk, id=pk
+        ).first()
+        if item is None:
+            return Response(
+                {"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, receipt_pk, pk):
+        item = Item.objects.filter(
+            receipt__user=request.user, receipt_id=receipt_pk, id=pk
+        ).first()
+        if item is None:
+            return Response(
+                {"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = ItemSerializer(item)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GroupOverview(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        groups = Group.objects.filter(members__user=request.user)
+        serializer = GroupSerializer(groups, many=True)
+        return Response({"groups": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            group = serializer.save()
+            # Add creator as a member
+            GroupMembers.objects.create(group=group, user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLoginView(APIView):
-    def post(self, request):
-        identifier = request.data.get("identifier")
-        password = request.data.get("password")
+class GroupDetail(APIView):
+    permission_classes = [IsAuthenticated]
 
-        if not identifier or not password:
+    def patch(self, request, pk):
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
+        if group is None:
             return Response(
-                {"error": "Username/email and password are required"},
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, pk):
+        group = Group.objects.filter(members__user=request.user, id=pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupSerializer(group)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GroupMembersOverview(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, group_pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        members = GroupMembers.objects.filter(group_id=group_pk)
+        serializer = GroupMembersSerializer(members, many=True)
+        return Response({"members": serializer.data})
+
+    def post(self, request, group_pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if not group:
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = GroupMembersSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(group=group)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GroupMembersDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupMembersSerializer(member)
+        return Response(serializer.data)
+
+    def put(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupMembersSerializer(member, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, group_pk, pk):
+        if not Group.objects.filter(members__user=request.user, id=group_pk).exists():
+            return Response(
+                {"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN
+            )
+        member = GroupMembers.objects.filter(group_id=group_pk, id=pk).first()
+        if member is None:
+            return Response(
+                {"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        member.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+def register(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def login(request):
+    identifier = request.data.get("identifier")
+    password = request.data.get("password")
+
+    if not identifier or not password:
+        return Response(
+            {"error": "Username/email and password are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = User.objects.filter(email=identifier).first()
+    username = user.username if user else identifier
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
+    return Response(
+        {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+    )
+
+
+@api_view(["POST"])
+def logout(request):
+    try:
+        refresh_token = request.data.get("refresh")
+
+        if not refresh_token:
+            return Response(
+                {"error": "Refresh token is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = User.objects.filter(email=identifier).first()
-        username = user.username if user else identifier
-        user = authenticate(request, username=username, password=password)
+        token = RefreshToken(refresh_token)
+        token.blacklist()
 
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
-            return Response(
-                {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                }
-            )
         return Response(
-            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+            {"message": "Successfully logged out"}, status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        return Response(
+            {"error": "An error occurred during logout"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
-class UserLogoutView(APIView):
-    def post(self, request):
-        try:
-            refresh_token = request.data.get("refresh")
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me(request):
+    user = request.user
+    return Response(
+        {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone_number": user.phone_number,
+        }
+    )
 
-            if not refresh_token:
-                return Response(
-                    {"error": "Refresh token is required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-            return Response(
-                {"message": "Successfully logged out"}, status=status.HTTP_200_OK
-            )
-        except Exception as e:
-            return Response({"error": "An error occurred during logout"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InsightsView(generics.ListAPIView):
@@ -277,7 +479,9 @@ class InsightsView(generics.ListAPIView):
         start_date = periods.get(period)
 
         if not start_date:
-            return JsonResponse({"error": "Could not find start date for the period"}, status=400)
+            return JsonResponse(
+                {"error": "Could not find start date for the period"}, status=400
+            )
 
         try:
             insights = self.get_insights(user, period, start_date)
