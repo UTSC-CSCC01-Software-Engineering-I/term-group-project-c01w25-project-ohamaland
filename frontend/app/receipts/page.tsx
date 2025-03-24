@@ -10,6 +10,7 @@ import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { fetchWithAuth } from "@/utils/api";
+import { getAccessToken } from "@/utils/auth";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -43,30 +44,43 @@ export default function Page() {
   };
 
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("receipt_image", file);
-    formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString());
-    formData.append("currency", newReceipt.currency);
-    formData.append("date", newReceipt.date);
-    formData.append("payment_method", newReceipt.payment_method);
-    formData.append("items", JSON.stringify(newReceipt.items));
-    formData.append("id", newReceipt.id.toString());
-
     try {
-      const meResponse = await fetchWithAuth("http://127.0.0.1:8000/api/user/me/");
-      if (meResponse && meResponse.ok) {
-        const data = await meResponse.json();
-        formData.append("user", data.id);
+      const token = getAccessToken();
 
-        const receiptResponse = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/", {
+      // Upload image if provided
+      let receiptURL;
+      if (file) {
+        const formData = new FormData();
+        formData.append("receipt_image", file);
+        const imageResponse = await fetch("http://127.0.0.1:8000/api/receipts/upload/", {
           method: "POST",
-          body: formData
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData,
+        });
+        if (!imageResponse.ok) throw new Error("Receipt image upload failed");
+        const imageData = await imageResponse.json();
+        receiptURL = imageData.receipt_url;
+      }
+
+      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}`, },
+      });
+      if (meResponse && meResponse.ok) {
+        const { id: userId } = await meResponse.json();
+        const receiptData = {
+          ...newReceipt,
+          user: userId,
+          receipt_image_url: receiptURL,
+        };
+
+        const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(receiptData),
         });
 
         if (receiptResponse && receiptResponse.ok) {
@@ -77,6 +91,7 @@ export default function Page() {
       }
     } catch (error) {
       console.error("Error saving receipt:", error);
+      throw error;
     }
   };
 

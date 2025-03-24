@@ -17,6 +17,7 @@ from .views import (
     login,
     logout,
     me,
+    receipt_upload,
     InsightsView,
 )
 
@@ -57,5 +58,5 @@ urlpatterns = [
         InsightsView.as_view(),
         name="InsightsView",
     ),
-
+    path("receipts/upload/", receipt_upload, name="image-upload"),
 ]
