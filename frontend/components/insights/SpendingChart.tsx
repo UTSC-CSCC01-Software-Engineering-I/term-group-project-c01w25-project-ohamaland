@@ -1,5 +1,15 @@
-import { PieChart, Pie, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { chart, background } from '@/styles/colors';
+import { background, chart } from "@/styles/colors";
+import {
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
 
 interface ISpendingChartProps {
   data: {
@@ -19,7 +29,7 @@ const categoryColors = {
   Furniture: chart.furniture,
   Health: chart.health,
   Beauty: chart.beauty,
-  Electronics: chart.electronics,
+  Electronics: chart.electronics
 } as const;
 
 export default function SpendingChart(props: ISpendingChartProps) {
@@ -29,18 +39,29 @@ export default function SpendingChart(props: ISpendingChartProps) {
     .reverse();
 
   const aggregatedData = Object.entries(
-    props.data.reduce((acc, item) => {
-      acc[item.category] = (acc[item.category] || 0) + item.amount;
-      return acc;
-    }, {} as Record<string, number>)
+    props.data.reduce(
+      (acc, item) => {
+        acc[item.category] = (acc[item.category] || 0) + item.amount;
+        return acc;
+      },
+      {} as Record<string, number>
+    )
   ).map(([category, amount]) => ({
     category,
-    amount,
+    amount
   }));
 
   return (
     <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-      <div style={{ width: "45%", minWidth: "450px", backgroundColor: background.light, padding: "16px", borderRadius: "8px" }}>
+      <div
+        style={{
+          width: "45%",
+          minWidth: "450px",
+          backgroundColor: background.light,
+          padding: "16px",
+          borderRadius: "8px"
+        }}
+      >
         <h3>Spending by Category</h3>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
@@ -54,7 +75,14 @@ export default function SpendingChart(props: ISpendingChartProps) {
               label
             >
               {aggregatedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={categoryColors[entry.category as keyof typeof categoryColors] || chart.default} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    categoryColors[
+                      entry.category as keyof typeof categoryColors
+                    ] || chart.default
+                  }
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -62,7 +90,15 @@ export default function SpendingChart(props: ISpendingChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div style={{ width: "45%", minWidth: "450px", backgroundColor: background.light, padding: "16px", borderRadius: "8px" }}>
+      <div
+        style={{
+          width: "45%",
+          minWidth: "450px",
+          backgroundColor: background.light,
+          padding: "16px",
+          borderRadius: "8px"
+        }}
+      >
         <h3>Spending Over Time</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={sortedSpendingData}>

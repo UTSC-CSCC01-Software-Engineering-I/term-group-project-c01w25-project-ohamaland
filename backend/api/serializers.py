@@ -3,8 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-
-from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .models import Receipt, Item, Group, GroupMembers, User, Subscription, Insights
 from .signals import update_insights
 
 
@@ -102,15 +101,16 @@ class GroupSerializer(serializers.ModelSerializer):
     members = GroupMembersSerializer(many=True, required=False)
     receipts = ReceiptSerializer(many=True, required=False)
 
-
     class Meta:
         model = Group
         fields = "__all__"
-    
+
     def get_members(self, obj):
         """Return members as a list of user IDs and usernames."""
-        return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
-
+        return [
+            {"id": member.user.id, "username": member.user.username}
+            for member in obj.groupmembers_set.all()
+        ]
 
     def create(self, validated_data):
         members_data = validated_data.pop("members", [])
@@ -173,13 +173,18 @@ class GroupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
 
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = "__all__"
+
+
 class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
 
     class Meta:
         model = Insights
         fields = ["user", "total_spent", "category_spending", "period", "date"]
-
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""

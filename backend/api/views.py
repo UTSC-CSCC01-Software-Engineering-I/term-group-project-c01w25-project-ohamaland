@@ -16,10 +16,8 @@ from .signals import (
     calculate_total_spending,
     get_spending_periods,
 )
-
-from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .models import Receipt, Item, Group, GroupMembers, User, Subscription, Insights
 from .notifications import notify_group_receipt_added
-
 from .serializers import (
     ReceiptSerializer,
     ItemSerializer,
@@ -27,6 +25,7 @@ from .serializers import (
     GroupMembersSerializer,
     InsightsSerializer,
     UserSerializer,
+    SubscriptionSerializer,
 )
 
 
@@ -35,7 +34,7 @@ class ReceiptOverview(APIView):
 
     def post(self, request):
         # Add the user to the request data
-        request.data['user'] = request.user.id
+        request.data["user"] = request.user.id
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -117,10 +116,16 @@ class GroupDelete(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         group = self.get_object()
         if group.creator != request.user:
-            return Response({"error": "You are not the creator of the group."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "You are not the creator of the group."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         group.delete()
-        return Response({"message": "Group deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Group deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class GroupMembersLeave(generics.DestroyAPIView):
@@ -135,21 +140,27 @@ class GroupMembersLeave(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         group_member = self.get_object()
         group = group_member.group
-        
+
         if group.creator == request.user:
-            return Response({"error": "Use the 'deleteGroup' route to delete the entire group."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Use the 'deleteGroup' route to delete the entire group."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         group_member.delete()
-        return Response({"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT
+        )
+
 
 class GroupList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
-    
+
     def get_queryset(self):
         """Return only the groups where the user is a member."""
         return Group.objects.filter(groupmembers__user=self.request.user)
-    
+
     def perform_create(self, serializer):
         group = serializer.save(creator=self.request.user)
         GroupMembers.objects.create(group=group, user=self.request.user)
@@ -159,6 +170,7 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
+
 
 class ItemOverview(APIView):
     permission_classes = [IsAuthenticated]
@@ -420,7 +432,6 @@ def logout(request):
                 {"error": "Refresh token is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         token = RefreshToken(refresh_token)
         token.blacklist()
 
@@ -454,12 +465,11 @@ def me(request):
 @permission_classes([IsAuthenticated])
 def receipt_upload(request):
     """Handle S3 image upload for receipt images and return the URL."""
-    receipt_image = request.FILES.get('receipt_image')
-    
+    receipt_image = request.FILES.get("receipt_image")
+
     if not receipt_image:
         return Response(
-            {"error": "No receipt image provided"}, 
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
@@ -482,20 +492,41 @@ def receipt_upload(request):
 
         receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
         return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
-    
+
     except Exception as e:
         return Response(
-            {"error": f"Image upload failed: {str(e)}"}, 
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": f"Image upload failed: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
+class SubscriptionList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"subscriptions": serializer.data})
+
+
+class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
 
 
 class InsightsView(generics.ListAPIView):
     serializer_class = InsightsSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
         return Insights.objects.filter(user=user).order_by("-date")
@@ -510,7 +541,7 @@ class InsightsView(generics.ListAPIView):
             "period": period,
             "date": start_date,
         }
-    
+
     def get(self, request, period):
         user = request.user
 

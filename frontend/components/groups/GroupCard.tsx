@@ -3,7 +3,7 @@ import { Group } from "@/types/groups";
 import { getAccessToken } from "@/utils/auth";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
 
 interface IGroupCardProps {
@@ -18,7 +18,7 @@ async function getUserIdFromBackend() {
     const response = await fetch("http://localhost:8000/api/user_id/", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
       }
     });
 
@@ -79,13 +79,16 @@ export default function GroupCard(props: IGroupCardProps) {
     try {
       const token = getAccessToken();
 
-      const response = await fetch(`http://localhost:8000/api/groups/${props.group.id}/delete/`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/groups/${props.group.id}/delete/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.ok) {
         props.onGroupDeleted(props.group.id);
@@ -106,13 +109,16 @@ export default function GroupCard(props: IGroupCardProps) {
     try {
       const token = getAccessToken();
 
-      const response = await fetch(`http://localhost:8000/api/groups/${props.group.id}/members/${currentUserId}/leave/`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/groups/${props.group.id}/members/${currentUserId}/leave/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.ok) {
         props.onGroupDeleted(props.group.id);
@@ -125,7 +131,7 @@ export default function GroupCard(props: IGroupCardProps) {
     } finally {
       setIsLeaving(false);
     }
-  };
+  }
   return (
     <Card sx={cardStyle}>
       <CardContent>

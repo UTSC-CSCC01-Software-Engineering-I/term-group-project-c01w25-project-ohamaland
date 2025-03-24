@@ -9,21 +9,21 @@ import {
   sectionTextStyle,
   sideBarContainerStyle
 } from "@/styles/sideBarStyles";
+import { getAccessToken, getRefreshToken, logout } from "@/utils/auth";
 import {
   BrokenImage,
   Group,
   Insights,
+  Logout,
   Receipt,
   Settings,
   Subscriptions,
-  SvgIconComponent,
-  Logout
+  SvgIconComponent
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { getAccessToken, getRefreshToken, logout } from "@/utils/auth";
 
 interface ISideBarProps {
   page: string;
@@ -88,16 +88,16 @@ export default function SideBar(props: ISideBarProps) {
     try {
       const token = getAccessToken();
       const refreshToken = getRefreshToken();
-      
+
       const response = await fetch("http://127.0.0.1:8000/api/user/logout/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           refresh: refreshToken
-        }),
+        })
       });
 
       if (response.ok) {
@@ -142,9 +142,7 @@ export default function SideBar(props: ISideBarProps) {
                 passHref
                 style={{ textDecoration: "none" }}
               >
-                <Box
-                  sx={getSectionContainerStyle(getBackgroundColor(section))}
-                >
+                <Box sx={getSectionContainerStyle(getBackgroundColor(section))}>
                   <Box style={iconContainerStyle}>
                     {getIcon(section, section === props.page)}
                   </Box>

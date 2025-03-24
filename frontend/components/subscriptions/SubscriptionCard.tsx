@@ -1,48 +1,36 @@
 import { textGrey } from "@/styles/colors";
-import { Receipt } from "@/types/receipts";
-
+import { Subscription } from "@/types/subscriptions";
 import {
   Button,
   Card,
   CardContent,
-  CardMedia,
   Divider,
   Stack,
   Typography
 } from "@mui/material";
 
-interface IReceiptCardProps {
-  receipt: Receipt;
+interface ISubscriptionCardProps {
+  subscription: Subscription;
   onClick: () => void;
-  onDeleteReceipt: (receiptId: number) => void;
+  onDeleteSubscription: (subscriptionId: number) => void;
 }
 
-export default function ReceiptCard(props: IReceiptCardProps) {
-  const { receipt, onClick, onDeleteReceipt } = props;
-  const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
+export default function SubscriptionCard(props: ISubscriptionCardProps) {
+  const { subscription, onClick, onDeleteSubscription } = props;
+  const formattedDate = subscription.renewal_date.split("T")[0]; // Ensures YYYY-MM-DD
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDeleteReceipt(receipt.id);
+    onDeleteSubscription(subscription.id);
   };
 
   return (
     <Card sx={cardStyle} onClick={onClick}>
-      {receipt.receipt_image_url && (
-        <CardMedia
-          component="img"
-          height="200"
-          image={receipt.receipt_image_url}
-          alt={`Receipt from ${receipt.merchant}`}
-          sx={mediaStyle}
-        />
-      )}
-
       <CardContent>
         {/* Merchant Name */}
-        <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
+        <Typography sx={merchantTextStyle}>{subscription.merchant}</Typography>
 
-        {/* Date & Payment Method */}
+        {/* Renewal Date */}
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -50,31 +38,22 @@ export default function ReceiptCard(props: IReceiptCardProps) {
           mb={1}
         >
           <Typography sx={textStyle}>{formattedDate}</Typography>
-          <Typography sx={textStyle}>{receipt.payment_method}</Typography>
         </Stack>
 
-        {/* Total Amount */}
+        {/* Billing Period */}
         <Typography sx={totalTextStyle}>
-          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
+          Billing Period: {subscription.billing_period}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
 
-        {/* Items */}
-        <Typography sx={itemsTitleStyle}>Items:</Typography>
+        {/* Total Amount */}
+        <Typography sx={totalTextStyle}>
+          Total: {subscription.currency}{" "}
+          {Number(subscription.total_amount).toFixed(2)}
+        </Typography>
 
-        {receipt.items.slice(0, 2).map((item, index) => (
-          <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} ({item.category}) x{item.quantity} @{" "}
-            {receipt.currency} {Number(item.price).toFixed(2)}
-          </Typography>
-        ))}
-
-        {receipt.items.length > 2 && (
-          <Typography sx={moreItemsStyle}>
-            + {receipt.items.length - 2} more...
-          </Typography>
-        )}
+        <Divider sx={{ my: 1 }} />
 
         {/* View Details Button */}
         <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
@@ -85,7 +64,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
           sx={deleteButtonStyle}
           onClick={handleDelete}
         >
-          Delete Receipt
+          Delete Subscription
         </Button>
       </CardContent>
     </Card>

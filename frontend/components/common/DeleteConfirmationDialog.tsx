@@ -28,7 +28,7 @@ const DeleteConfirmationDialog = React.memo(function DeleteConfirmationDialog({
     const checked = event.target.checked;
     setDontRemindMe(checked);
     if (checked) {
-      localStorage.setItem("dont_remind_delete_receipt", "true");
+      localStorage.setItem("dont_remind_delete", "true");
     }
   };
 
@@ -37,8 +37,7 @@ const DeleteConfirmationDialog = React.memo(function DeleteConfirmationDialog({
       <DialogTitle>Confirm Deletion</DialogTitle>
       <DialogContent>
         <p>
-          Are you sure you want to delete this receipt? This action cannot be
-          undone.
+          Are you sure you want to delete this? This action cannot be undone.
         </p>
         <FormControlLabel
           control={
