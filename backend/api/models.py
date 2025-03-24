@@ -41,14 +41,6 @@ class GroupMembers(models.Model):
         db_table = "group_members"
         unique_together = ("group", "user")
 
-class Folder(models.Model):
-    name = models.CharField(max_length=255)
-    color = models.CharField(max_length=7, default="#FFFFFF")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="folders")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -79,10 +71,6 @@ class Receipt(models.Model):
     tax_last = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    folder = models.ForeignKey(
-        Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name="receipts"
-    )
-    color = models.CharField(max_length=7, default="#FFFFFF")
 
     class Meta:
         db_table = "receipt"
