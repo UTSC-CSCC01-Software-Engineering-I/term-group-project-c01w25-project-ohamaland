@@ -94,6 +94,27 @@ class Receipt(models.Model):
         return f"Receipt {self.id} - {self.merchant}"
 
 
+class GroupReceiptSplit(models.Model):
+    receipt = models.ForeignKey(
+        Receipt, on_delete=models.CASCADE, related_name="splits"
+    )
+    group_member = models.ForeignKey(
+        GroupMembers, on_delete=models.CASCADE, related_name="splits"
+    )
+    amount_owed = models.DecimalField(max_digits=10, decimal_places=2)
+    percentage_owed = models.DecimalField(max_digits=5, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    is_custom_amount = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "group_receipt_split"
+        unique_together = ("receipt", "user")
+
+    def __str__(self):
+        return f"Split for {self.receipt} - {self.user.username}: {self.amount}"
+
+
 class Item(models.Model):
     CATEGORY_CHOICES = [
         ("Home", "Home"),
@@ -119,8 +140,8 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
-    
-    
+
+
 class Insights(models.Model):
     TIME_CHOICES = [
         ("Weekly", "Weekly"),
