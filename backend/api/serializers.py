@@ -210,7 +210,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = "__all__"
+        fields = ["id", "creator", "name", "created_at", "members", "receipts"]
 
     def get_members(self, obj):
         """Return members as a list of user IDs and usernames."""
