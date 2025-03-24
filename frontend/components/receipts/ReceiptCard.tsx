@@ -23,7 +23,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDeleteReceipt(receipt.id); 
+    onDeleteReceipt(receipt.id);
   };
 
   return (

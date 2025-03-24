@@ -135,21 +135,21 @@ export default function Page() {
             .toISOString()
             .split("T")[0]; // Convert to YYYY-MM-DD
 
-          const updatedData = {
+          const updatedRenewalData = {
             ...updatedSubscription,
-            date: formattedDate
+            renewal_date: formattedDate
           };
           console.log("Contents of receipt: ", updatedSubscription);
           const token = getAccessToken();
           const response = await fetch(
-            `http://127.0.0.1:8000/api/receipts/${updatedSubscription.id}/`,
+            `http://127.0.0.1:8000/api/subscriptions/${updatedSubscription.id}/`,
             {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
               },
-              body: JSON.stringify(updatedData)
+              body: JSON.stringify(updatedRenewalData)
             }
           );
           if (!response.ok) {

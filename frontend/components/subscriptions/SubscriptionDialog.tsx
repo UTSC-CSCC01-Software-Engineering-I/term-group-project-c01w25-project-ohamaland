@@ -31,12 +31,11 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
   const [currency, setCurrency] = useState<Currency>("");
   const [renewalDate, setRenewalDate] = useState("");
   const [billingPeriod, setBillingPeriod] = useState("");
-  const [userId, setUserId] = useState(""); // temporary
 
   const handleSave = () => {
     const newSubscription: Subscription = {
       id: Date.now(),
-      user_id: parseInt(userId),
+      user_id: 1,
       merchant: merchant,
       total_amount: parseFloat(totalAmount),
       currency: currency,
@@ -53,14 +52,6 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
         <Typography sx={modalTitleStyle}>{title}</Typography>
 
         <Stack spacing={2}>
-          <TextField
-            label="User ID"
-            fullWidth
-            type="number"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
-
           <TextField
             label="Merchant"
             fullWidth

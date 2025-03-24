@@ -60,7 +60,7 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
           View Details
         </Button>
         <Button variant="outlined" sx={deleteButtonStyle} onClick={handleDelete}>
-                  Delete Receipt
+                  Delete Subscription
         </Button>
       </CardContent>
     </Card>
