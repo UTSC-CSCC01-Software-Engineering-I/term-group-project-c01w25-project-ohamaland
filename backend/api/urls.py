@@ -2,6 +2,9 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    FolderDetail,
+    FolderListCreate,
+    FolderReceipt,
     GetUserIdView,
     GroupDelete,
     GroupMembersLeave,
@@ -57,5 +60,9 @@ urlpatterns = [
         InsightsView.as_view(),
         name="InsightsView",
     ),
-
+    path("folders/", FolderListCreate.as_view(), name="folder-list-create"),
+    path("folders/<int:pk>/", FolderDetail.as_view(), name="folder-detail"),
+    path("folders/<int:pk>/receipts/<int:receipt_id>/", FolderReceipt.as_view(), name="folder-receipts"),
+    path("folders/<int:pk>/receipts/", FolderReceipt.as_view(), name="folder-receipts-list"),
+    path("folders/<int:folder_id>/receipts/<int:receipt_id>/remove/", FolderReceipt.as_view(), name="remove-receipt"),
 ]

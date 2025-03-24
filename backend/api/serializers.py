@@ -6,7 +6,7 @@ from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .models import Folder, Receipt, Item, Group, GroupMembers, User, Insights
 from .signals import update_insights
 
 
@@ -240,3 +240,13 @@ class InsightsSerializer(serializers.ModelSerializer):
                 data[key] = float(value)
 
         return data
+
+class FolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = ['id', 'name', 'color', 'created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['user'] = user
+        return super().create(validated_data)
