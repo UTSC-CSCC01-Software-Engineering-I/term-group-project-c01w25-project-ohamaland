@@ -1,5 +1,5 @@
-from datetime import timedelta
-
+import boto3
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.forms import ValidationError
 from django.http import JsonResponse
@@ -33,6 +33,8 @@ class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # Add the user to the request data
+        request.data['user'] = request.user.id
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -99,7 +101,6 @@ class ReceiptDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class GetUserIdView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -107,18 +108,19 @@ class GetUserIdView(APIView):
         user_id = request.user.id
         return Response({"user_id": user_id}, status=status.HTTP_200_OK)
 
+
 class GroupDelete(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Group.objects.all()
 
     def delete(self, request, *args, **kwargs):
-        group_id = kwargs.get('group_id')
         group = self.get_object()
         if group.creator != request.user:
             return Response({"error": "You are not the creator of the group."}, status=status.HTTP_403_FORBIDDEN)
 
         group.delete()
         return Response({"message": "Group deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
 
 class GroupMembersLeave(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
@@ -446,6 +448,46 @@ def me(request):
     )
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def receipt_upload(request):
+    """Handle S3 image upload for receipt images and return the URL."""
+    receipt_image = request.FILES.get('receipt_image')
+
+    if not receipt_image:
+        return Response(
+            {"error": "No receipt image provided"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        file_key = f"receipts/{receipt_image.name}"
+
+        s3_client.upload_fileobj(
+            receipt_image,
+            bucket_name,
+            file_key,
+            ExtraArgs={"ContentType": receipt_image.content_type},
+        )
+
+        receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Image upload failed: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
 class SubscriptionList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = SubscriptionSerializer
@@ -467,7 +509,6 @@ class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Subscription.objects.filter(user=self.request.user)
-
 
 
 class InsightsView(generics.ListAPIView):
