@@ -17,10 +17,19 @@ from .signals import (
     get_spending_periods,
 )
 
-from .models import Receipt, Item, Group, GroupMembers, User, Insights
+from .models import (
+    GroupReceiptSplit,
+    Receipt,
+    Item,
+    Group,
+    GroupMembers,
+    User,
+    Insights,
+)
 from .notifications import notify_group_receipt_added
 
 from .serializers import (
+    GroupReceiptSplitSerializer,
     ReceiptSerializer,
     ItemSerializer,
     GroupSerializer,
@@ -34,14 +43,12 @@ class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Add the user to the request data
-        request.data["user"] = request.user.id
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             # Notifications
-            if serializer.data.get("group") is not None:
-                notify_group_receipt_added(serializer.data.get("group"))
+            # if serializer.data.get("group") is not None:
+            #     notify_group_receipt_added(serializer.data.get("group"))
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -384,6 +391,111 @@ class GroupMembersDetail(APIView):
             )
         member.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupReceiptsSplitOverview(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, group_pk, receipt_pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        splits = GroupReceiptSplit.objects.filter(receipt=receipt)
+        serializer = GroupReceiptSplitSerializer(splits, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GroupReceiptsSplitDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(split, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(split, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(split)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

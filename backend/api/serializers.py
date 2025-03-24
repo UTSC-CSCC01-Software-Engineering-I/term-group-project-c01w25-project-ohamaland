@@ -46,49 +46,130 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "category", "price", "quantity"]
 
 
+class GroupMembersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupMembers
+        fields = ["id", "user", "joined_at"]
+
+
 class GroupReceiptSplitSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        return obj.group_member.user.id
+
     class Meta:
         model = GroupReceiptSplit
         fields = [
-            "group_member",
+            "id",
+            "user",
             "amount_owed",
-            "percentage_owed",
             "amount_paid",
-            "is_custom_amount",
+            "is_custom_split",
+            "created_at",
+            "paid_at",
+            "status",
+            "notes",
         ]
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    items = ItemSerializer(many=True)  # Nested serializer
-    splits = serializers.SerializerMethodField()
+    items = ItemSerializer(many=True)
+    splits = GroupReceiptSplitSerializer(many=True, read_only=True)
 
     class Meta:
         model = Receipt
-        fields = "__all__"
+        fields = ["id", "user", "group", "total_amount", "date", "items", "splits"]
 
-    def get_splits(self, obj):
-        group_receipt_splits = GroupReceiptSplit.objects.filter(receipt=obj)
-        return GroupReceiptSplitSerializer(group_receipt_splits, many=True).data
+    def _create_or_update_splits(self, receipt, custom_splits=None):
+        """Create or update splits for a receipt."""
+
+        if not receipt.group:
+            return
+
+        group_members = GroupMembers.objects.filter(group=receipt.group)
+        total_members = group_members.count()
+
+        if total_members == 0:
+            return
+
+        # Get total amount for custom splits
+        custom_splits = custom_splits or {}
+        total_custom_amount = sum(custom_splits.values())
+
+        # Calculate remaining amount to split evenly
+        remaining_amount = receipt.total_amount - total_custom_amount
+        regular_members = total_members - len(custom_splits)
+        even_split_amount = (
+            remaining_amount / regular_members if regular_members > 0 else 0
+        )
+
+        # Delete existing splits
+        GroupReceiptSplit.objects.filter(receipt=receipt).delete()
+
+        # Create new splits
+        splits_to_create = []
+        for member in group_members:
+            if member.user.id in custom_splits:
+                amount = custom_splits[member.user.id]
+                percentage = (amount / receipt.total_amount) * 100
+                splits_to_create.append(
+                    GroupReceiptSplit(
+                        receipt=receipt,
+                        group_member=member,
+                        amount_owed=amount,
+                        percentage_owed=percentage,
+                        amount_paid=0,
+                        is_custom_split=True,
+                    )
+                )
+            else:
+                percentage = (even_split_amount / receipt.total_amount) * 100
+                splits_to_create.append(
+                    GroupReceiptSplit(
+                        receipt=receipt,
+                        group_member=member,
+                        amount_owed=even_split_amount,
+                        percentage_owed=percentage,
+                        amount_paid=0,
+                        is_custom_split=False,
+                    )
+                )
+
+        GroupReceiptSplit.objects.bulk_create(splits_to_create)
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        return {
+
+        data = {
             key: float(value) if isinstance(value, Decimal) else value
             for key, value in data.items()
         }
 
+        if instance.user and 'splits' in data:
+            del data['splits']
+
+        return data
+
     def create(self, validated_data):
         items_data = validated_data.pop("items", [])
+        custom_splits = validated_data.pop("custom_splits", {})
 
         try:
-            # Create receipt and items in a transaction
             with transaction.atomic():
                 receipt = Receipt.objects.create(**validated_data)
+
+                # Create items
                 Item.objects.bulk_create(
                     [Item(receipt=receipt, **item_data) for item_data in items_data]
                 )
 
-                update_insights(receipt.user.id)
+                # Create splits
+                self._create_or_update_splits(receipt, custom_splits)
+
+                if receipt.user:
+                    update_insights(receipt.user.id)
+
                 return receipt
         except (ValueError, TypeError) as e:
             raise serializers.ValidationError(f"Invalid data format: {str(e)}")
@@ -97,6 +178,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         items_data = validated_data.pop("items", [])
+        custom_splits = validated_data.pop("custom_splits", {})
 
         try:
             with transaction.atomic():
@@ -111,16 +193,15 @@ class ReceiptSerializer(serializers.ModelSerializer):
                     [Item(receipt=instance, **item_data) for item_data in items_data]
                 )
 
-                update_insights(instance.user.id)
+                # Update splits
+                self._create_or_update_splits(instance, custom_splits)
+
+                if instance.user:
+                    update_insights(instance.user.id)
+
                 return instance
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
-
-
-class GroupMembersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GroupMembers
-        fields = ["id", "user", "joined_at"]
 
 
 class GroupSerializer(serializers.ModelSerializer):
