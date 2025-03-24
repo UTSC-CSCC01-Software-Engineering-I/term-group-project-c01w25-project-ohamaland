@@ -1,11 +1,32 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Select, MenuItem } from "@mui/material";
-import { useState, useEffect } from "react";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  Select,
+  TextField
+} from "@mui/material";
+import { useEffect, useState } from "react";
 
 interface ISpendingDialogProps {
   open: boolean;
   onClose: () => void;
-  spending: { id: number; category: string; amount: number; date: string } | null;
-  onSave: (updatedSpending: { id: number; category: string; amount: number; date: string } | null) => void;
+  spending: {
+    id: number;
+    category: string;
+    amount: number;
+    date: string;
+  } | null;
+  onSave: (
+    updatedSpending: {
+      id: number;
+      category: string;
+      amount: number;
+      date: string;
+    } | null
+  ) => void;
 }
 
 export default function SpendingDialog(props: ISpendingDialogProps) {
@@ -23,7 +44,12 @@ export default function SpendingDialog(props: ISpendingDialogProps) {
 
   const handleSave = () => {
     if (!props.spending) return;
-    props.onSave({ ...props.spending, category, amount: parseFloat(String(amount)) || 0, date });
+    props.onSave({
+      ...props.spending,
+      category,
+      amount: parseFloat(String(amount)) || 0,
+      date
+    });
     props.onClose();
   };
 
@@ -31,9 +57,25 @@ export default function SpendingDialog(props: ISpendingDialogProps) {
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle>Edit Spending</DialogTitle>
       <DialogContent>
-        <TextField label="Amount" fullWidth value={amount} onChange={(e) => setAmount(e.target.value)} />
-        <TextField label="Date" type="date" fullWidth value={date} onChange={(e) => setDate(e.target.value)} InputLabelProps={{ shrink: true }} />
-        <Select fullWidth value={category} onChange={(e) => setCategory(e.target.value)}>
+        <TextField
+          label="Amount"
+          fullWidth
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <TextField
+          label="Date"
+          type="date"
+          fullWidth
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+        <Select
+          fullWidth
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           <MenuItem value="Food">Food</MenuItem>
           <MenuItem value="Transport">Transport</MenuItem>
           <MenuItem value="Entertainment">Entertainment</MenuItem>
@@ -42,7 +84,9 @@ export default function SpendingDialog(props: ISpendingDialogProps) {
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" color="primary">Save</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );

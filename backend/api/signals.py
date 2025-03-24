@@ -110,7 +110,7 @@ def update_insights(user):
         # Calculate category spending for this period
 
         category_spending[period] = calculate_category_spending(user, start_date)
-        
+
         # Calculate total spending for this period
         total_spending[period] = calculate_total_spending(user, start_date)
 
@@ -156,4 +156,3 @@ def update_analytics_on_receipt_change(sender, instance, created, **kwargs):
 def update_analytics_on_receipt_delete(sender, instance, **kwargs):
     # Optionally update analytics when a receipt is deleted
     update_insights(instance.user)
-

@@ -1,11 +1,11 @@
 import { Category, Receipt } from "@/types/receipts";
+import { fetchWithAuth } from "@/utils/api";
 import { filterReceipts } from "@/utils/filters";
 import { Alert, Grid2, Snackbar } from "@mui/material";
 import { Dayjs } from "dayjs";
-import ReceiptCard from "./ReceiptCard";
 import { useEffect, useState } from "react";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
-import { fetchWithAuth } from "@/utils/api";
+import ReceiptCard from "./ReceiptCard";
 
 interface IReceiptGridProps {
   receipts: Receipt[];
@@ -22,10 +22,11 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   const [receiptToDelete, setReceiptToDelete] = useState<Receipt | null>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [dontRemindMe, setDontRemindMe] = useState(false);
-  
+
   useEffect(() => {
     // Only access localStorage on the client side
-    const dontRemind = localStorage.getItem("dont_remind_delete_receipt") === "true";
+    const dontRemind =
+      localStorage.getItem("dont_remind_delete_receipt") === "true";
     setDontRemindMe(dontRemind);
   }, []);
 
@@ -51,7 +52,7 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 
   const cancelDelete = () => {
     setOpenConfirmationDialog(false);
-    setReceiptToDelete(null); 
+    setReceiptToDelete(null);
   };
 
   const handleDeleteClick = async (receipt: Receipt) => {
@@ -62,9 +63,12 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
       setOpenConfirmationDialog(true);
     } else {
       try {
-        const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receipt.id}/`, {
-          method: "DELETE",
-        });
+        const response = await fetchWithAuth(
+          `http://127.0.0.1:8000/api/receipts/${receipt.id}/`,
+          {
+            method: "DELETE"
+          }
+        );
 
         if (response && response.ok) {
           props.onDeleteReceipt(receipt.id);
@@ -88,8 +92,8 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 
       <DeleteConfirmationDialog
         open={openConfirmationDialog}
-        onClose={cancelDelete} 
-        onConfirmDelete={confirmDelete} 
+        onClose={cancelDelete}
+        onConfirmDelete={confirmDelete}
         dontRemindMe={dontRemindMe}
         setDontRemindMe={setDontRemindMe}
       />

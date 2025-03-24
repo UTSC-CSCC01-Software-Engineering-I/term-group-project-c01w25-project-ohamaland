@@ -1,4 +1,13 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Select, MenuItem } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  Select,
+  TextField
+} from "@mui/material";
 import { useState } from "react";
 
 interface ISpendingItem {
@@ -20,7 +29,12 @@ export default function AddSpending(props: IAddSpendingProps) {
   const [date, setDate] = useState("");
 
   const handleSave = () => {
-    const newSpending = { id: Date.now(), category, amount: parseFloat(amount), date };
+    const newSpending = {
+      id: Date.now(),
+      category,
+      amount: parseFloat(amount),
+      date
+    };
     props.onSave(newSpending);
     props.onClose();
   };
@@ -29,9 +43,25 @@ export default function AddSpending(props: IAddSpendingProps) {
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle>Add Spending</DialogTitle>
       <DialogContent>
-        <TextField label="Amount" fullWidth value={amount} onChange={(e) => setAmount(e.target.value)} />
-        <TextField label="Date" type="date" fullWidth value={date} onChange={(e) => setDate(e.target.value)} InputLabelProps={{ shrink: true }} />
-        <Select fullWidth value={category} onChange={(e) => setCategory(e.target.value)}>
+        <TextField
+          label="Amount"
+          fullWidth
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <TextField
+          label="Date"
+          type="date"
+          fullWidth
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+        <Select
+          fullWidth
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           <MenuItem value="Food">Food</MenuItem>
           <MenuItem value="Transport">Transport</MenuItem>
           <MenuItem value="Entertainment">Entertainment</MenuItem>
@@ -40,7 +70,9 @@ export default function AddSpending(props: IAddSpendingProps) {
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" color="primary">Save</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
