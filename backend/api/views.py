@@ -16,9 +16,10 @@ from .signals import (
     calculate_total_spending,
     get_spending_periods,
 )
-from .models import Receipt, Item, Group, GroupMembers, User, Subscription, Insights
+from .models import Folder, Receipt, Item, Group, GroupMembers, User, Subscription, Insights
 from .notifications import notify_group_receipt_added
 from .serializers import (
+    FolderSerializer,
     ReceiptSerializer,
     ItemSerializer,
     GroupSerializer,
@@ -563,3 +564,93 @@ class InsightsView(generics.ListAPIView):
 
         except ValidationError as e:
             return Response({"error": str(e)}, status=400)
+        
+class FolderListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        folders = Folder.objects.filter(user=request.user)
+        serializer = FolderSerializer(folders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = FolderSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FolderDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        folder = Folder.objects.filter(user=request.user, id=pk).first()
+        if folder is None:
+            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FolderSerializer(folder, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()  
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        folder = Folder.objects.filter(user=request.user, id=pk).first()
+        if folder is None:
+            return Response(
+                {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        folder.receipts.update(color="#FFFFFF")
+        folder.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def get(self, request, pk):
+        folder = Folder.objects.filter(user=request.user, id=pk).first()
+        if folder is None:
+            return Response(
+                {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = FolderSerializer(folder)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class FolderReceipt(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk, receipt_id):
+        receipt = Receipt.objects.filter(id=receipt_id, user=request.user).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        new_folder = Folder.objects.filter(id=pk, user=request.user).first()
+        if new_folder is None:
+            return Response({"error": "New folder not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        receipt.folder = new_folder
+        receipt.color = new_folder.color
+        receipt.save()
+
+        serializer = ReceiptSerializer(receipt)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, folder_id, receipt_id):
+        folder = Folder.objects.filter(id=folder_id, user=request.user).first()
+        if folder is None:
+            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        receipt = folder.receipts.filter(id=receipt_id).first()
+        if receipt is None:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        receipt.folder = None
+        receipt.color = "#FFFFFF"
+        receipt.save()
+
+        serializer = ReceiptSerializer(receipt)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def get(self, request, pk):
+        folder = Folder.objects.filter(user=request.user, id=pk).first()
+        if folder is None:
+            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
+        receipts = folder.receipts.all()
+        serializer = ReceiptSerializer(receipts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
