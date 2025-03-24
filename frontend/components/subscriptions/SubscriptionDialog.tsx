@@ -14,7 +14,7 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ISubscriptionDialogProps {
   subscription?: Subscription;
@@ -25,25 +25,45 @@ interface ISubscriptionDialogProps {
 }
 
 export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
-  const { open, onClose, onSave, title } = props;
+  const { open, onClose, onSave, title, subscription } = props;
   const [merchant, setMerchant] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState<Currency>("");
   const [renewalDate, setRenewalDate] = useState("");
   const [billingPeriod, setBillingPeriod] = useState("");
+  const [editedSubscription, setEditedSubscription] = useState<Subscription | null>(subscription || null);
+
+
+  useEffect(() => {
+    setEditedSubscription(subscription || null);
+  }, [subscription]);
 
   const handleSave = () => {
-    const newSubscription: Subscription = {
-      id: Date.now(),
-      user_id: 1,
-      merchant: merchant,
-      total_amount: parseFloat(totalAmount),
-      currency: currency,
-      renewal_date: renewalDate ? new Date(renewalDate).toISOString() : "",
-      billing_period: billingPeriod as BillingPeriod
-    };
-    onSave(newSubscription);
+    if (!editedSubscription) {
+      const newSubscription: Subscription = {
+        id: Date.now(),
+        user_id: 1,
+        merchant: "",
+        total_amount: 0,
+        currency: "" as Currency,
+        renewal_date: "",
+        billing_period: "" as BillingPeriod
+      };
+      onSave(newSubscription);
+    } else {
+      onSave(editedSubscription);
+    }
     onClose();
+  };
+
+  const handleChange = (
+    field: keyof Subscription,
+    value: string | number | BillingPeriod | Currency
+  ) => {
+    setEditedSubscription((prev) => ({
+      ...prev!,
+      [field]: value
+    }));
   };
 
   return (
@@ -55,24 +75,24 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
           <TextField
             label="Merchant"
             fullWidth
-            value={merchant}
-            onChange={(e) => setMerchant(e.target.value)}
+            value={editedSubscription?.merchant || ""}
+            onChange={(e) => handleChange("merchant", e.target.value)}
           />
 
           <TextField
             label="Total Amount"
             fullWidth
             type="number"
-            value={totalAmount}
-            onChange={(e) => setTotalAmount(e.target.value)}
+            value={editedSubscription?.total_amount || ""}
+            onChange={(e) => handleChange("total_amount", parseFloat(e.target.value))}
           />
 
           <TextField
             select
             label="Currency"
             fullWidth
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value as Currency)}
+            value={editedSubscription?.currency || ""}
+            onChange={(e) => handleChange("currency", e.target.value as Currency)}
           >
             {currencies.map((curr) => (
               <MenuItem key={curr} value={curr}>
@@ -85,16 +105,16 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
             label="Renewal Date"
             type="date"
             fullWidth
-            value={renewalDate}
-            onChange={(e) => setRenewalDate(e.target.value)}
+            value={editedSubscription?.renewal_date || ""}
+            onChange={(e) => handleChange("renewal_date", e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
           <TextField
             select
             label="Billing Period"
             fullWidth
-            value={billingPeriod}
-            onChange={(e) => setBillingPeriod(e.target.value as BillingPeriod)}
+            value={editedSubscription?.billing_period || ""}
+            onChange={(e) => handleChange("billing_period", e.target.value as BillingPeriod)}
           >
             {billingPeriods.map((method) => (
               <MenuItem key={method} value={method}>
@@ -104,7 +124,11 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
           </TextField>
 
           <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button
+              variant="contained"
+              color="primary"
+              onClick={subscription ? () => onSave(editedSubscription!) : handleSave}
+            >
               Save
             </Button>
             <Button variant="outlined" onClick={onClose}>

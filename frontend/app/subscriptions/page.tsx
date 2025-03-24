@@ -7,6 +7,7 @@ import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "@/utils/api";
 import { getAccessToken } from "@/utils/auth";
 
 export default function Page() {
@@ -24,19 +25,14 @@ export default function Page() {
   useEffect(() => {
     async function fetchSubscriptions() {
       try {
-        const token = getAccessToken();
-        const response = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          }
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch subscriptions");
+        const response = await fetchWithAuth("http://127.0.0.1:8000/api/subscriptions/");
+        if (response && response.ok) {
+          const data = await response.json();
+          setSubscriptions(data.subscriptions);
         }
-        const data = await response.json();
-        setSubscriptions(data.subscriptions);
       } catch (error) {
         console.error("Error fetching subscriptions:", error);
+        setSubscriptions([]);
       }
     }
     fetchSubscriptions();
@@ -73,49 +69,37 @@ export default function Page() {
 
   // to handle adding a new subscription (temporary, hardcoded for now)
   const handleSaveSubscription = async (newSubscription: Subscription) => {
-    const formData = new FormData();
-    formData.append("merchant", newSubscription.merchant);
-    formData.append("total_amount", newSubscription.total_amount.toString()); // Convert to string if necessary
-    formData.append("currency", newSubscription.currency);
-    formData.append("billing_period", newSubscription.billing_period);
-    formData.append("renewal_date", newSubscription.renewal_date);
-    formData.append("payment_method", newSubscription.billing_period);
-    formData.append("id", newSubscription.id.toString());
-    console.log(newSubscription.user_id);
-
     try {
       const token = getAccessToken();
       const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
         method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        }
+        headers: { "Authorization": `Bearer ${token}`, },
       });
-      if (!meResponse.ok) {
-        throw new Error("Failed to get user information.");
-      }
-      const data = await meResponse.json()
-      formData.append("user", data.id);
+      if (meResponse && meResponse.ok) {
+        const { id: userId } = await meResponse.json();
+        const subscriptionData = {
+          ...newSubscription,
+          user: userId,
+        };
 
-      const subscriptionResponse = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData
-      });
-      console.log(subscriptionResponse);
-      if (!subscriptionResponse.ok) {
-        throw new Error("Failed to save subscription");
+        const subscriptionResponse = await fetch("http://127.0.0.1:8000/api/subscriptions/", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(subscriptionData),
+        });
+
+        if (subscriptionResponse && subscriptionResponse.ok) {
+          const savedSubscription = await subscriptionResponse.json();
+          setSubscriptions((prevSubscriptions) => [...prevSubscriptions, savedSubscription]);
+          setIsModalOpen(false);
+        }
       }
-      const savedSubscription = await subscriptionResponse.json();
-      setSubscriptions((prevSubscriptions) => [
-        ...prevSubscriptions,
-        savedSubscription
-      ]);
-      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving subscription:", error);
+      throw error;
     }
   };
 
@@ -133,67 +117,56 @@ export default function Page() {
         try {
           const formattedDate = new Date(updatedSubscription.renewal_date)
             .toISOString()
-            .split("T")[0]; // Convert to YYYY-MM-DD
+            .split("T")[0];
 
-          const updatedRenewalData = {
+          const updatedData = {
             ...updatedSubscription,
             renewal_date: formattedDate
           };
-          console.log("Contents of receipt: ", updatedSubscription);
-          const token = getAccessToken();
-          const response = await fetch(
-            `http://127.0.0.1:8000/api/subscriptions/${updatedSubscription.id}/`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify(updatedRenewalData)
-            }
-          );
-          if (!response.ok) {
-            const errorData = await response.json(); // Get the error response body
-            console.error("Error:", errorData);
-            throw new Error(errorData.detail || "Failed to save the subscription");
-          }
-          const savedSubscription = await response.json();
-          setSubscriptions((prevSubscriptions) =>
-            prevSubscriptions.map((r) => (r.id === savedSubscription.id ? savedSubscription : r))
-          );
-          handleCloseDialog();
-        } catch (error) {
-          console.error("Error updating subscription:", error);
-        }
-      };
+
+          const response = await fetchWithAuth(
+                  `http://127.0.0.1:8000/api/subscriptions/${updatedSubscription.id}/`,
+                  {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(updatedData)
+                  }
+                );
+
+                if (response && response.ok) {
+                  const savedSubscription = await response.json();
+                  setSubscriptions((prevSubscriptions) =>
+                    prevSubscriptions.map((s) => (s.id === savedSubscription.id ? savedSubscription : s))
+                  );
+                  handleCloseDialog();
+                }
+              } catch (error) {
+                console.error("Error updating subscription:", error);
+              }
+        };
 
       const handleDeleteSubscription = async (subscriptionId: number) => {
-        try {
-          const token = getAccessToken();
-          const response = await fetch(`http://127.0.0.1:8000/api/subscriptions/${subscriptionId}/`, {
-            method: "DELETE",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          });
+          try {
+            const response = await fetchWithAuth(`http://127.0.0.1:8000/api/subscriptions/${subscriptionId}/`, {
+              method: "DELETE",
+            });
 
-          if (!response.ok) {
-            throw new Error("Failed to delete subscription");
+            if (response && response.ok) {
+              setSubscriptions((prevSubscriptions) =>
+                prevSubscriptions.filter((subscription) => subscription.id !== subscriptionId)
+              );
+
+              if (selectedSubscription && selectedSubscription.id === subscriptionId) {
+                setIsDialogOpen(false);
+                setSelectedSubscription(null);
+              }
+            }
+          } catch (error) {
+            console.error("Error deleting subscription:", error);
           }
-
-          // Remove the deleted subscription from the state
-          setSubscriptions((prevSubscriptions) =>
-            prevSubscriptions.filter((subscription) => subscription.id !== subscriptionId)
-          );
-
-          if (selectedSubscription && selectedSubscription.id === subscriptionId) {
-            setIsDialogOpen(false);
-            setSelectedSubscription(null);
-          }
-        } catch (error) {
-          console.error("Error deleting subscription:", error);
-        }
-      };
+        };
 
   return (
     <PageWrapper>
