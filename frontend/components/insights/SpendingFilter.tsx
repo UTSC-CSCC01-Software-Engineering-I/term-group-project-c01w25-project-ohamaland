@@ -1,11 +1,15 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
-import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, Box } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import { Dayjs } from "dayjs";
-import { Dispatch, SetStateAction } from "react";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent
+} from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { InputBase } from "@mui/material";
+import { Dayjs } from "dayjs";
 
 interface ISpendingFilterProps {
   startDate: Dayjs | null;
@@ -28,8 +32,8 @@ export default function SpendingFilter(props: ISpendingFilterProps) {
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a Start Date",
-            },
+              placeholder: "Choose a Start Date"
+            }
           }}
         />
       </LocalizationProvider>
@@ -41,8 +45,8 @@ export default function SpendingFilter(props: ISpendingFilterProps) {
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an End Date",
-            },
+              placeholder: "Choose an End Date"
+            }
           }}
         />
       </LocalizationProvider>
@@ -74,11 +78,11 @@ const filterContainerStyle = {
   borderRadius: "12px",
   backgroundColor: "white",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  flexWrap: "wrap" as const,
+  flexWrap: "wrap" as const
 };
 
 const iconStyle = {
-  color: textLightGrey,
+  color: textLightGrey
 };
 
 const inputStyle = {
@@ -89,8 +93,8 @@ const inputStyle = {
   "& ::placeholder": {
     color: textLightGrey,
     fontSize: "14px",
-    fontWeight: 400,
-  },
+    fontWeight: 400
+  }
 };
 
 const formControlStyle = {
@@ -101,13 +105,13 @@ const formControlStyle = {
   "& .MuiOutlinedInput-root": {
     color: defaultText,
     "& fieldset": {
-      border: "none",
+      border: "none"
     },
     "&:hover fieldset": {
-      border: "none",
+      border: "none"
     },
     "&.Mui-focused fieldset": {
-      border: `2px solid ${defaultText}`,
-    },
-  },
+      border: `2px solid ${defaultText}`
+    }
+  }
 };

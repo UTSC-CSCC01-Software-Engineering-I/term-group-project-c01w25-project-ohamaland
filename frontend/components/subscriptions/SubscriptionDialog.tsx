@@ -26,13 +26,8 @@ interface ISubscriptionDialogProps {
 
 export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
   const { open, onClose, onSave, title, subscription } = props;
-  const [merchant, setMerchant] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [currency, setCurrency] = useState<Currency>("");
-  const [renewalDate, setRenewalDate] = useState("");
-  const [billingPeriod, setBillingPeriod] = useState("");
-  const [editedSubscription, setEditedSubscription] = useState<Subscription | null>(subscription || null);
-
+  const [editedSubscription, setEditedSubscription] =
+    useState<Subscription | null>(subscription || null);
 
   useEffect(() => {
     setEditedSubscription(subscription || null);
@@ -84,7 +79,9 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
             fullWidth
             type="number"
             value={editedSubscription?.total_amount || ""}
-            onChange={(e) => handleChange("total_amount", parseFloat(e.target.value))}
+            onChange={(e) =>
+              handleChange("total_amount", parseFloat(e.target.value))
+            }
           />
 
           <TextField
@@ -92,7 +89,9 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
             label="Currency"
             fullWidth
             value={editedSubscription?.currency || ""}
-            onChange={(e) => handleChange("currency", e.target.value as Currency)}
+            onChange={(e) =>
+              handleChange("currency", e.target.value as Currency)
+            }
           >
             {currencies.map((curr) => (
               <MenuItem key={curr} value={curr}>
@@ -114,7 +113,9 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
             label="Billing Period"
             fullWidth
             value={editedSubscription?.billing_period || ""}
-            onChange={(e) => handleChange("billing_period", e.target.value as BillingPeriod)}
+            onChange={(e) =>
+              handleChange("billing_period", e.target.value as BillingPeriod)
+            }
           >
             {billingPeriods.map((method) => (
               <MenuItem key={method} value={method}>
@@ -124,10 +125,12 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
           </TextField>
 
           <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button
+            <Button
               variant="contained"
               color="primary"
-              onClick={subscription ? () => onSave(editedSubscription!) : handleSave}
+              onClick={
+                subscription ? () => onSave(editedSubscription!) : handleSave
+              }
             >
               Save
             </Button>

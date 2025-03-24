@@ -1,13 +1,13 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import SpendingFilter from "@/components/insights/SpendingFilter";
 import SpendingChart from "@/components/insights/SpendingChart";
-import { Box, Button, SelectChangeEvent } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Dayjs } from "dayjs";
+import SpendingFilter from "@/components/insights/SpendingFilter";
 import { getAccessToken } from "@/utils/auth";
+import { Box, Button, SelectChangeEvent } from "@mui/material";
+import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface SpendingData {
   category: string;
@@ -29,7 +29,9 @@ export default function Page() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState<string>("");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("Weekly");
-  const [categorySpending, setCategorySpending] = useState<Record<string, number>>({});
+  const [categorySpending, setCategorySpending] = useState<
+    Record<string, number>
+  >({});
   const router = useRouter();
 
   useEffect(() => {
@@ -37,16 +39,19 @@ export default function Page() {
       try {
         console.log("Fetching spending data...");
         const token = getAccessToken();
-        const response = await fetch(`http://127.0.0.1:8000/api/analytics/insights/${selectedPeriod}/`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,  
-            "Content-Type": "application/json"
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/analytics/insights/${selectedPeriod}/`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
           }
-        });
+        );
 
         if (response.status === 401) {
-          router.push("/login");  
+          router.push("/login");
           return;
         }
 
@@ -56,15 +61,16 @@ export default function Page() {
         const fetchedData: BackendSpendingResponse = await response.json();
         console.log("Fetched Data:", fetchedData);
 
-
-        const transformedData: SpendingData[] = Object.entries(fetchedData.total_spending).map(([date, amount]) => ({
+        const transformedData: SpendingData[] = Object.entries(
+          fetchedData.total_spending
+        ).map(([date, amount]) => ({
           category: "Total",
           amount: Number(amount),
-          date,
+          date
         }));
-  
+
         console.log("Transformed Spending Data:", transformedData);
-  
+
         setSpendingData(transformedData); // Set the transformed data to the state
         setCategorySpending(fetchedData.category_spending || {});
       } catch (error) {
@@ -73,7 +79,6 @@ export default function Page() {
     }
     fetchSpendingData();
   }, [selectedPeriod, router]);
-
 
   const handlePeriodChange = (event: SelectChangeEvent<string>) => {
     setSelectedPeriod(event.target.value); // Update selected period
@@ -85,7 +90,7 @@ export default function Page() {
         <SpendingFilter
           selectedPeriod={selectedPeriod}
           handlePeriodChange={handlePeriodChange}
-          startDate={startDate}        
+          startDate={startDate}
           endDate={endDate}
           filterTerm={filterTerm}
           setFilterTerm={setFilterTerm}
@@ -96,10 +101,10 @@ export default function Page() {
           View Insights
         </Button>
       </Box>
-      <SpendingChart spendingData={spendingData} categorySpending={categorySpending || {}} />
-
-
-      
+      <SpendingChart
+        spendingData={spendingData}
+        categorySpending={categorySpending || {}}
+      />
     </PageWrapper>
   );
 }
@@ -114,5 +119,5 @@ const filterContainerStyle = {
 
 const buttonStyle = {
   marginLeft: "8px",
-  color: "white",
+  color: "white"
 };

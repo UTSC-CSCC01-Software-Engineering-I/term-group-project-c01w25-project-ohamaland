@@ -34,7 +34,7 @@ class ReceiptOverview(APIView):
 
     def post(self, request):
         # Add the user to the request data
-        request.data['user'] = request.user.id
+        request.data["user"] = request.user.id
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -116,10 +116,16 @@ class GroupDelete(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         group = self.get_object()
         if group.creator != request.user:
-            return Response({"error": "You are not the creator of the group."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "You are not the creator of the group."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         group.delete()
-        return Response({"message": "Group deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Group deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class GroupMembersLeave(generics.DestroyAPIView):
@@ -136,10 +142,16 @@ class GroupMembersLeave(generics.DestroyAPIView):
         group = group_member.group
 
         if group.creator == request.user:
-            return Response({"error": "Use the 'deleteGroup' route to delete the entire group."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Use the 'deleteGroup' route to delete the entire group."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         group_member.delete()
-        return Response({"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "User has left the group."}, status=status.HTTP_204_NO_CONTENT
+        )
+
 
 class GroupList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -158,6 +170,7 @@ class GroupDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
+
 
 class ItemOverview(APIView):
     permission_classes = [IsAuthenticated]
@@ -452,12 +465,11 @@ def me(request):
 @permission_classes([IsAuthenticated])
 def receipt_upload(request):
     """Handle S3 image upload for receipt images and return the URL."""
-    receipt_image = request.FILES.get('receipt_image')
+    receipt_image = request.FILES.get("receipt_image")
 
     if not receipt_image:
         return Response(
-            {"error": "No receipt image provided"},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
@@ -484,7 +496,7 @@ def receipt_upload(request):
     except Exception as e:
         return Response(
             {"error": f"Image upload failed: {str(e)}"},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 

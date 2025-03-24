@@ -101,15 +101,16 @@ class GroupSerializer(serializers.ModelSerializer):
     members = GroupMembersSerializer(many=True, required=False)
     receipts = ReceiptSerializer(many=True, required=False)
 
-
     class Meta:
         model = Group
         fields = "__all__"
 
     def get_members(self, obj):
         """Return members as a list of user IDs and usernames."""
-        return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
-
+        return [
+            {"id": member.user.id, "username": member.user.username}
+            for member in obj.groupmembers_set.all()
+        ]
 
     def create(self, validated_data):
         members_data = validated_data.pop("members", [])
@@ -184,7 +185,6 @@ class InsightsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Insights
         fields = ["user", "total_spent", "category_spending", "period", "date"]
-
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""

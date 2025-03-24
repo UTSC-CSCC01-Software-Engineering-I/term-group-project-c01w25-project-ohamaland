@@ -43,11 +43,14 @@ export default function GroupDetailPage() {
     async function fetchGroup() {
       try {
         const token = getAccessToken();
-        const res = await fetch(`http://127.0.0.1:8000/api/groups/${groupId}/`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/groups/${groupId}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        });
+        );
         if (!res.ok) {
           throw new Error("Failed to fetch group");
         }
@@ -65,11 +68,13 @@ export default function GroupDetailPage() {
       try {
         const token = getAccessToken();
         const res = await fetch(
-          `http://127.0.0.1:8000/api/groups/${groupId}/members/`, {
+          `http://127.0.0.1:8000/api/groups/${groupId}/members/`,
+          {
             headers: {
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`
             }
-          });
+          }
+        );
         if (!res.ok) {
           throw new Error("Failed to fetch group members");
         }
@@ -90,8 +95,8 @@ export default function GroupDetailPage() {
         `http://127.0.0.1:8000/api/groups/${groupId}/members/`,
         {
           method: "POST",
-          headers: { 
-            "Authorization": `Bearer ${token}`,
+          headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ user_id: newUserId })
@@ -113,10 +118,10 @@ export default function GroupDetailPage() {
       const token = getAccessToken();
       const res = await fetch(
         `http://127.0.0.1:8000/api/groups/${groupId}/members/${memberId}/`,
-        { 
-          method: "DELETE", 
+        {
+          method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -147,8 +152,8 @@ export default function GroupDetailPage() {
         {
           method: "PATCH",
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json" 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(updatedData)
         }

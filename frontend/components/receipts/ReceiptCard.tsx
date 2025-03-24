@@ -80,7 +80,11 @@ export default function ReceiptCard(props: IReceiptCardProps) {
         <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
           View Details
         </Button>
-        <Button variant="outlined" sx={deleteButtonStyle} onClick={handleDelete}>
+        <Button
+          variant="outlined"
+          sx={deleteButtonStyle}
+          onClick={handleDelete}
+        >
           Delete Receipt
         </Button>
       </CardContent>

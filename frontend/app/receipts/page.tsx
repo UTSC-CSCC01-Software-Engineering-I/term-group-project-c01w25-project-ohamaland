@@ -6,11 +6,11 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
+import { fetchWithAuth } from "@/utils/api";
+import { getAccessToken } from "@/utils/auth";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-import { fetchWithAuth } from "@/utils/api";
-import { getAccessToken } from "@/utils/auth";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -26,7 +26,9 @@ export default function Page() {
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        const response = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/");
+        const response = await fetchWithAuth(
+          "http://127.0.0.1:8000/api/receipts/"
+        );
         if (response && response.ok) {
           const data = await response.json();
           setReceipts(data.receipts);
@@ -52,11 +54,14 @@ export default function Page() {
       if (file) {
         const formData = new FormData();
         formData.append("receipt_image", file);
-        const imageResponse = await fetch("http://127.0.0.1:8000/api/receipts/upload/", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${token}` },
-          body: formData,
-        });
+        const imageResponse = await fetch(
+          "http://127.0.0.1:8000/api/receipts/upload/",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData
+          }
+        );
         if (!imageResponse.ok) throw new Error("Receipt image upload failed");
         const imageData = await imageResponse.json();
         receiptURL = imageData.receipt_url;
@@ -64,24 +69,27 @@ export default function Page() {
 
       const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
         method: "GET",
-        headers: { "Authorization": `Bearer ${token}`, },
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (meResponse && meResponse.ok) {
         const { id: userId } = await meResponse.json();
         const receiptData = {
           ...newReceipt,
           user: userId,
-          receipt_image_url: receiptURL,
+          receipt_image_url: receiptURL
         };
 
-        const receiptResponse = await fetch("http://127.0.0.1:8000/api/receipts/", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(receiptData),
-        });
+        const receiptResponse = await fetch(
+          "http://127.0.0.1:8000/api/receipts/",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(receiptData)
+          }
+        );
 
         if (receiptResponse && receiptResponse.ok) {
           const savedReceipt = await receiptResponse.json();
@@ -97,9 +105,12 @@ export default function Page() {
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
-        method: "DELETE",
-      });
+      const response = await fetchWithAuth(
+        `http://127.0.0.1:8000/api/receipts/${receiptId}/`,
+        {
+          method: "DELETE"
+        }
+      );
 
       if (response && response.ok) {
         setReceipts((prevReceipts) =>
@@ -117,7 +128,7 @@ export default function Page() {
   };
 
   const handleOpenDialog = (receipt: Receipt) => {
-    if (receipts.find(r => r.id === receipt.id)) {
+    if (receipts.find((r) => r.id === receipt.id)) {
       setSelectedReceipt(receipt);
       setIsDialogOpen(true);
     }

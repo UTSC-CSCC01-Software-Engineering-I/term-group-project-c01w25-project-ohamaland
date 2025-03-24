@@ -17,7 +17,12 @@ export function filterGroups(
 
     // Date range filtering
     if (startDate) {
-      console.log("Start Date:", startDate.toDate(), "Created Date:", createdDate);
+      console.log(
+        "Start Date:",
+        startDate.toDate(),
+        "Created Date:",
+        createdDate
+      );
       if (createdDate < startDate.toDate()) {
         console.log("Group is before start date, skipping");
         return false;
@@ -36,7 +41,12 @@ export function filterGroups(
     const nameMatchesFilter = group.name
       .toLowerCase()
       .includes(filterTerm.toLowerCase());
-    console.log("Group Name:", group.name, "Matches Filter:", nameMatchesFilter);
+    console.log(
+      "Group Name:",
+      group.name,
+      "Matches Filter:",
+      nameMatchesFilter
+    );
 
     if (filterTerm && !nameMatchesFilter) {
       console.log("Group name does not match filter, skipping");
@@ -71,10 +81,10 @@ export function filterReceipts(
     const merchantMatch =
       receipt.merchant &&
       receipt.merchant.toLowerCase().includes(lowercaseFilterTerm);
-      const itemMatch =
-        Array.isArray(receipt.items) &&
-        receipt.items.some((item) =>
-          item.name.toLowerCase().includes(lowercaseFilterTerm)
+    const itemMatch =
+      Array.isArray(receipt.items) &&
+      receipt.items.some((item) =>
+        item.name.toLowerCase().includes(lowercaseFilterTerm)
       );
 
     if (filterTerm && !merchantMatch && !itemMatch) {

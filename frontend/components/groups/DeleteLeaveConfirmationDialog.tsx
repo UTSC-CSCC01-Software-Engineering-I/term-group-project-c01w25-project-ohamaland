@@ -1,4 +1,10 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle
+} from "@mui/material";
 import React from "react";
 
 interface IDeleteLeaveConfirmationDialogProps {
@@ -8,16 +14,17 @@ interface IDeleteLeaveConfirmationDialogProps {
   actionType: "delete" | "leave";
 }
 
-const DeleteLeaveConfirmationDialog = React.memo(function DeleteLeaveConfirmationDialog({
+const DeleteLeaveConfirmationDialog = React.memo(
+  function DeleteLeaveConfirmationDialog({
     open,
     onClose,
     onConfirmAction,
-    actionType,
+    actionType
   }: IDeleteLeaveConfirmationDialogProps) {
-    const dialogTitle = actionType === "delete" 
-        ? "Confirm Deletion" 
-        : "Confirm Leaving";
-    const dialogMessage = actionType === "delete"
+    const dialogTitle =
+      actionType === "delete" ? "Confirm Deletion" : "Confirm Leaving";
+    const dialogMessage =
+      actionType === "delete"
         ? "Are you sure you want to delete this group? This action cannot be undone."
         : "Are you sure you want to leave this group? You will no longer be a member.";
     return (
@@ -36,6 +43,7 @@ const DeleteLeaveConfirmationDialog = React.memo(function DeleteLeaveConfirmatio
         </DialogActions>
       </Dialog>
     );
-  });
-  
-  export default DeleteLeaveConfirmationDialog;
+  }
+);
+
+export default DeleteLeaveConfirmationDialog;
