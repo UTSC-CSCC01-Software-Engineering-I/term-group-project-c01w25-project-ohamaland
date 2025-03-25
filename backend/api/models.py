@@ -238,7 +238,7 @@ class Insights(models.Model):
         ("Yearly", "Yearly"),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category_spending = models.JSONField(default=dict)
+    folder_spending = models.JSONField(default=dict)
     total_spent = models.DecimalField(max_digits=10, decimal_places=2)
     period = models.TextField(max_length=20, choices=TIME_CHOICES)
     date = models.DateField(default=now)

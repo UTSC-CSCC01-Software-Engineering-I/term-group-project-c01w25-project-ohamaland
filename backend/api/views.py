@@ -15,7 +15,7 @@ import os
 import uuid
 
 from .signals import (
-    calculate_category_spending,
+    calculate_folder_spending,
     calculate_total_spending,
     get_spending_periods,
 )
@@ -654,6 +654,128 @@ class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Subscription.objects.filter(user=self.request.user)
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def receipt_upload(request):
+    """Handle S3 image upload for receipt images and return the URL."""
+    receipt_image = request.FILES.get("receipt_image")
+
+    if not receipt_image:
+        return Response(
+            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        file_key = f"receipts/{receipt_image.name}"
+
+        s3_client.upload_fileobj(
+            receipt_image,
+            bucket_name,
+            file_key,
+            ExtraArgs={"ContentType": receipt_image.content_type},
+        )
+
+        receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Image upload failed: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class SubscriptionList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"subscriptions": serializer.data})
+
+
+class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def receipt_upload(request):
+    """Handle S3 image upload for receipt images and return the URL."""
+    receipt_image = request.FILES.get("receipt_image")
+
+    if not receipt_image:
+        return Response(
+            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        file_key = f"receipts/{receipt_image.name}"
+
+        s3_client.upload_fileobj(
+            receipt_image,
+            bucket_name,
+            file_key,
+            ExtraArgs={"ContentType": receipt_image.content_type},
+        )
+
+        receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
+        return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Image upload failed: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class SubscriptionList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({"subscriptions": serializer.data})
+
+
+class SubscriptionDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()
+
+    def get_queryset(self):
+        return Subscription.objects.filter(user=self.request.user)
+
 
 class InsightsView(generics.ListAPIView):
     serializer_class = InsightsSerializer
@@ -664,11 +786,11 @@ class InsightsView(generics.ListAPIView):
         return Insights.objects.filter(user=user).order_by("-date")
 
     def get_insights(self, user, period, start_date):
-        category_spending = calculate_category_spending(user, start_date)
+        folder_spending = calculate_folder_spending(user, start_date)
         total_spending = calculate_total_spending(user, start_date)
 
         return {
-            "category_spending": category_spending,
+            "folder_spending": folder_spending,
             "total_spending": total_spending,
             "period": period,
             "date": start_date,
@@ -695,95 +817,3 @@ class InsightsView(generics.ListAPIView):
 
         except ValidationError as e:
             return Response({"error": str(e)}, status=400)
-        
-class FolderListCreate(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        folders = Folder.objects.filter(user=request.user)
-        serializer = FolderSerializer(folders, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def post(self, request):
-        serializer = FolderSerializer(data=request.data, context={"request": request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class FolderDetail(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request, pk):
-        folder = Folder.objects.filter(user=request.user, id=pk).first()
-        if folder is None:
-            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = FolderSerializer(folder, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()  
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        folder = Folder.objects.filter(user=request.user, id=pk).first()
-        if folder is None:
-            return Response(
-                {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        all_folder = Folder.objects.get(user=request.user, name="All")
-        folder.receipts.update(folder=all_folder, color=all_folder.color)
-        folder.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    def get(self, request, pk):
-        folder = Folder.objects.filter(user=request.user, id=pk).first()
-        if folder is None:
-            return Response(
-                {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        serializer = FolderSerializer(folder)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-class FolderReceipt(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request, pk, receipt_id):
-        receipt = Receipt.objects.filter(id=receipt_id, user=request.user).first()
-        if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        new_folder = Folder.objects.filter(id=pk, user=request.user).first()
-        if new_folder is None:
-            return Response({"error": "New folder not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        receipt.folder = new_folder
-        receipt.color = new_folder.color
-        receipt.save()
-
-        serializer = ReceiptSerializer(receipt)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def patch(self, request, folder_id, receipt_id):
-        folder = Folder.objects.filter(id=folder_id, user=request.user).first()
-        if folder is None:
-            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        receipt = folder.receipts.filter(id=receipt_id).first()
-        if receipt is None:
-            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        all_folder = Folder.objects.get(user=request.user, name="All")
-        receipt.folder = all_folder
-        receipt.color = all_folder.color
-        receipt.save()
-
-        serializer = ReceiptSerializer(receipt)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def get(self, request, pk):
-        folder = Folder.objects.filter(user=request.user, id=pk).first()
-        if folder is None:
-            return Response({"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND)
-        receipts = folder.receipts.all()
-        serializer = ReceiptSerializer(receipts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)

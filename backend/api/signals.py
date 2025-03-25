@@ -34,19 +34,20 @@ def get_all_dates_in_period(start_date, end_date):
     return date_list
 
 
-def calculate_category_spending(user, start_date):
-    """Calculate category spending for the user."""
+def calculate_folder_spending(user, start_date):
+    """Calculate folder spending for the user."""
     if not user:
         return {}
 
-    category_spending = {}
+    folder_spending = {}
 
-    # Sum spending for each category per receipt
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
+    folders = [folder.name for folder in receipts.folder]
+    
     for receipt in receipts:
-        for item in receipt.items.all():
-            category_spending[item.category] = (
-                category_spending.get(item.category, 0) + item.price
+        for folder in folders:
+            folder_spending[folder] = (
+                folder_spending.get(folder, 0) + receipt.price
             )
 
     # Ensure the amounts are floats

@@ -326,8 +326,9 @@ class InsightsSerializer(serializers.ModelSerializer):
         model = Insights
         fields = ["user", "total_spent", "category_spending", "period", "date"]
 
-    def get_category_spending(self, obj):
-        """Convert category_spending JSON field to list for frontend processing."""
+
+    def get_folder_spending(self, obj):
+        """Convert folder_spending JSON field to list for frontend processing."""
         return [
             {"category": key, "amount": float(value)}
             for key, value in obj.category_spending.items()
