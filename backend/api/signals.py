@@ -51,9 +51,9 @@ def calculate_folder_spending(user, start_date):
             )
 
     # Ensure the amounts are floats
-    category_spending = {key: float(value) for key, value in category_spending.items()}
+    folder_spending = {key: float(value) for key, value in folder_spending.items()}
 
-    return category_spending
+    return folder_spending
 
 
 def calculate_total_spending(user, start_date):
