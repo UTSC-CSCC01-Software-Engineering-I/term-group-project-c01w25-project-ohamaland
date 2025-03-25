@@ -599,6 +599,7 @@ class FolderDetail(APIView):
             return Response(
                 {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
             )
+        folder.receipts.update(color="#FFFFFF")
         folder.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -624,6 +625,7 @@ class FolderReceipt(APIView):
             return Response({"error": "New folder not found"}, status=status.HTTP_404_NOT_FOUND)
 
         receipt.folder = new_folder
+        receipt.color = new_folder.color
         receipt.save()
 
         serializer = ReceiptSerializer(receipt)
@@ -639,6 +641,7 @@ class FolderReceipt(APIView):
             return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
 
         receipt.folder = None
+        receipt.color = "#FFFFFF"
         receipt.save()
 
         serializer = ReceiptSerializer(receipt)

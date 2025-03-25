@@ -38,7 +38,6 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-    color = serializers.SerializerMethodField()
     items = ItemSerializer(many=True)  # Nested serializer
 
     class Meta:
@@ -90,9 +89,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 return instance
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
-        
-    def get_color(self, obj):
-        return obj.color
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
