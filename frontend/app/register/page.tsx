@@ -1,7 +1,7 @@
 "use client";
 
 import { brand } from "@/styles/colors";
-import { fetchWithAuth, userRegisterApi } from "@/utils/api";
+import { userRegisterApi } from "@/utils/api";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
@@ -47,7 +47,7 @@ export default function RegisterPage() {
     };
 
     try {
-      const response = await fetchWithAuth(userRegisterApi, {
+      const response = await fetch(userRegisterApi, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
