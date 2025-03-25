@@ -82,7 +82,6 @@ class Receipt(models.Model):
     folder = models.ForeignKey(
         Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name="receipts"
     )
-    color = models.CharField(max_length=7, default="#FFFFFF")
 
     class Meta:
         db_table = "receipt"
@@ -104,6 +103,10 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"Receipt {self.id} - {self.merchant}"
+    
+    @property
+    def color(self):
+        return self.folder.color if self.folder else "#FFFFFF"
 
 
 class Item(models.Model):
