@@ -41,4 +41,11 @@ export const groupsMembersLeaveApi = (groupId: number, memberId: number) =>
   API_BASE_URL + `/groups/${groupId}/members/${memberId}/leave/`;
 
 export const userApi = API_BASE_URL + "/user/";
+export const userLoginApi = API_BASE_URL + "/user/login/";
+export const userLogoutApi = API_BASE_URL + "/user/logout/";
+export const userRegisterApi = API_BASE_URL + "/user/register/";
 export const userMeApi = API_BASE_URL + "/user/me/";
+export const subscriptionsApi = API_BASE_URL + "/subscriptions/";
+export const subscriptionsDetailApi = (id: number) => API_BASE_URL + `/subscriptions/${id}/`;
+export const insightsApi = API_BASE_URL + "/analytics/insights/";
+export const insightsDetailApi = (period: string) => API_BASE_URL + `/analytics/insights/${period}/`;
