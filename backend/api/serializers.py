@@ -41,6 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
+    color = serializers.SerializerMethodField()
     items = ItemSerializer(many=True)  # Nested serializer
     receipt_image = serializers.ImageField(required=False)
 
@@ -132,6 +133,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 return instance
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update receipt: {str(e)}")
+        
+    def get_color(self, obj):
+        return obj.color
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
@@ -249,4 +253,4 @@ class FolderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         validated_data['user'] = user
-        return super().create(validated_data)
+        return super().create(validated_data) 
