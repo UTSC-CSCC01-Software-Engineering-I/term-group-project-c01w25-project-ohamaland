@@ -63,12 +63,9 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
       setOpenConfirmationDialog(true);
     } else {
       try {
-        const response = await fetchWithAuth(
-          receiptsDetailApi(receipt.id),
-          {
-            method: "DELETE"
-          }
-        );
+        const response = await fetchWithAuth(receiptsDetailApi(receipt.id), {
+          method: "DELETE"
+        });
 
         if (response && response.ok) {
           props.onDeleteReceipt(receipt.id);

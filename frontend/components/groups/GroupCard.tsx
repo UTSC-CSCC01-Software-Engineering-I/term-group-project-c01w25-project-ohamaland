@@ -1,6 +1,11 @@
 import { textGrey } from "@/styles/colors";
 import { Group } from "@/types/groups";
-import { fetchWithAuth, groupsDeleteApi, groupsMembersLeaveApi, userMeApi } from "@/utils/api";
+import {
+  fetchWithAuth,
+  groupsDeleteApi,
+  groupsMembersLeaveApi,
+  userMeApi
+} from "@/utils/api";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -63,12 +68,9 @@ export default function GroupCard(props: IGroupCardProps) {
     setIsDeleting(true);
 
     try {
-      const response = await fetchWithAuth(
-        groupsDeleteApi(props.group.id),
-        {
-          method: "DELETE"
-        }
-      );
+      const response = await fetchWithAuth(groupsDeleteApi(props.group.id), {
+        method: "DELETE"
+      });
 
       if (!response || !response.ok) {
         console.error("Failed to delete group");
@@ -85,7 +87,7 @@ export default function GroupCard(props: IGroupCardProps) {
 
   async function handleLeaveGroup() {
     if (!currentUserId) return;
-    
+
     setIsLeaving(true);
 
     try {
@@ -107,7 +109,7 @@ export default function GroupCard(props: IGroupCardProps) {
     } finally {
       setIsLeaving(false);
     }
-  };
+  }
 
   return (
     <Card sx={cardStyle}>

@@ -7,7 +7,13 @@ import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
-import { fetchWithAuth, groupsDetailApi, groupsMembersApi, groupsMembersDetailApi, receiptsDetailApi } from "@/utils/api";
+import {
+  fetchWithAuth,
+  groupsDetailApi,
+  groupsMembersApi,
+  groupsMembersDetailApi,
+  receiptsDetailApi
+} from "@/utils/api";
 import { getAccessToken } from "@/utils/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -44,14 +50,11 @@ export default function GroupDetailPage() {
     async function fetchGroup() {
       try {
         const token = getAccessToken();
-        const res = await fetchWithAuth(
-          groupsDetailApi(groupId),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const res = await fetchWithAuth(groupsDetailApi(groupId), {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        });
         if (!res || !res.ok) {
           throw new Error("Failed to fetch group");
         }
@@ -68,14 +71,11 @@ export default function GroupDetailPage() {
     async function fetchMembers() {
       try {
         const token = getAccessToken();
-        const res = await fetchWithAuth(
-          groupsMembersApi(groupId),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const res = await fetchWithAuth(groupsMembersApi(groupId), {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        });
         if (!res || !res.ok) {
           throw new Error("Failed to fetch group members");
         }
@@ -92,17 +92,14 @@ export default function GroupDetailPage() {
     if (!newUserId) return;
     try {
       const token = getAccessToken();
-      const res = await fetchWithAuth(
-        groupsMembersApi(groupId),
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ user_id: newUserId })
-        }
-      );
+      const res = await fetchWithAuth(groupsMembersApi(groupId), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user_id: newUserId })
+      });
       if (!res || !res.ok) {
         throw new Error("Failed to add member");
       }
@@ -165,9 +162,10 @@ export default function GroupDetailPage() {
         if (!prevGroup) return null;
         return {
           ...prevGroup,
-          receipts: prevGroup.receipts?.map((r) =>
-            r.id === savedReceipt.id ? savedReceipt : r
-          ) ?? []
+          receipts:
+            prevGroup.receipts?.map((r) =>
+              r.id === savedReceipt.id ? savedReceipt : r
+            ) ?? []
         };
       });
       handleCloseDialog();
@@ -188,12 +186,9 @@ export default function GroupDetailPage() {
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(
-        receiptsDetailApi(receiptId),
-        {
-          method: "DELETE"
-        }
-      );
+      const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
+        method: "DELETE"
+      });
 
       if (!response || !response.ok) {
         console.error("Failed to delete receipt");

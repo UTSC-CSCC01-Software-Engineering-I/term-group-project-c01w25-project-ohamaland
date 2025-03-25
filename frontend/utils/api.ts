@@ -26,14 +26,19 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
 export const receiptsApi = API_BASE_URL + "/receipts/";
 export const receiptsUploadApi = API_BASE_URL + "/receipts/upload/";
-export const receiptsDetailApi = (id: number) => API_BASE_URL + `/receipts/${id}/`;
+export const receiptsDetailApi = (id: number) =>
+  API_BASE_URL + `/receipts/${id}/`;
 
 export const groupsApi = API_BASE_URL + "/groups/";
 export const groupsDetailApi = (id: number) => API_BASE_URL + `/groups/${id}/`;
-export const groupsDeleteApi = (id: number) => API_BASE_URL + `/groups/${id}/delete/`;
-export const groupsMembersApi = (id: number) => API_BASE_URL + `/groups/${id}/members/`;
-export const groupsMembersDetailApi = (groupId: number, memberId: number) => API_BASE_URL + `/groups/${groupId}/members/${memberId}/`;
-export const groupsMembersLeaveApi = (groupId: number, memberId: number) => API_BASE_URL + `/groups/${groupId}/members/${memberId}/leave/`;
+export const groupsDeleteApi = (id: number) =>
+  API_BASE_URL + `/groups/${id}/delete/`;
+export const groupsMembersApi = (id: number) =>
+  API_BASE_URL + `/groups/${id}/members/`;
+export const groupsMembersDetailApi = (groupId: number, memberId: number) =>
+  API_BASE_URL + `/groups/${groupId}/members/${memberId}/`;
+export const groupsMembersLeaveApi = (groupId: number, memberId: number) =>
+  API_BASE_URL + `/groups/${groupId}/members/${memberId}/leave/`;
 
 export const userApi = API_BASE_URL + "/user/";
 export const userMeApi = API_BASE_URL + "/user/me/";

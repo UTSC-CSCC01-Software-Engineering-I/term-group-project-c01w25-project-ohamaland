@@ -6,7 +6,12 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import { fetchWithAuth, receiptsApi, receiptsDetailApi, receiptsUploadApi } from "@/utils/api";
+import {
+  fetchWithAuth,
+  receiptsApi,
+  receiptsDetailApi,
+  receiptsUploadApi
+} from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -49,14 +54,11 @@ export default function Page() {
       if (file) {
         const formData = new FormData();
         formData.append("receipt_image", file);
-        const imageResponse = await fetchWithAuth(
-          receiptsUploadApi,
-          {
-            method: "POST",
-            body: formData,
-            headers: {}
-          }
-        );
+        const imageResponse = await fetchWithAuth(receiptsUploadApi, {
+          method: "POST",
+          body: formData,
+          headers: {}
+        });
         if (!imageResponse || !imageResponse.ok) {
           const errorData = await imageResponse?.json();
           console.error("Receipt image upload failed:", errorData);
@@ -74,16 +76,13 @@ export default function Page() {
 
       console.log("Receipt data:", JSON.stringify(receiptData));
 
-      const receiptResponse = await fetchWithAuth(
-        receiptsApi,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(receiptData)
-        }
-      );
+      const receiptResponse = await fetchWithAuth(receiptsApi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(receiptData)
+      });
 
       if (!receiptResponse || !receiptResponse.ok) {
         const errorData = await receiptResponse?.json();
@@ -102,12 +101,9 @@ export default function Page() {
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(
-        receiptsDetailApi(receiptId),
-        {
-          method: "DELETE"
-        }
-      );
+      const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
+        method: "DELETE"
+      });
 
       if (response && response.ok) {
         setReceipts((prevReceipts) =>
