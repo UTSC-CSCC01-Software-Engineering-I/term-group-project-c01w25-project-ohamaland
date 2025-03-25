@@ -148,6 +148,9 @@ export default function Page() {
         receiptsDetailApi(updatedReceipt.id),
         {
           method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(updatedData)
         }
       );
