@@ -7,6 +7,13 @@ import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
+import {
+  fetchWithAuth,
+  groupsDetailApi,
+  groupsMembersApi,
+  groupsMembersDetailApi,
+  receiptsDetailApi
+} from "@/utils/api";
 import { getAccessToken } from "@/utils/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -43,15 +50,12 @@ export default function GroupDetailPage() {
     async function fetchGroup() {
       try {
         const token = getAccessToken();
-        const res = await fetch(
-          `http://127.0.0.1:8000/api/groups/${groupId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const res = await fetchWithAuth(groupsDetailApi(groupId), {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
-        if (!res.ok) {
+        });
+        if (!res || !res.ok) {
           throw new Error("Failed to fetch group");
         }
         const data = await res.json();
@@ -67,15 +71,12 @@ export default function GroupDetailPage() {
     async function fetchMembers() {
       try {
         const token = getAccessToken();
-        const res = await fetch(
-          `http://127.0.0.1:8000/api/groups/${groupId}/members/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const res = await fetchWithAuth(groupsMembersApi(groupId), {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
-        if (!res.ok) {
+        });
+        if (!res || !res.ok) {
           throw new Error("Failed to fetch group members");
         }
         const data = await res.json();
@@ -91,18 +92,15 @@ export default function GroupDetailPage() {
     if (!newUserId) return;
     try {
       const token = getAccessToken();
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/groups/${groupId}/members/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ user_id: newUserId })
-        }
-      );
-      if (!res.ok) {
+      const res = await fetchWithAuth(groupsMembersApi(groupId), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user_id: newUserId })
+      });
+      if (!res || !res.ok) {
         throw new Error("Failed to add member");
       }
       const createdMember = await res.json();
@@ -116,8 +114,8 @@ export default function GroupDetailPage() {
   const handleRemoveMember = async (memberId: number) => {
     try {
       const token = getAccessToken();
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/groups/${groupId}/members/${memberId}/`,
+      const res = await fetchWithAuth(
+        groupsMembersDetailApi(groupId, memberId),
         {
           method: "DELETE",
           headers: {
@@ -125,7 +123,7 @@ export default function GroupDetailPage() {
           }
         }
       );
-      if (!res.ok) {
+      if (!res || !res.ok) {
         throw new Error("Failed to delete member");
       }
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
@@ -146,36 +144,30 @@ export default function GroupDetailPage() {
 
       const updatedData = { ...updatedReceipt, date: formattedDate };
 
-      const token = getAccessToken();
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+      const response = await fetchWithAuth(
+        receiptsDetailApi(updatedReceipt.id),
         {
           method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
           body: JSON.stringify(updatedData)
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error:", errorData);
-        throw new Error(errorData.detail || "Failed to save the receipt");
+      if (!response || !response.ok) {
+        console.error("Failed to save receipt");
+        return;
       }
 
       const savedReceipt = await response.json();
-      setGroup((prevGroup) =>
-        prevGroup && prevGroup.receipts
-          ? {
-              ...prevGroup,
-              receipts: prevGroup.receipts.map((r) =>
-                r.id === savedReceipt.id ? savedReceipt : r
-              )
-            }
-          : prevGroup
-      );
+      setGroup((prevGroup) => {
+        if (!prevGroup) return null;
+        return {
+          ...prevGroup,
+          receipts:
+            prevGroup.receipts?.map((r) =>
+              r.id === savedReceipt.id ? savedReceipt : r
+            ) ?? []
+        };
+      });
       handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
@@ -190,6 +182,33 @@ export default function GroupDetailPage() {
   const handleCloseDialog = () => {
     setSelectedReceipt(null);
     setDialogOpen(false);
+  };
+
+  const handleDeleteReceipt = async (receiptId: number) => {
+    try {
+      const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
+        method: "DELETE"
+      });
+
+      if (!response || !response.ok) {
+        console.error("Failed to delete receipt");
+        return;
+      }
+
+      setGroup((prevGroup) => {
+        if (!prevGroup) return null;
+        return {
+          ...prevGroup,
+          receipts: prevGroup.receipts?.filter((r) => r.id !== receiptId) ?? []
+        };
+      });
+
+      if (selectedReceipt?.id === receiptId) {
+        handleCloseDialog();
+      }
+    } catch (error) {
+      console.error("Error deleting receipt:", error);
+    }
   };
 
   return (
@@ -296,6 +315,7 @@ export default function GroupDetailPage() {
                         key={receipt.id}
                         receipt={receipt}
                         onClick={() => handleOpenDialog(receipt)}
+                        onDeleteReceipt={handleDeleteReceipt}
                       />
                     ))}
                   </Stack>

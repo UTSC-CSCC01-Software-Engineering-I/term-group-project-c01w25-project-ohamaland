@@ -1,5 +1,5 @@
 import { Category, Receipt } from "@/types/receipts";
-import { fetchWithAuth } from "@/utils/api";
+import { fetchWithAuth, receiptsDetailApi } from "@/utils/api";
 import { filterReceipts } from "@/utils/filters";
 import { Alert, Grid2, Snackbar } from "@mui/material";
 import { Dayjs } from "dayjs";
@@ -63,12 +63,9 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
       setOpenConfirmationDialog(true);
     } else {
       try {
-        const response = await fetchWithAuth(
-          `http://127.0.0.1:8000/api/receipts/${receipt.id}/`,
-          {
-            method: "DELETE"
-          }
-        );
+        const response = await fetchWithAuth(receiptsDetailApi(receipt.id), {
+          method: "DELETE"
+        });
 
         if (response && response.ok) {
           props.onDeleteReceipt(receipt.id);
