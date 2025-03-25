@@ -3,7 +3,7 @@
 import PageWrapper from "@/components/common/layouts/PageWrapper";
 import SpendingChart from "@/components/insights/SpendingChart";
 import SpendingFilter from "@/components/insights/SpendingFilter";
-import { getAccessToken } from "@/utils/auth";
+import { fetchWithAuth, insightsDetailApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
@@ -37,29 +37,25 @@ export default function Page() {
   useEffect(() => {
     async function fetchSpendingData() {
       try {
-        console.log("Fetching spending data...");
-        const token = getAccessToken();
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/analytics/insights/${selectedPeriod}/`,
+        const response = await fetchWithAuth(
+          insightsDetailApi(selectedPeriod),
           {
             method: "GET",
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json"
             }
           }
         );
 
-        if (response.status === 401) {
+        if (response && response.status === 401) {
           router.push("/login");
           return;
         }
 
-        if (!response.ok) {
+        if (!response || !response.ok) {
           throw new Error("Failed to fetch spending data");
         }
         const fetchedData: BackendSpendingResponse = await response.json();
-        console.log("Fetched Data:", fetchedData);
 
         const transformedData: SpendingData[] = Object.entries(
           fetchedData.total_spending

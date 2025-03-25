@@ -5,8 +5,7 @@ import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
-import { fetchWithAuth } from "@/utils/api";
-import { getAccessToken } from "@/utils/auth";
+import { fetchWithAuth, subscriptionsApi, subscriptionsDetailApi, userMeApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -25,9 +24,7 @@ export default function Page() {
   useEffect(() => {
     async function fetchSubscriptions() {
       try {
-        const response = await fetchWithAuth(
-          "http://127.0.0.1:8000/api/subscriptions/"
-        );
+        const response = await fetchWithAuth(subscriptionsApi);
         if (response && response.ok) {
           const data = await response.json();
           setSubscriptions(data.subscriptions);
@@ -72,10 +69,8 @@ export default function Page() {
   // to handle adding a new subscription (temporary, hardcoded for now)
   const handleSaveSubscription = async (newSubscription: Subscription) => {
     try {
-      const token = getAccessToken();
-      const meResponse = await fetch("http://127.0.0.1:8000/api/user/me/", {
+      const meResponse = await fetchWithAuth(userMeApi, {
         method: "GET",
-        headers: { Authorization: `Bearer ${token}` }
       });
       if (meResponse && meResponse.ok) {
         const { id: userId } = await meResponse.json();
@@ -84,12 +79,10 @@ export default function Page() {
           user: userId
         };
 
-        const subscriptionResponse = await fetch(
-          "http://127.0.0.1:8000/api/subscriptions/",
+        const subscriptionResponse = await fetchWithAuth(subscriptionsApi,
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json"
             },
             body: JSON.stringify(subscriptionData)
@@ -135,7 +128,7 @@ export default function Page() {
       };
 
       const response = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/subscriptions/${updatedSubscription.id}/`,
+        subscriptionsDetailApi(updatedSubscription.id),
         {
           method: "PATCH",
           headers: {
@@ -162,7 +155,7 @@ export default function Page() {
   const handleDeleteSubscription = async (subscriptionId: number) => {
     try {
       const response = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/subscriptions/${subscriptionId}/`,
+        subscriptionsDetailApi(subscriptionId),
         {
           method: "DELETE"
         }

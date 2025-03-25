@@ -1,6 +1,7 @@
 "use client";
 
 import { brand } from "@/styles/colors";
+import { fetchWithAuth, userRegisterApi } from "@/utils/api";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
@@ -46,7 +47,7 @@ export default function RegisterPage() {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user/register/", {
+      const response = await fetchWithAuth(userRegisterApi, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -54,8 +55,8 @@ export default function RegisterPage() {
         body: JSON.stringify(registrationData)
       });
 
-      if (!response.ok) {
-        const data = await response.json();
+      if (!response || !response.ok) {
+        const data = await response?.json();
         const errorFields = {
           username: setUsernameErrorMessage,
           first_name: setFirstNameErrorMessage,

@@ -4,39 +4,10 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
-import { getAccessToken } from "@/utils/auth";
+import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
 import { Box } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-
-async function getUserIdFromBackend() {
-  const token = getAccessToken(); // Ensure this function is returning the access token
-
-  if (token) {
-    try {
-      const response = await fetch("http://localhost:8000/api/user_id/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}` // Sending the JWT token for authentication
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.user_id; // Return user_id from backend
-      } else {
-        console.error("Failed to fetch user_id");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching user_id:", error);
-      return null;
-    }
-  } else {
-    console.error("No token found in localStorage");
-    return null;
-  }
-}
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -49,13 +20,8 @@ export default function GroupsPage() {
     async function fetchGroups() {
       try {
         console.log("Fetching groups...");
-        const token = getAccessToken();
-        const response = await fetch("http://127.0.0.1:8000/api/groups/", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
+        const response = await fetchWithAuth(groupsApi);
+        if (!response || !response.ok) {
           throw new Error("Failed to fetch groups");
         }
         const data = await response.json();
@@ -67,8 +33,16 @@ export default function GroupsPage() {
       }
     }
     async function fetchUserId() {
-      const id = await getUserIdFromBackend();
-      setUserId(id);
+      try {
+        const response = await fetchWithAuth(userMeApi);
+        if (!response || !response.ok) {
+          throw new Error("Failed to fetch user");
+        }
+        const data = await response.json();
+        setUserId(data.id);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
     }
     fetchGroups();
     fetchUserId();

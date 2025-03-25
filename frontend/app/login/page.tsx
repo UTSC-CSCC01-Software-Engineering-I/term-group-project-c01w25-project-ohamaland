@@ -1,6 +1,7 @@
 "use client";
 
 import { background, brand, error as errorColors } from "@/styles/colors";
+import { userLoginApi } from "@/utils/api";
 import { getAccessToken, setAccessToken } from "@/utils/auth";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -50,7 +51,7 @@ export default function LoginPage() {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user/login/", {
+      const response = await fetch(userLoginApi, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
