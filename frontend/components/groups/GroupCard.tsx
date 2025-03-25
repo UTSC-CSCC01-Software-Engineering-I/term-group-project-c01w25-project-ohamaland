@@ -1,6 +1,6 @@
 import { textGrey } from "@/styles/colors";
 import { Group } from "@/types/groups";
-import { getAccessToken } from "@/utils/auth";
+import { fetchWithAuth, groupsDeleteApi, groupsMembersLeaveApi, userMeApi } from "@/utils/api";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -12,27 +12,16 @@ interface IGroupCardProps {
 }
 
 async function getUserIdFromBackend() {
-  const token = localStorage.getItem("accessToken");
-
-  if (token) {
-    const response = await fetch("http://localhost:8000/api/user_id/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Fetched User ID from backend:", data.user_id);
-      return data.user_id;
-    } else {
-      const errorData = await response.json();
-      console.error("Failed to fetch user_id. Error:", errorData);
+  try {
+    const response = await fetchWithAuth(userMeApi);
+    if (!response || !response.ok) {
+      console.error("Failed to fetch user_id");
       return null;
     }
-  } else {
-    console.error("No token found in localStorage");
+    const data = await response.json();
+    return data.id;
+  } catch (error) {
+    console.error("Error fetching user_id:", error);
     return null;
   }
 }
@@ -41,14 +30,12 @@ export default function GroupCard(props: IGroupCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-
   const [openDialog, setOpenDialog] = useState(false);
   const [actionType, setActionType] = useState<"delete" | "leave">("delete");
 
   useEffect(() => {
     const fetchUserId = async () => {
       const userId = await getUserIdFromBackend();
-      console.log("Fetched User ID:", userId);
       setCurrentUserId(userId);
     };
     fetchUserId();
@@ -63,7 +50,6 @@ export default function GroupCard(props: IGroupCardProps) {
     setOpenDialog(false);
   };
 
-  // Confirm action (delete or leave)
   const handleConfirmDeleteOrLeave = async () => {
     if (actionType === "delete") {
       await handleDeleteGroup();
@@ -77,61 +63,52 @@ export default function GroupCard(props: IGroupCardProps) {
     setIsDeleting(true);
 
     try {
-      const token = getAccessToken();
-
-      const response = await fetch(
-        `http://localhost:8000/api/groups/${props.group.id}/delete/`,
+      const response = await fetchWithAuth(
+        groupsDeleteApi(props.group.id),
         {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          }
+          method: "DELETE"
         }
       );
 
-      if (response.ok) {
-        props.onGroupDeleted(props.group.id);
-      } else {
-        alert("Failed to delete the group");
+      if (!response || !response.ok) {
+        console.error("Failed to delete group");
+        return;
       }
+
+      props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error deleting group:", error);
-      alert("An error occurred while deleting the group");
     } finally {
       setIsDeleting(false);
     }
   };
 
   async function handleLeaveGroup() {
+    if (!currentUserId) return;
+    
     setIsLeaving(true);
 
     try {
-      const token = getAccessToken();
-
-      const response = await fetch(
-        `http://localhost:8000/api/groups/${props.group.id}/members/${currentUserId}/leave/`,
+      const response = await fetchWithAuth(
+        groupsMembersLeaveApi(props.group.id, currentUserId),
         {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          }
+          method: "DELETE"
         }
       );
 
-      if (response.ok) {
-        props.onGroupDeleted(props.group.id);
-      } else {
-        alert("Failed to leave the group");
+      if (!response || !response.ok) {
+        console.error("Failed to leave group");
+        return;
       }
+
+      props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error leaving group:", error);
-      alert("An error occurred while leaving the group");
     } finally {
       setIsLeaving(false);
     }
-  }
+  };
+
   return (
     <Card sx={cardStyle}>
       <CardContent>
@@ -140,7 +117,6 @@ export default function GroupCard(props: IGroupCardProps) {
         <Typography sx={textStyle}>
           Created At: {props.group.created_at}
         </Typography>
-        {/* Link to detail page (app/groups/[id]/page.tsx) */}
         <Link href={`/groups/${props.group.id}`}>
           <Button variant="outlined" sx={buttonStyle}>
             View Details
