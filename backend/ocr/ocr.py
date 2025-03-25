@@ -15,25 +15,6 @@ if not AZURE_ENDPOINT or not AZURE_KEY:
         "Azure credentials are missing. Set AZURE_ENDPOINT and AZURE_KEY as environment variables."
     )
 
-# Categories for classifying items
-CATEGORY_KEYWORDS = {
-    "Home Goods": ["furniture", "lamp", "sofa", "table"],
-    "Food": ["milk", "bread", "apple", "pizza", "burger", "juice", "rice"],
-    "Clothing": ["shirt", "jeans", "jacket", "shoes"],
-    "Fixture": ["light", "bulb", "pipe", "mirror"],
-}
-
-
-def categorize_item(item_name):
-    """
-    Assigns a category to an item based on predefined keywords.
-    """
-    for category, keywords in CATEGORY_KEYWORDS.items():
-        if any(keyword.lower() in item_name.lower() for keyword in keywords):
-            return category
-    return "Unknown"
-
-
 def extract_text_azure(image_path):
     """
     Extracts text from an image using Azure Form Recognizer.
@@ -72,7 +53,6 @@ def extract_receipt_items(ocr_text):
         item_data = {
             "id": uuid.uuid4().int & (1 << 32) - 1,
             "name": item_name.strip(),
-            "category": categorize_item(item_name),
             "price": float(price.replace(",", "")),
             "quantity": int(quantity),
         }
@@ -151,15 +131,3 @@ def process_receipt(image_path, user_id):
         "receipt_image_url": None,
         "ocr_confidence": confidence,  # Added OCR confidence score
     }
-
-
-# Code below is for testing OCR functionality
-
-"""
-if __name__ == "__main__":
-    image_path = "image.png"
-    user_id = 1234
-    receipt = process_receipt(image_path, user_id)
-    print(receipt)
-    
-"""

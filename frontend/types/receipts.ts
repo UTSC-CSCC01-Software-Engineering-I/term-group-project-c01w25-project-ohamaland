@@ -1,6 +1,6 @@
 export type Receipt = {
   id: number;
-  user_id: number;
+  user_id?: number;
   merchant: string;
   total_amount: number;
   currency: Currency;
@@ -50,7 +50,6 @@ export const paymentMethods = ["Debit", "Credit", "Cash"];
 export type ReceiptItem = {
   id?: number; // Make id optional for new items
   name: string;
-  category: Category;
   price: number;
   quantity: number;
 };

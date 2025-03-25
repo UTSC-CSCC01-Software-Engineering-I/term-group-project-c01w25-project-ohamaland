@@ -110,22 +110,9 @@ class Receipt(models.Model):
 
 
 class Item(models.Model):
-    CATEGORY_CHOICES = [
-        ("Home", "Home"),
-        ("Food", "Food"),
-        ("Clothing", "Clothing"),
-        ("Utilities", "Utilities"),
-        ("Entertainment", "Entertainment"),
-        ("Fixtures", "Fixtures"),
-        ("Furniture", "Furniture"),
-        ("Health", "Health"),
-        ("Beauty", "Beauty"),
-        ("Electronics", "Electronics"),
-    ]
 
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="items")
     name = models.TextField()
-    category = models.TextField(blank=True, null=True, choices=CATEGORY_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
 
