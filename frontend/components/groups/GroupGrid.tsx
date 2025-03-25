@@ -30,7 +30,12 @@ export default function GroupGrid(props: IGroupGridProps) {
   return (
     <Grid2 container spacing={3}>
       {filteredGroups.map((group, index) => (
-        <GroupCard key={`${group.id}-${index}`} group={group} onGroupDeleted={props.onGroupDeleted} userId={props.userId}/>
+        <GroupCard
+          key={`${group.id}-${index}`}
+          group={group}
+          onGroupDeleted={props.onGroupDeleted}
+          userId={props.userId}
+        />
       ))}
     </Grid2>
   );

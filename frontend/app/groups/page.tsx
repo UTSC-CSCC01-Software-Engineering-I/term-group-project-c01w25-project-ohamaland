@@ -17,8 +17,8 @@ async function getUserIdFromBackend() {
       const response = await fetch("http://localhost:8000/api/user_id/", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`, // Sending the JWT token for authentication
-        },
+          Authorization: `Bearer ${token}` // Sending the JWT token for authentication
+        }
       });
 
       if (response.ok) {
@@ -45,7 +45,6 @@ export default function GroupsPage() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
 
-
   useEffect(() => {
     async function fetchGroups() {
       try {
@@ -53,7 +52,7 @@ export default function GroupsPage() {
         const token = getAccessToken();
         const response = await fetch("http://127.0.0.1:8000/api/groups/", {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           }
         });
         if (!response.ok) {
@@ -70,15 +69,16 @@ export default function GroupsPage() {
     async function fetchUserId() {
       const id = await getUserIdFromBackend();
       setUserId(id);
-    } 
+    }
     fetchGroups();
     fetchUserId();
   }, []);
 
   const handleGroupDeleted = (groupId: number) => {
-    setGroups((prevGroups) => (prevGroups ? prevGroups.filter((group) => group.id !== groupId) : []));
+    setGroups((prevGroups) =>
+      prevGroups ? prevGroups.filter((group) => group.id !== groupId) : []
+    );
   };
-
 
   return (
     <PageWrapper>

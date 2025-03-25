@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { brand } from "@/styles/colors";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography
+} from "@mui/material";
 import Image from "next/image";
-import { brand } from '@/styles/colors';
+import { useState } from "react";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -34,16 +42,16 @@ export default function RegisterPage() {
       email,
       first_name: firstName,
       last_name: lastName,
-      password,
+      password
     };
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/user/register/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(registrationData),
+        body: JSON.stringify(registrationData)
       });
 
       if (!response.ok) {
@@ -53,21 +61,21 @@ export default function RegisterPage() {
           first_name: setFirstNameErrorMessage,
           last_name: setLastNameErrorMessage,
           email: setEmailErrorMessage,
-          password: setPasswordErrorMessage,
+          password: setPasswordErrorMessage
         };
 
         Object.entries(errorFields).forEach(([field, setError]) => {
           if (data[field]) {
-        setError(data[field][0]);
+            setError(data[field][0]);
           }
         });
-        
+
         return;
       }
 
       const data = await response.json();
       console.log("Registration successful:", data);
-      window.location.href = '/login';
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error during registration:", error);
     }
@@ -77,26 +85,21 @@ export default function RegisterPage() {
     <Box sx={outerBoxStyle}>
       {/* Already have an account? */}
       <Box sx={headerStyle}>
-        <Typography
-          variant="body2"
-          sx={{ textAlign: 'right' }}
-        >
-          Already have an account? <a href="/login" style={{ color: brand.secondary }}>Sign in &rarr;</a>
+        <Typography variant="body2" sx={{ textAlign: "right" }}>
+          Already have an account?{" "}
+          <a href="/login" style={{ color: brand.secondary }}>
+            Sign in &rarr;
+          </a>
         </Typography>
       </Box>
 
       {/* Register form */}
-      <Container
-        maxWidth='sm'
-      >
+      <Container maxWidth="sm">
         <Image src="/catalog.png" width={90} height={90} alt={""} />
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 'bold' }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
           Sign up on Catalog
         </Typography>
-        <Typography
-          sx={{ color: 'text.secondary' }}>
+        <Typography sx={{ color: "text.secondary" }}>
           Create a free account to get started.
         </Typography>
         <TextField
@@ -110,14 +113,16 @@ export default function RegisterPage() {
           helperText={usernameErrorMessage}
           inputProps={{
             pattern: "^[a-zA-Z0-9_]+$",
-            maxLength: 150,
+            maxLength: 150
           }}
           onChange={(e) => {
-            setUsername(e.target.value)
+            setUsername(e.target.value);
             if (e.target.validity.valueMissing) {
               setUsernameErrorMessage("Username is required");
             } else if (e.target.validity.patternMismatch) {
-              setUsernameErrorMessage("Username can only contain alphanumeric characters and underscores");
+              setUsernameErrorMessage(
+                "Username can only contain alphanumeric characters and underscores"
+              );
             } else if (e.target.validity.tooLong) {
               setUsernameErrorMessage("Username is too long");
             } else if (e.target.validity.valid) {
@@ -126,13 +131,13 @@ export default function RegisterPage() {
           }}
           sx={textFieldStyle}
         />
-        
+
         {/* First Name and Last Name */}
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
             gap: 2,
-            width: '100%'
+            width: "100%"
           }}
         >
           <TextField
@@ -144,14 +149,16 @@ export default function RegisterPage() {
             error={firstNameErrorMessage !== ""}
             helperText={firstNameErrorMessage}
             inputProps={{
-              pattern: "^[a-zA-Z'-.]+$",
+              pattern: "^[a-zA-Z'-.]+$"
             }}
             onChange={(e) => {
-              setFirstName(e.target.value)
+              setFirstName(e.target.value);
               if (e.target.validity.valueMissing) {
                 setFirstNameErrorMessage("First name is required");
               } else if (e.target.validity.patternMismatch) {
-                setFirstNameErrorMessage("First name must contain valid characters");
+                setFirstNameErrorMessage(
+                  "First name must contain valid characters"
+                );
               } else if (e.target.validity.valid) {
                 setFirstNameErrorMessage("");
               }
@@ -167,14 +174,16 @@ export default function RegisterPage() {
             error={lastNameErrorMessage !== ""}
             helperText={lastNameErrorMessage}
             inputProps={{
-              pattern: "^[a-zA-Z'-.]+$",
+              pattern: "^[a-zA-Z'-.]+$"
             }}
             onChange={(e) => {
-              setLastName(e.target.value)
+              setLastName(e.target.value);
               if (e.target.validity.valueMissing) {
                 setLastNameErrorMessage("Last name is required");
               } else if (e.target.validity.patternMismatch) {
-                setLastNameErrorMessage("Last name must contain valid characters");
+                setLastNameErrorMessage(
+                  "Last name must contain valid characters"
+                );
               } else if (e.target.validity.valid) {
                 setLastNameErrorMessage("");
               }
@@ -192,10 +201,10 @@ export default function RegisterPage() {
           error={emailErrorMessage !== ""}
           helperText={emailErrorMessage}
           inputProps={{
-            type: "email",
+            type: "email"
           }}
           onChange={(e) => {
-            setEmail(e.target.value)
+            setEmail(e.target.value);
             if (e.target.validity.valueMissing) {
               setEmailErrorMessage("Email address is required");
             } else if (e.target.validity.typeMismatch) {
@@ -213,9 +222,10 @@ export default function RegisterPage() {
           size="small"
           margin="normal"
           error={passwordErrorMessage !== ""}
-          helperText={passwordErrorMessage
-            ? passwordErrorMessage
-            : "Passwords must be at least 8 characters long."
+          helperText={
+            passwordErrorMessage
+              ? passwordErrorMessage
+              : "Passwords must be at least 8 characters long."
           }
           value={password}
           onChange={(e) => {
@@ -239,7 +249,7 @@ export default function RegisterPage() {
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            ),
+            )
           }}
         />
         <TextField
@@ -250,7 +260,9 @@ export default function RegisterPage() {
           margin="normal"
           value={confirmPassword}
           error={password !== confirmPassword}
-          helperText={password !== confirmPassword ? "Passwords do not match" : ""}
+          helperText={
+            password !== confirmPassword ? "Passwords do not match" : ""
+          }
           onChange={(e) => setConfirmPassword(e.target.value)}
           type={showPassword ? "text" : "password"}
           sx={textFieldStyle}
@@ -265,7 +277,7 @@ export default function RegisterPage() {
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            ),
+            )
           }}
         />
         <Button
@@ -288,8 +300,23 @@ export default function RegisterPage() {
         </Button>
         <Typography
           variant="body2"
-          sx={{ color: 'text.secondary', marginTop: 2 }}>
-          By creating an account, you agree to the <a href="/policy" style={{ textDecoration: 'underline', color: brand.secondary }}>Terms of Service</a>. For more information about Catalog&apos;s privacy practices, see the <a href="/privacy" style={{ textDecoration: 'underline', color: brand.secondary }}>Catalog Privacy Statement</a>. We&apos;ll occasionally send you account-related emails.
+          sx={{ color: "text.secondary", marginTop: 2 }}
+        >
+          By creating an account, you agree to the{" "}
+          <a
+            href="/policy"
+            style={{ textDecoration: "underline", color: brand.secondary }}
+          >
+            Terms of Service
+          </a>
+          . For more information about Catalog&apos;s privacy practices, see the{" "}
+          <a
+            href="/privacy"
+            style={{ textDecoration: "underline", color: brand.secondary }}
+          >
+            Catalog Privacy Statement
+          </a>
+          . We&apos;ll occasionally send you account-related emails.
         </Typography>
       </Container>
     </Box>
@@ -297,51 +324,51 @@ export default function RegisterPage() {
 }
 
 const outerBoxStyle = {
-  bgcolor: 'white',
-  display: 'flex',
-  flexDirection: 'column',
-}
+  bgcolor: "white",
+  display: "flex",
+  flexDirection: "column"
+};
 
 const headerStyle = {
   padding: 3,
-  paddingRight: 5,
-}
+  paddingRight: 5
+};
 
 const textFieldStyle = {
-  '& .MuiOutlinedInput-root': {
+  "& .MuiOutlinedInput-root": {
     borderRadius: 2,
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: brand.primary,
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: brand.primary
     }
   },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: brand.primary,
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: brand.primary
   }
-}
+};
 
 const nameFieldStyle = {
   flex: 1,
-  '& .MuiOutlinedInput-root': {
+  "& .MuiOutlinedInput-root": {
     borderRadius: 2,
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: brand.primary,
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: brand.primary
     }
   },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: brand.primary,
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: brand.primary
   }
-}
+};
 
 const continueButtonStyle = {
   marginTop: 2,
   borderRadius: 2,
   height: 50,
-  textTransform: 'none',
-  fontWeight: 'bold',
+  textTransform: "none",
+  fontWeight: "bold",
   fontSize: 18,
   backgroundColor: brand.primary,
-  boxShadow: 'none',
-  '&:hover': {
-    backgroundColor: brand.primaryHover,
+  boxShadow: "none",
+  "&:hover": {
+    backgroundColor: brand.primaryHover
   }
-}
+};

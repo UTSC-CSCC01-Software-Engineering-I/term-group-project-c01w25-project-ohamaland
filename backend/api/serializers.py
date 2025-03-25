@@ -1,12 +1,9 @@
 from decimal import Decimal
 
-import boto3
 from django.db import transaction
-from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-
-from .models import Folder, Receipt, Item, Group, GroupMembers, User, Insights
+from .models import Folder, Receipt, Item, Group, GroupMembers, User, Subscription, Insights
 from .signals import update_insights
 
 
@@ -43,39 +40,10 @@ class ItemSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     color = serializers.SerializerMethodField()
     items = ItemSerializer(many=True)  # Nested serializer
-    receipt_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Receipt
         fields = "__all__"
-
-    def _handle_image_upload(self, image):
-        """Handle S3 image upload and return the URL."""
-        if not image:
-            return None
-
-        try:
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                region_name=settings.AWS_S3_REGION_NAME,
-            )
-
-            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            file_key = f"receipts/{image.name}"
-
-            s3_client.upload_fileobj(
-                image,
-                bucket_name,
-                file_key,
-                ExtraArgs={"ContentType": image.content_type},
-            )
-
-            return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
-        except Exception as e:
-            raise serializers.ValidationError(f"Image upload failed: {str(e)}")
-
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -86,12 +54,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop("items", [])
-        image = validated_data.pop("receipt_image", None)
-
-        # Handle image upload
-        receipt_image_url = self._handle_image_upload(image)
-        if receipt_image_url:
-            validated_data["receipt_image_url"] = receipt_image_url
 
         try:
             # Create receipt and items in a transaction
@@ -103,18 +65,13 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
                 update_insights(receipt.user.id)
                 return receipt
+        except (ValueError, TypeError) as e:
+            raise serializers.ValidationError(f"Invalid data format: {str(e)}")
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create receipt: {str(e)}")
 
     def update(self, instance, validated_data):
         items_data = validated_data.pop("items", [])
-        image = validated_data.pop("receipt_image", None)
-
-        # TO DO: Handle image deletion
-        # Handle image upload
-        receipt_image_url = self._handle_image_upload(image)
-        if receipt_image_url:
-            validated_data["receipt_image_url"] = receipt_image_url
 
         try:
             with transaction.atomic():
@@ -148,15 +105,16 @@ class GroupSerializer(serializers.ModelSerializer):
     members = GroupMembersSerializer(many=True, required=False)
     receipts = ReceiptSerializer(many=True, required=False)
 
-
     class Meta:
         model = Group
         fields = "__all__"
-    
+
     def get_members(self, obj):
         """Return members as a list of user IDs and usernames."""
-        return [{"id": member.user.id, "username": member.user.username} for member in obj.groupmembers_set.all()]
-
+        return [
+            {"id": member.user.id, "username": member.user.username}
+            for member in obj.groupmembers_set.all()
+        ]
 
     def create(self, validated_data):
         members_data = validated_data.pop("members", [])
@@ -219,13 +177,18 @@ class GroupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
 
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = "__all__"
+
+
 class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
 
     class Meta:
         model = Insights
         fields = ["user", "total_spent", "category_spending", "period", "date"]
-
 
     def get_category_spending(self, obj):
         """Convert category_spending JSON field to list for frontend processing."""

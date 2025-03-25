@@ -16,7 +16,11 @@ export default function SpendingList(props: ISpendingListProps) {
   return (
     <div style={listContainerStyle}>
       {props.spending.map((item) => (
-        <div key={item.id} style={listItemStyle} onClick={() => props.onOpenDialog(item)}>
+        <div
+          key={item.id}
+          style={listItemStyle}
+          onClick={() => props.onOpenDialog(item)}
+        >
           <span>{item.date}</span>
           <span>{item.category}</span>
           <span>${item.amount}</span>
@@ -30,7 +34,7 @@ export default function SpendingList(props: ISpendingListProps) {
 const listContainerStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column" as const, // Ensures TypeScript recognizes it
-  gap: 10, // Use a number instead of a string for spacing
+  gap: 10 // Use a number instead of a string for spacing
 };
 
 const listItemStyle: CSSProperties = {
@@ -39,5 +43,5 @@ const listItemStyle: CSSProperties = {
   padding: 10, // Use a number instead of "10px"
   border: "1px solid #ddd",
   borderRadius: 5,
-  cursor: "pointer",
+  cursor: "pointer"
 };

@@ -6,10 +6,15 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
+import {
+  fetchWithAuth,
+  receiptsApi,
+  receiptsDetailApi,
+  receiptsUploadApi
+} from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-import { fetchWithAuth } from "@/utils/api";
 
 export default function Page() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -25,7 +30,7 @@ export default function Page() {
   useEffect(() => {
     async function fetchReceipts() {
       try {
-        const response = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/");
+        const response = await fetchWithAuth(receiptsApi);
         if (response && response.ok) {
           const data = await response.json();
           setReceipts(data.receipts);
@@ -43,47 +48,61 @@ export default function Page() {
   };
 
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("receipt_image", file);
-    formData.append("merchant", newReceipt.merchant);
-    formData.append("total_amount", newReceipt.total_amount.toString());
-    formData.append("currency", newReceipt.currency);
-    formData.append("date", newReceipt.date);
-    formData.append("payment_method", newReceipt.payment_method);
-    formData.append("items", JSON.stringify(newReceipt.items));
-    formData.append("id", newReceipt.id.toString());
-
     try {
-      const meResponse = await fetchWithAuth("http://127.0.0.1:8000/api/user/me/");
-      if (meResponse && meResponse.ok) {
-        const data = await meResponse.json();
-        formData.append("user", data.id);
-
-        const receiptResponse = await fetchWithAuth("http://127.0.0.1:8000/api/receipts/", {
+      // Upload image if provided
+      let receiptURL;
+      if (file) {
+        const formData = new FormData();
+        formData.append("receipt_image", file);
+        const imageResponse = await fetchWithAuth(receiptsUploadApi, {
           method: "POST",
-          body: formData
+          body: formData,
+          headers: {}
         });
-
-        if (receiptResponse && receiptResponse.ok) {
-          const savedReceipt = await receiptResponse.json();
-          setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
-          setIsModalOpen(false);
+        if (!imageResponse || !imageResponse.ok) {
+          const errorData = await imageResponse?.json();
+          console.error("Receipt image upload failed:", errorData);
+          throw new Error("Receipt image upload failed");
         }
+        const imageData = await imageResponse.json();
+        console.log("Image data:", imageData);
+        receiptURL = imageData.receipt_url;
       }
+
+      const receiptData = {
+        ...newReceipt,
+        ...(receiptURL && { receipt_image_url: receiptURL })
+      };
+
+      console.log("Receipt data:", JSON.stringify(receiptData));
+
+      const receiptResponse = await fetchWithAuth(receiptsApi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(receiptData)
+      });
+
+      if (!receiptResponse || !receiptResponse.ok) {
+        const errorData = await receiptResponse?.json();
+        console.error("Failed to save receipt:", errorData);
+        throw new Error("Failed to save receipt");
+      }
+
+      const savedReceipt = await receiptResponse.json();
+      setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving receipt:", error);
+      throw error;
     }
   };
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(`http://127.0.0.1:8000/api/receipts/${receiptId}/`, {
-        method: "DELETE",
+      const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
+        method: "DELETE"
       });
 
       if (response && response.ok) {
@@ -102,7 +121,7 @@ export default function Page() {
   };
 
   const handleOpenDialog = (receipt: Receipt) => {
-    if (receipts.find(r => r.id === receipt.id)) {
+    if (receipts.find((r) => r.id === receipt.id)) {
       setSelectedReceipt(receipt);
       setIsDialogOpen(true);
     }
@@ -119,13 +138,10 @@ export default function Page() {
         .toISOString()
         .split("T")[0];
 
-      const updatedData = {
-        ...updatedReceipt,
-        date: formattedDate
-      };
+      const updatedData = { ...updatedReceipt, date: formattedDate };
 
       const response = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/receipts/${updatedReceipt.id}/`,
+        receiptsDetailApi(updatedReceipt.id),
         {
           method: "PATCH",
           headers: {
@@ -135,13 +151,16 @@ export default function Page() {
         }
       );
 
-      if (response && response.ok) {
-        const savedReceipt = await response.json();
-        setReceipts((prevReceipts) =>
-          prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
-        );
-        handleCloseDialog();
+      if (!response || !response.ok) {
+        console.error("Failed to save receipt");
+        return;
       }
+
+      const savedReceipt = await response.json();
+      setReceipts((prevReceipts) =>
+        prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
+      );
+      handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
     }
