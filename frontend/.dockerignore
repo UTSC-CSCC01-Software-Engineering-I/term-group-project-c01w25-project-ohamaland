@@ -1,53 +1,53 @@
-# Ignore dependencies
-node_modules/
-.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# # Ignore dependencies
+# node_modules/
+# .pnp
+# .pnp.*
+# .yarn/*
+# !.yarn/patches
+# !.yarn/plugins
+# !.yarn/releases
+# !.yarn/versions
 
-# Ignore test coverage reports
-coverage/
+# # Ignore test coverage reports
+# coverage/
 
-# Ignore Next.js build files
-.next/
-out/
+# # Ignore Next.js build files
+# .next/
+# out/
 
-# Ignore production build output
-build/
+# # Ignore production build output
+# build/
 
-# Ignore OS-specific files
-.DS_Store
+# # Ignore OS-specific files
+# .DS_Store
 
-# Ignore private keys and credentials
-*.pem
+# # Ignore private keys and credentials
+# *.pem
 
-# Ignore debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# # Ignore debug logs
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# .pnpm-debug.log*
 
-# Ignore Vercel deployment config
-.vercel
+# # Ignore Vercel deployment config
+# .vercel
 
-# Ignore TypeScript build info
-*.tsbuildinfo
-next-env.d.ts
+# # Ignore TypeScript build info
+# *.tsbuildinfo
+# next-env.d.ts
 
-/env
-*.env
+# /env
+# *.env
 
-# Ignore Git metadata
-.git/
-.gitignore
+# # Ignore Git metadata
+# .git/
+# .gitignore
 
-# Ignore editor settings
-.vscode/
-.idea/
+# # Ignore editor settings
+# .vscode/
+# .idea/
 
-# Ignore Docker-specific files
-Dockerfile
-.dockerignore
+# # Ignore Docker-specific files
+# Dockerfile
+# .dockerignore
