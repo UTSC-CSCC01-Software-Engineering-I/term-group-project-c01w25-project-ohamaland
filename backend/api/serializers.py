@@ -31,7 +31,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def validate_password(self, value):
-        # This will raise a ValidationError if the password is invalid
         validate_password(value)
         return value
 
@@ -63,12 +62,12 @@ class GroupReceiptSplitSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
+            "status",
             "amount_owed",
             "amount_paid",
             "is_custom_split",
             "created_at",
             "paid_at",
-            "status",
             "notes",
         ]
 
@@ -79,7 +78,24 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Receipt
-        fields = ["id", "user", "group", "total_amount", "date", "items", "splits"]
+        fields = [
+            "id",
+            "user",
+            "group",
+            "merchant",
+            "total_amount",
+            "currency",
+            "date",
+            "payment_method",
+            "tax",
+            "tip",
+            "tax_last",
+            "enable_notif",
+            "created_at",
+            "receipt_image_url",
+            "items",
+            "splits"
+        ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):
         """Create or update splits for a receipt."""
@@ -137,7 +153,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 )
 
         GroupReceiptSplit.objects.bulk_create(splits_to_create)
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
@@ -146,8 +162,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
             for key, value in data.items()
         }
 
-        if instance.user and 'splits' in data:
-            del data['splits']
+        if instance.user and "splits" in data:
+            del data["splits"]
 
         return data
 

@@ -85,11 +85,12 @@ class Receipt(models.Model):
     )
     tax = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
-    )  # default=0 ?
+    )
     tip = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
-    )  # default=0 ?
+    )
     tax_last = models.BooleanField(default=False)
+    enable_notif = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -130,9 +131,19 @@ class GroupReceiptSplit(models.Model):
     is_custom_split = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     notes = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        from .serializers import ReceiptSerializer
+        super().save(*args, **kwargs)
+        # Update splits for all group receipts
+        custom_splits = {
+            split.group_member.user.id: split.amount_owed 
+            for split in self.receipt.splits.filter(is_custom_split=True)
+        }
+        ReceiptSerializer()._create_or_update_splits(self.receipt, custom_splits)
+    
     class Meta:
         db_table = "group_receipt_split"
         unique_together = ("receipt", "group_member")

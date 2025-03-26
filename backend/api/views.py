@@ -43,12 +43,16 @@ class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # If the group is not given, assume it's a personal receipt
+        if not request.data.get("group"):
+            request.data["user"] = request.user.id
+
         serializer = ReceiptSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             # Notifications
-            # if serializer.data.get("group") is not None:
-            #     notify_group_receipt_added(serializer.data.get("group"))
+            if serializer.data.get("group") and serializer.data.get("enable_notif"):
+                notify_group_receipt_added(serializer.data.get("group"))
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -426,12 +430,12 @@ class GroupReceiptsSplitDetail(APIView):
             return Response(
                 {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        split = GroupReceiptSplit.objects.filter(receipt=receipt, id=pk).first()
         if split is None:
             return Response(
                 {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        serializer = ItemSerializer(split, data=request.data, partial=True)
+        serializer = GroupReceiptSplitSerializer(split, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
