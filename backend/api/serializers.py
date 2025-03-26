@@ -46,10 +46,28 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
+    identifier = serializers.CharField(write_only=True, required=False)
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = GroupMembers
-        fields = ["id", "user", "joined_at"]
+        fields = ["id", "user", "identifier", "joined_at"]
 
+    def validate(self, data):
+        identifier = data.get("identifier")
+
+        if not identifier:
+            raise serializers.ValidationError("Either 'email' or 'username' must be provided.")
+
+        user = User.objects.filter(email=identifier).first() or User.objects.filter(username=identifier).first()
+
+        if not user:
+            raise serializers.ValidationError("User not found.")
+
+        data['user'] = user  # Add user to validated data
+        del data["identifier"]
+
+        return data
 
 class GroupReceiptSplitSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -227,13 +245,6 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ["id", "creator", "name", "created_at", "members", "receipts"]
-
-    def get_members(self, obj):
-        """Return members as a list of user IDs and usernames."""
-        return [
-            {"id": member.user.id, "username": member.user.username}
-            for member in obj.groupmembers_set.all()
-        ]
 
     def create(self, validated_data):
         members_data = validated_data.pop("members", [])
