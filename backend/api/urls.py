@@ -27,7 +27,9 @@ urlpatterns = [
     path("receipts/", ReceiptOverview.as_view(), name="receipt-list-create"),
     path("receipts/<int:pk>/", ReceiptDetail.as_view(), name="receipt-detail"),
     path(
-        "receipts/<int:receipt_pk>/items/", ItemOverview.as_view(), name="item-list-create"
+        "receipts/<int:receipt_pk>/items/",
+        ItemOverview.as_view(),
+        name="item-list-create",
     ),
     path(
         "receipts/<int:receipt_pk>/items/<int:pk>/",
@@ -46,10 +48,13 @@ urlpatterns = [
         GroupMembersDetail.as_view(),
         name="group-members-detail",
     ),
-
-    path('groups/<int:pk>/delete/', GroupDelete.as_view(), name='group-delete'),
-    path('groups/<int:group_id>/members/<int:user_id>/leave/', GroupMembersLeave.as_view(), name='group-leave'),
-    path('user_id/', GetUserIdView.as_view(), name='get_user_id'),
+    path("groups/<int:pk>/delete/", GroupDelete.as_view(), name="group-delete"),
+    path(
+        "groups/<int:group_id>/members/<int:user_id>/leave/",
+        GroupMembersLeave.as_view(),
+        name="group-leave",
+    ),
+    path("user_id/", GetUserIdView.as_view(), name="get_user_id"),
     path("user/register/", register, name="user-register"),
     path("user/login/", login),
     path("user/logout/", logout),
@@ -61,6 +66,12 @@ urlpatterns = [
         name="InsightsView",
     ),
     path("receipts/upload/", receipt_upload),
-    path("groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/", GroupReceiptsSplitOverview.as_view()),
-    path("groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/", GroupReceiptsSplitDetail.as_view())
+    path(
+        "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/",
+        GroupReceiptsSplitOverview.as_view(),
+    ),
+    path(
+        "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/",
+        GroupReceiptsSplitDetail.as_view(),
+    ),
 ]

@@ -94,7 +94,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "created_at",
             "receipt_image_url",
             "items",
-            "splits"
+            "splits",
         ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):

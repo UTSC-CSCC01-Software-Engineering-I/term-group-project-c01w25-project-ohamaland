@@ -32,7 +32,9 @@ class Group(models.Model):
 
 class GroupMembers(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="members")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_groups")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="member_groups"
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -41,23 +43,25 @@ class GroupMembers(models.Model):
 
     def save(self, *args, **kwargs):
         from .serializers import ReceiptSerializer
+
         super().save(*args, **kwargs)
         # Update splits for all group receipts
         for receipt in self.group.receipts.all():
             custom_splits = {
-                split.group_member.user.id: split.amount_owed 
+                split.group_member.user.id: split.amount_owed
                 for split in receipt.splits.filter(is_custom_split=True)
             }
             ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
 
     def delete(self, *args, **kwargs):
         from .serializers import ReceiptSerializer
+
         group = self.group
         super().delete(*args, **kwargs)
         # Update splits for all group receipts
         for receipt in group.receipts.all():
             custom_splits = {
-                split.group_member.user.id: split.amount_owed 
+                split.group_member.user.id: split.amount_owed
                 for split in receipt.splits.filter(is_custom_split=True)
             }
             ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
@@ -83,12 +87,8 @@ class Receipt(models.Model):
     payment_method = models.CharField(
         max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True
     )
-    tax = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
-    tip = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )
+    tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    tip = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tax_last = models.BooleanField(default=False)
     enable_notif = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
@@ -123,27 +123,32 @@ class GroupReceiptSplit(models.Model):
         ("Disputed", "Disputed"),
     ]
 
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="splits")
-    group_member = models.ForeignKey(GroupMembers, on_delete=models.CASCADE, related_name="splits")
+    receipt = models.ForeignKey(
+        Receipt, on_delete=models.CASCADE, related_name="splits"
+    )
+    group_member = models.ForeignKey(
+        GroupMembers, on_delete=models.CASCADE, related_name="splits"
+    )
     amount_owed = models.DecimalField(max_digits=10, decimal_places=2)
     percentage_owed = models.DecimalField(max_digits=5, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     is_custom_split = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
     notes = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         from .serializers import ReceiptSerializer
+
         super().save(*args, **kwargs)
         # Update splits for all group receipts
         custom_splits = {
-            split.group_member.user.id: split.amount_owed 
+            split.group_member.user.id: split.amount_owed
             for split in self.receipt.splits.filter(is_custom_split=True)
         }
         ReceiptSerializer()._create_or_update_splits(self.receipt, custom_splits)
-    
+
     class Meta:
         db_table = "group_receipt_split"
         unique_together = ("receipt", "group_member")
