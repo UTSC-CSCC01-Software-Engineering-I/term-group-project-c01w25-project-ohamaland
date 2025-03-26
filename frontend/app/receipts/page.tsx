@@ -49,33 +49,10 @@ export default function Page() {
 
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     try {
-      // Upload image if provided
-      let receiptURL;
-      if (file) {
-        const formData = new FormData();
-        formData.append("receipt_image", file);
-        const imageResponse = await fetchWithAuth(receiptsUploadApi, {
-          method: "POST",
-          body: formData,
-          headers: {}
-        });
-        if (!imageResponse || !imageResponse.ok) {
-          const errorData = await imageResponse?.json();
-          console.error("Receipt image upload failed:", errorData);
-          throw new Error("Receipt image upload failed");
-        }
-        const imageData = await imageResponse.json();
-        console.log("Image data:", imageData);
-        receiptURL = imageData.receipt_url;
-      }
-
       const receiptData = {
-        ...newReceipt,
-        ...(receiptURL && { receipt_image_url: receiptURL })
+        ...newReceipt
       };
-
-      console.log("Receipt data:", JSON.stringify(receiptData));
-
+  
       const receiptResponse = await fetchWithAuth(receiptsApi, {
         method: "POST",
         headers: {
@@ -83,13 +60,13 @@ export default function Page() {
         },
         body: JSON.stringify(receiptData)
       });
-
+  
       if (!receiptResponse || !receiptResponse.ok) {
         const errorData = await receiptResponse?.json();
         console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
-
+  
       const savedReceipt = await receiptResponse.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
@@ -97,7 +74,7 @@ export default function Page() {
       console.error("Error saving receipt:", error);
       throw error;
     }
-  };
+  };  
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
