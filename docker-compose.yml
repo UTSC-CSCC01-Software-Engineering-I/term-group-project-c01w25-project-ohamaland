@@ -1,41 +1,28 @@
 services:
   backend:
-    build:
-      context: ./backend
+    image: mallisho/catalog:backend-latest
     ports:
       - "8000:8000"
-      # local db info replaced with "abc"
-    environment:
-      - DEBUG=True
-      - DB_NAME=catalog
-      - DB_USER=abc
-      - DB_PASSWORD=abc
-      - DB_HOST=db  # Use container name as hostname
-      - DB_PORT=5432
-    volumes:
-      - ./backend:/app
+    env_file:
+      - ./backend/core/.env
     depends_on:
       - db
 
   frontend:
-    build:
-      context: ./frontend
+    image: mallisho/catalog:frontend-latest
     ports:
       - "3000:3000"
     depends_on:
       - backend
 
-# Local db info replaced with "abc"
   db:
     image: postgres:latest
-    environment:
-      - POSTGRES_USER=abc
-      - POSTGRES_PASSWORD=abc
-      - POSTGRES_DB=catalog
+    env_file:
+      - ./backend/core/.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
 volumes:
- postgres_data:
+  postgres_data:

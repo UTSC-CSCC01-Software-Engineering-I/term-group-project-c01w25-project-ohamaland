@@ -1,25 +1,26 @@
-# # Ignore OS-specific files
-# .DS_Store
+# Ignore OS-specific files
+.DS_Store
 
-# # Ignore Python bytecode and cache
-# *.pyc
-# __pycache__/
+# Ignore Python bytecode and cache
+*.pyc
+__pycache__/
 
-# # Ignore Python virtual environments
-# env/
-# venv/
+# Ignore Python virtual environments
+/env
+venv/
 
-# /env
-# *.env
+# Ignore environment variables (prevent secrets from being copied)
+.env
+/env
+*.env
 
-# # Ignore editor settings
-# .vscode/
-# .idea/
+# Ignore editor settings
+.vscode/
+.idea/
 
-# # Ignore Git metadata (not needed inside the container)
-# .git/
-# .gitignore
+# Ignore Git metadata (not needed in the image)
+.git/
+.gitignore
 
-# # Ignore Docker-specific files
-# Dockerfile
-# .dockerignore
+# Ignore Docker-specific files
+.dockerignore
