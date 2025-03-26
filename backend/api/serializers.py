@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ["id", "name", "category", "price", "quantity"]
+        fields = ["id", "name", "price", "quantity"]
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
