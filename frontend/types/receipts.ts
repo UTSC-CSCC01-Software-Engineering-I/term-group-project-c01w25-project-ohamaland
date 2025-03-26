@@ -4,7 +4,7 @@ export type Receipt = {
   merchant: string;
   total_amount: number;
   currency: Currency;
-  date: string; // this is a string but is in ISO date format
+  date: string; // this is a  string but is in ISO date format
   items: ReceiptItem[];
   payment_method: PaymentMethod;
   receipt_image_url: string | null;
