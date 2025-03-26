@@ -36,7 +36,7 @@ class ReceiptOverview(APIView):
     def post(self, request):
         # Add the user to the request data
         request.data["user"] = request.user.id
-        serializer = ReceiptSerializer(data=request.data)
+        serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             # Notifications
@@ -599,7 +599,8 @@ class FolderDetail(APIView):
             return Response(
                 {"error": "Folder not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        folder.receipts.update(color="#FFFFFF")
+        all_folder = Folder.objects.get(user=request.user, name="All")
+        folder.receipts.update(folder=all_folder, color=all_folder.color)
         folder.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -640,8 +641,9 @@ class FolderReceipt(APIView):
         if receipt is None:
             return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        receipt.folder = None
-        receipt.color = "#FFFFFF"
+        all_folder = Folder.objects.get(user=request.user, name="All")
+        receipt.folder = all_folder
+        receipt.color = all_folder.color
         receipt.save()
 
         serializer = ReceiptSerializer(receipt)

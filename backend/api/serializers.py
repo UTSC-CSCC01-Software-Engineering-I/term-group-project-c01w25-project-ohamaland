@@ -57,6 +57,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
         try:
             # Create receipt and items in a transaction
             with transaction.atomic():
+                if "folder" not in validated_data:
+                    validated_data["folder"], _ = Folder.objects.get_or_create(user=self.context["request"].user, name="All")
+
                 receipt = Receipt.objects.create(**validated_data)
                 Item.objects.bulk_create(
                     [Item(receipt=receipt, **item_data) for item_data in items_data]
