@@ -9,6 +9,7 @@ This document outlines the Continuous Integration (CI) and Continuous Deployment
   <figcaption><strong>Note:</strong> This design outlines the use of Google Cloud Platform (GCP) for deployment, which is planned for future implementation, rather than local deployment at this stage.</figcaption>
 </figure>
 <br>
+<br>
 The CI/CD pipeline consists of the following key stages:
 
 ### **Continuous Integration (CI)**
