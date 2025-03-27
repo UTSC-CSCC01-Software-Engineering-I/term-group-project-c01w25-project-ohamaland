@@ -7,10 +7,8 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 
-
-load_dotenv()
-
 # Load OpenAI API key from environment variables
+load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not OPENAI_API_KEY:
@@ -118,18 +116,3 @@ def process_receipt(public_image_url, user_id):
         "payment_method": parsed_data["payment_method"],
         "receipt_image_url": public_image_url
     }
-
-
-# 🧪 Run from command line with a test image
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) < 2:
-        print("Usage: python receipt_processor_gpt.py <public_image_url>")
-        sys.exit(1)
-
-    public_image_url = sys.argv[1]
-    test_user_id = 123
-
-    result = process_receipt(public_image_url, test_user_id)
-    print(json.dumps(result, indent=4))
