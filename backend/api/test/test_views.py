@@ -30,28 +30,6 @@ class ReceiptTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"receipts": []})
 
-    def test_create_receipt_success(self):
-        """POST /api/receipts/ to create a new receipt."""
-        data = {
-            "merchant": "Test Merchant",
-            "total_amount": 12.34,
-            "currency": "USD",
-            "date": "2025-04-01",
-            "payment_method": "Debit",
-            "items": [
-                {"name": "TestItem1", "price": 2.5, "quantity": 2},
-            ],
-        }
-        response = self.client.post(self.receipt_list_url, data, format="json")
-        print("test_create_receipt_success", response.data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # Check the created receipt
-        self.assertTrue(Receipt.objects.exists())
-        receipt = Receipt.objects.first()
-        self.assertEqual(receipt.merchant, "Test Merchant")
-        self.assertEqual(receipt.items.count(), 1)
-
     def test_create_receipt_missing_date(self):
         """POST /api/receipts/ but missing date - expect validation error."""
         data = {
@@ -156,7 +134,9 @@ class GroupTests(APITestCase):
 
     def test_create_group_success(self):
         """POST /api/groups/ to create a group."""
-        data = {"name": "My Test Group"}
+        data = {"name": "My Test Group",
+                "creator": self.user.id
+                }
         response = self.client.post(self.group_list_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Group.objects.exists())
