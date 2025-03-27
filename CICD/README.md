@@ -4,7 +4,10 @@
 This document outlines the Continuous Integration (CI) and Continuous Deployment (CD) pipeline implemented for the project. The pipeline is configured using GitHub Actions for automation and Docker for containerized application deployment. Automated testing for the backend is planned using **pytest**, and **jest** will be used for frontend testing. Additionally, the code will be deployed on Google Cloud Platform, specifically on a Compute Engine instance.
 
 ## **2. System Design**
-![alt text](sys-design.png)
+<figure>
+  <img src="sys-design.png" alt="System Design Diagram">
+  <figcaption><strong>Note:</strong> This design outlines the use of Google Cloud Platform (GCP) for deployment, which is planned for future implementation, rather than local deployment at this stage.</figcaption>
+</figure>
 The CI/CD pipeline consists of the following key stages:
 
 ### **Continuous Integration (CI)**
@@ -148,7 +151,6 @@ volumes:
 ```
 
 ## **5. Future Enhancements**
-- Implement automated backend and frontend tests using **pytest** and **jest**.
 - Deploy to a **Google Cloud Platform (GCP)** Compute Engine instance instead of local deployment.
 - Add monitoring and logging tools for better observability and debugging.
 
