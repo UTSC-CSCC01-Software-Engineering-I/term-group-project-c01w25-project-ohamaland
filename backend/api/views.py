@@ -10,9 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from ocr.ocr import process_receipt
-import tempfile
+from ocr.receipt_processor_gpt import process_receipt
 import os
+import uuid
 
 from .signals import (
     calculate_category_spending,
@@ -464,52 +464,44 @@ def me(request):
         }
     )
 
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def receipt_upload(request):
-    """Upload image to S3, run OCR using a temp file, and return URL + receipt data."""
+    """Upload receipt image to S3, run GPT OCR using the public S3 URL, and return receipt data."""
     receipt_image = request.FILES.get("receipt_image")
 
     if not receipt_image:
         return Response({"error": "No receipt image provided"}, status=400)
 
     try:
-        # 1) Write incoming file to temp
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-            for chunk in receipt_image.chunks():
-                tmp.write(chunk)
-            tmp_path = tmp.name
+        # 1) Generate unique filename
+        file_ext = os.path.splitext(receipt_image.name)[-1] or ".jpg"
+        file_key = f"receipts/{uuid.uuid4().hex}{file_ext}"
 
-        # 2) Build S3 path
+        # 2) Upload to S3
         s3_client = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             region_name=settings.AWS_S3_REGION_NAME,
         )
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        file_key = f"receipts/{receipt_image.name}"
 
-        # 3) Upload temp file to S3
-        with open(tmp_path, "rb") as f:
-            s3_client.upload_fileobj(
-                f,
-                bucket_name,
-                file_key,
-                ExtraArgs={"ContentType": receipt_image.content_type},
-            )
-        
+        s3_client.upload_fileobj(
+            receipt_image.file,
+            settings.AWS_STORAGE_BUCKET_NAME,
+            file_key,
+            ExtraArgs={"ContentType": receipt_image.content_type},
+        )
+
+        # 3) Build public S3 URL
         receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
 
-        # 4) OCR on the same temp file
-        ocr_result = process_receipt(tmp_path, user_id=request.user.id)
+        # 4) Run GPT-based OCR using public image URL
+        ocr_result = process_receipt(receipt_url, user_id=request.user.id)
 
-        # 5) Cleanup temp file
-        os.remove(tmp_path)
-
-        # 6) Return OCR + S3 link
+        # 5) Add the S3 URL to the result
         ocr_result["receipt_image_url"] = receipt_url
+
         return Response(ocr_result, status=200)
 
     except Exception as e:
