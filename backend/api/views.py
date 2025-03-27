@@ -19,9 +19,21 @@ from .signals import (
     calculate_total_spending,
     get_spending_periods,
 )
-from .models import Folder, Receipt, Item, Group, GroupMembers, User, Subscription, Insights
+
+from .models import (
+    GroupReceiptSplit,
+    Receipt,
+    Item,
+    Group,
+    GroupMembers,
+    User,
+    Insights,
+    Folder,
+    Subscription,
+)
 from .notifications import notify_group_receipt_added
 from .serializers import (
+    GroupReceiptSplitSerializer,
     FolderSerializer,
     ReceiptSerializer,
     ItemSerializer,
@@ -37,13 +49,15 @@ class ReceiptOverview(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Add the user to the request data
-        request.data["user"] = request.user.id
+        # If the group is not given, assume it's a personal receipt
+        if not request.data.get("group"):
+            request.data["user"] = request.user.id
+
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             # Notifications
-            if serializer.data.get("group") is not None:
+            if serializer.data.get("group") and serializer.data.get("enable_notif"):
                 notify_group_receipt_added(serializer.data.get("group"))
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -389,6 +403,111 @@ class GroupMembersDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class GroupReceiptsSplitOverview(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, group_pk, receipt_pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        splits = GroupReceiptSplit.objects.filter(receipt=receipt)
+        serializer = GroupReceiptSplitSerializer(splits, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GroupReceiptsSplitDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = GroupReceiptSplit.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = GroupReceiptSplitSerializer(split, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(split, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, group_pk, receipt_pk, pk):
+        group = Group.objects.filter(members__user=request.user, id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        receipt = Receipt.objects.filter(group=group, id=receipt_pk).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        split = Item.objects.filter(receipt=receipt, id=pk).first()
+        if split is None:
+            return Response(
+                {"error": "Split not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ItemSerializer(split)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(["POST"])
 def register(request):
     serializer = UserSerializer(data=request.data)
@@ -471,7 +590,9 @@ def receipt_upload(request):
     receipt_image = request.FILES.get("receipt_image")
 
     if not receipt_image:
-        return Response({"error": "No receipt image provided"}, status=400)
+        return Response(
+            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         # 1) Generate unique filename
@@ -502,10 +623,14 @@ def receipt_upload(request):
         # 5) Add the S3 URL to the result
         ocr_result["receipt_image_url"] = receipt_url
 
-        return Response(ocr_result, status=200)
+        return Response(ocr_result, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({"error": f"Upload or OCR failed: {str(e)}"}, status=400)
+        return Response(
+            {"error": f"Upload or OCR failed: {str(e)}"}, 
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
 
 class SubscriptionList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]

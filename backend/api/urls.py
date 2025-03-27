@@ -8,6 +8,8 @@ from .views import (
     GetUserIdView,
     GroupDelete,
     GroupMembersLeave,
+    GroupReceiptsSplitDetail,
+    GroupReceiptsSplitOverview,
     ReceiptOverview,
     ReceiptDetail,
     ItemOverview,
@@ -73,6 +75,14 @@ urlpatterns = [
         "analytics/insights/<str:period>/",
         InsightsView.as_view(),
         name="InsightsView",
+    ),
+    path(
+        "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/",
+        GroupReceiptsSplitOverview.as_view(),
+    ),
+    path(
+        "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/",
+        GroupReceiptsSplitDetail.as_view(),
     ),
     path("folders/", FolderListCreate.as_view(), name="folder-list-create"),
     path("folders/<int:pk>/", FolderDetail.as_view(), name="folder-detail"),

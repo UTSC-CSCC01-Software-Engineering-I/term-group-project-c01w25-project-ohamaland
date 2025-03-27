@@ -41,6 +41,32 @@ class GroupMembers(models.Model):
         db_table = "group_members"
         unique_together = ("group", "user")
 
+    def save(self, *args, **kwargs):
+        from .serializers import ReceiptSerializer
+
+        super().save(*args, **kwargs)
+        # Update splits for all group receipts
+        for receipt in self.group.receipts.all():
+            custom_splits = {
+                split.group_member.user.id: split.amount_owed
+                for split in receipt.splits.filter(is_custom_split=True)
+            }
+            ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
+
+    def delete(self, *args, **kwargs):
+        from .serializers import ReceiptSerializer
+
+        group = self.group
+        super().delete(*args, **kwargs)
+        # Update splits for all group receipts
+        for receipt in group.receipts.all():
+            custom_splits = {
+                split.group_member.user.id: split.amount_owed
+                for split in receipt.splits.filter(is_custom_split=True)
+            }
+            ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
+
+            
 class Folder(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -54,6 +80,7 @@ class Folder(models.Model):
     def __str__(self):
         return self.name
 
+      
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("Debit", "Debit Card"),
@@ -74,13 +101,10 @@ class Receipt(models.Model):
     payment_method = models.CharField(
         max_length=10, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True
     )
-    tax = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )  # default=0 ?
-    tip = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
-    )  # default=0 ?
+    tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    tip = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tax_last = models.BooleanField(default=False)
+    enable_notif = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     folder = models.ForeignKey(
@@ -109,6 +133,47 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"Receipt {self.id} - {self.merchant}"
+
+
+class GroupReceiptSplit(models.Model):
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Paid", "Paid"),
+        ("Disputed", "Disputed"),
+    ]
+
+    receipt = models.ForeignKey(
+        Receipt, on_delete=models.CASCADE, related_name="splits"
+    )
+    group_member = models.ForeignKey(
+        GroupMembers, on_delete=models.CASCADE, related_name="splits"
+    )
+    amount_owed = models.DecimalField(max_digits=10, decimal_places=2)
+    percentage_owed = models.DecimalField(max_digits=5, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    is_custom_split = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    notes = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        from .serializers import ReceiptSerializer
+
+        super().save(*args, **kwargs)
+        # Update splits for all group receipts
+        custom_splits = {
+            split.group_member.user.id: split.amount_owed
+            for split in self.receipt.splits.filter(is_custom_split=True)
+        }
+        ReceiptSerializer()._create_or_update_splits(self.receipt, custom_splits)
+
+    class Meta:
+        db_table = "group_receipt_split"
+        unique_together = ("receipt", "group_member")
+
+    def __str__(self):
+        return f"Split for {self.receipt} - {self.user.username}: {self.amount}"
 
 
 class Item(models.Model):
