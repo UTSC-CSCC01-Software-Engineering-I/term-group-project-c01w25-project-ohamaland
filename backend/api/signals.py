@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from .models import Folder, Receipt, Insights, Item, User
+from .models import Receipt, Insights, Item, User
 from django.db.models import Sum
 from datetime import timedelta
 from django.utils.timezone import now
@@ -18,7 +18,7 @@ def get_spending_periods():
     today = now().date()
     return {
         "Weekly": today - timedelta(days=7),
-        "Monthly": today - relativedelta(months=1),  # Exactly one month ago
+        "Monthly": today - relativedelta(months=1),  
         "Quarterly": today.replace(month=((today.month - 1) // 3) * 3 + 1, day=1),
         "Yearly": today - relativedelta(years=1),  # Exactly one year ago
     }
@@ -156,8 +156,3 @@ def update_analytics_on_receipt_change(sender, instance, created, **kwargs):
 def update_analytics_on_receipt_delete(sender, instance, **kwargs):
     # Optionally update analytics when a receipt is deleted
     update_insights(instance.user)
-
-@receiver(post_save, sender=User)
-def create_all_folder(sender, instance, created, **kwargs):
-    if created:
-        Folder.objects.get_or_create(user=instance, name="All", defaults={"color": "#A9A9A9"})
