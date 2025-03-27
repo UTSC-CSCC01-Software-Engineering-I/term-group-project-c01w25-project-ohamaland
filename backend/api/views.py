@@ -12,6 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
 import os
+import uuid
 
 from .signals import (
     calculate_category_spending,
@@ -462,15 +463,6 @@ def me(request):
             "phone_number": user.phone_number,
         }
     )
-
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from django.conf import settings
-import boto3
-import uuid
-import os
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
