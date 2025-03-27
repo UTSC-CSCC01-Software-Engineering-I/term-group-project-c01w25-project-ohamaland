@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy:
+    needs: build-and-test
     runs-on: ubuntu-latest
 
     steps:
@@ -14,10 +15,6 @@ jobs:
 
       # Deploys locally
       # TODO: modify to deploy to remote server once setup
-      - name: Set up Docker
-        run: |
-          docker --version
-          docker-compose --version
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -27,18 +24,8 @@ jobs:
           docker pull mallisho/catalog:backend-latest
           docker pull mallisho/catalog:frontend-latest
 
+      - name: Stop and remove old containers
+        run: docker-compose down
+
       - name: Start containers
-        run: docker-compose up -d
-
-      # Tests not implemented yet
-      # TODO: implenent tests
-      # - name: Run backend tests
-      #   run: |
-      #     docker exec backend pytest /app/tests
-
-      # - name: Run frontend tests
-      #   run: |
-      #     docker exec frontend npm test
-
-      # - name: Stop containers after testing
-      #   run: docker-compose down
+        run: docker-compose up -d --build
