@@ -11,7 +11,7 @@ def notify_group_receipt_added(group):
         user = member.user
         send_mail(
             f"New Receipt Added to {group.name} on Catalog",
-            f"Dear {user.username},\nWe would like to inform you that a new receipt has been added to {group.name} on Catalog. You can view the details of the new receipt within your group’s page.\n\nBest,\nCatalog Team",
+            f"Dear {user.username},\n\nWe would like to inform you that a new receipt has been added to {group.name} on Catalog. You can view the details of the new receipt within your group’s page.\n\nBest,\nCatalog Team",
             settings.EMAIL_HOST_USER,
             [user.email],
             fail_silently=False,
