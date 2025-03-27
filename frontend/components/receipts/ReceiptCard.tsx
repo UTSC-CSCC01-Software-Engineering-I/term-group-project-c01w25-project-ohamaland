@@ -1,5 +1,6 @@
-import { defaultText, lightGrey, textGrey, textLightGrey } from "@/styles/colors";
+import { defaultText, textLightGrey } from "@/styles/colors";
 import { Receipt } from "@/types/receipts";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import {
   Divider,
@@ -7,6 +8,7 @@ import {
   Typography,
   Grid,
   Box,
+  IconButton,
 } from "@mui/material";
 
 interface IReceiptCardProps {
@@ -39,7 +41,19 @@ export default function ReceiptCard(props: IReceiptCardProps) {
           justifyContent="space-between"
           mb={1}
         >
-          <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
+          <Box sx={headerBoxStyle}>
+            <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
+            <IconButton 
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteReceipt(receipt.id);
+              }}
+              size="small"
+              sx={deleteIconStyle}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
           <Typography sx={lightTextStyle}>{formattedDate}</Typography>
         </Stack>
 
@@ -49,18 +63,17 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
         <Divider sx={{ my: 1 }} />
 
-        {/* Items */}
         <Typography sx={darkTextStyle}>Items:</Typography>
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
             • {item.name} x{item.quantity} @{" "}
-            {receipt.currency} {Number(item.price).toFixed(2)}
+            ${Number(item.price).toFixed(2)} {receipt.currency}
           </Typography>
         ))}
 
         {receipt.items.length > 2 && (
-          <Typography sx={darkTextStyle}>
+          <Typography sx={{... darkTextStyle, marginLeft: "8px"}}>
             + {receipt.items.length - 2} more...
           </Typography>
         )}
@@ -99,11 +112,13 @@ const lightTextStyle = {
 };
 
 const itemTextStyle = {
-  fontSize: "12px",
+  fontSize: "14px",
   marginLeft: "8px",
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textOverflow: "ellipsis"
+  textOverflow: "ellipsis",
+  color: defaultText,
+  fontWeight: 700
 };
 
 const darkTextStyle = {
@@ -111,3 +126,13 @@ const darkTextStyle = {
   color: defaultText,
   fontWeight: 700
 };
+
+const headerBoxStyle = {
+  display: "flex",
+  justifyContent: "space-between"
+}
+
+const deleteIconStyle = {
+  color: textLightGrey,
+  padding: 0
+}

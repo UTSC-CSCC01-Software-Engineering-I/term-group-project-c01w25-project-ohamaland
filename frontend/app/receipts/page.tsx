@@ -10,7 +10,6 @@ import {
   fetchWithAuth,
   receiptsApi,
   receiptsDetailApi,
-  receiptsUploadApi
 } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
