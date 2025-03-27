@@ -3,15 +3,16 @@ from django.test import TestCase
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from api.signals import get_spending_periods, get_all_dates_in_period  # Adjust the import according to your project structure
+from datetime import datetime
 
 class SpendingPeriodTests(TestCase):
 
     @patch('django.utils.timezone.now')
     def test_get_spending_periods(self, mock_now):
         """Test the get_spending_periods function."""
-        mock_now.return_value = date(2025, 3, 20) 
+        mock_now.return_value = datetime(2025, 3, 20)
 
-        today = mock_now.return_value
+        today = mock_now.return_value.date()
         periods = get_spending_periods()
 
         print(f"Actual Weekly start: {periods['Weekly']}")
