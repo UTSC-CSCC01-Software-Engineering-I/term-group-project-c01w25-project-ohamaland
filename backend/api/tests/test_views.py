@@ -43,6 +43,7 @@ class ReceiptTests(APITestCase):
             ],
         }
         response = self.client.post(self.receipt_list_url, data, format="json")
+        print("test_create_receipt_success", response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Check the created receipt
