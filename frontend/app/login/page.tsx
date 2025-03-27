@@ -1,17 +1,27 @@
 "use client";
 
+import { background, brand, error as errorColors } from "@/styles/colors";
+import { userLoginApi } from "@/utils/api";
 import { getAccessToken, setAccessToken } from "@/utils/auth";
-import { useState, useEffect } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography, CircularProgress } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography
+} from "@mui/material";
 import Image from "next/image";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { brand, error as errorColors, background } from '@/styles/colors';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface LoginError {
   message: string;
-  type: 'auth' | 'network' | 'server';
+  type: "auth" | "network" | "server";
 }
 
 export default function LoginPage() {
@@ -26,7 +36,7 @@ export default function LoginPage() {
   useEffect(() => {
     // If already authenticated, redirect to receipts
     if (getAccessToken()) {
-      router.push('/receipts');
+      router.push("/receipts");
     }
   }, [router]);
 
@@ -37,16 +47,16 @@ export default function LoginPage() {
 
     const loginData = {
       identifier,
-      password,
+      password
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user/login/", {
+      const response = await fetch(userLoginApi, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify(loginData)
       });
 
       const data = await response.json();
@@ -56,17 +66,17 @@ export default function LoginPage() {
         if (response.status === 401) {
           setError({
             message: "Incorrect username or password. Please try again.",
-            type: 'auth'
+            type: "auth"
           });
         } else if (response.status === 400) {
           setError({
             message: "Please check your input and try again.",
-            type: 'auth'
+            type: "auth"
           });
         } else {
           setError({
             message: "An error occurred. Please try again later.",
-            type: 'server'
+            type: "server"
           });
         }
         return;
@@ -76,39 +86,40 @@ export default function LoginPage() {
       setAccessToken(data.access);
 
       // Redirect to the original requested page or receipts
-      const from = searchParams.get('from') || '/receipts';
+      const from = searchParams.get("from") || "/receipts";
       router.push(from);
     } catch (error) {
       console.error("Error during login:", error);
       setError({
-        message: "Unable to connect to the server. Please check your internet connection.",
-        type: 'network'
+        message:
+          "Unable to connect to the server. Please check your internet connection.",
+        type: "network"
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getErrorColor = (type: LoginError['type']) => {
+  const getErrorColor = (type: LoginError["type"]) => {
     switch (type) {
-      case 'auth':
+      case "auth":
         return errorColors.dark;
-      case 'network':
+      case "network":
         return errorColors.warning;
-      case 'server':
+      case "server":
         return errorColors.dark;
       default:
         return errorColors.dark;
     }
   };
 
-  const getErrorBackground = (type: LoginError['type']) => {
+  const getErrorBackground = (type: LoginError["type"]) => {
     switch (type) {
-      case 'auth':
+      case "auth":
         return errorColors.light;
-      case 'network':
+      case "network":
         return errorColors.warningLight;
-      case 'server':
+      case "server":
         return errorColors.light;
       default:
         return errorColors.light;
@@ -119,34 +130,33 @@ export default function LoginPage() {
     <Box sx={outerBoxStyle}>
       {/* Create an account */}
       <Box sx={headerStyle}>
-        <Typography
-          variant="body2"
-          sx={{ textAlign: 'right' }}
-        >
-          New to Catalog? <a href="/register" style={{ color: brand.secondary }}>Create an account</a>
+        <Typography variant="body2" sx={{ textAlign: "right" }}>
+          New to Catalog?{" "}
+          <a href="/register" style={{ color: brand.secondary }}>
+            Create an account
+          </a>
         </Typography>
       </Box>
 
       {/* Register form */}
       <Container
-        maxWidth='xs'
+        maxWidth="xs"
         sx={{
           padding: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
         }}
       >
         <Image src="/catalog.png" width={90} height={90} alt={""} />
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 'bold' }}
-        >
-          Sign in to {' '}
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          Sign in to{" "}
           <span
             style={{ color: brand.primary }}
-            onMouseEnter={(e) => e.currentTarget.style.color = brand.primaryHover}
-            onMouseLeave={(e) => e.currentTarget.style.color = brand.primary}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = brand.primaryHover)
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.color = brand.primary)}
           >
             Catalog
           </span>
@@ -164,7 +174,7 @@ export default function LoginPage() {
               padding: "12px 20px",
               borderRadius: 2,
               marginTop: 2,
-              marginBottom: 1,
+              marginBottom: 1
             }}
           >
             <Typography
@@ -221,7 +231,7 @@ export default function LoginPage() {
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
-            ),
+            )
           }}
         />
         <Button
@@ -245,41 +255,41 @@ export default function LoginPage() {
 
 const outerBoxStyle = {
   bgcolor: background.white,
-  display: 'flex',
-  flexDirection: 'column',
-}
+  display: "flex",
+  flexDirection: "column"
+};
 
 const headerStyle = {
   padding: 3,
-  paddingRight: 5,
-}
+  paddingRight: 5
+};
 
 const textFieldStyle = {
-  '& .MuiOutlinedInput-root': {
+  "& .MuiOutlinedInput-root": {
     borderRadius: 2,
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: brand.primary,
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: brand.primary
     }
   },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: brand.primary,
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: brand.primary
   }
-}
+};
 
 const continueButtonStyle = {
   marginTop: 2,
   borderRadius: 2,
   height: 50,
-  textTransform: 'none',
-  fontWeight: 'bold',
+  textTransform: "none",
+  fontWeight: "bold",
   fontSize: 18,
   backgroundColor: brand.primary,
-  boxShadow: 'none',
-  '&:hover': {
-    backgroundColor: brand.primaryHover,
+  boxShadow: "none",
+  "&:hover": {
+    backgroundColor: brand.primaryHover
   },
-  '&.Mui-disabled': {
+  "&.Mui-disabled": {
     backgroundColor: brand.primary,
-    opacity: 0.7,
+    opacity: 0.7
   }
-}
+};

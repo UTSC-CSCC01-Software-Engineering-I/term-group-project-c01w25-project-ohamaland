@@ -2,6 +2,9 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    FolderDetail,
+    FolderListCreate,
+    FolderReceipt,
     GetUserIdView,
     GroupDelete,
     GroupMembersLeave,
@@ -15,6 +18,8 @@ from .views import (
     GroupDetail,
     GroupMembersOverview,
     GroupMembersDetail,
+    SubscriptionList,
+    SubscriptionDetail,
     register,
     login,
     logout,
@@ -56,16 +61,21 @@ urlpatterns = [
     ),
     path("user_id/", GetUserIdView.as_view(), name="get_user_id"),
     path("user/register/", register, name="user-register"),
-    path("user/login/", login),
-    path("user/logout/", logout),
-    path("user/me/", me),
-    path("user/token/refresh/", TokenRefreshView.as_view()),
+    path("user/login/", login, name="user-login"),
+    path("user/logout/", logout, name="user-logout"),
+    path("user/me/", me, name="me"),
+    path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("subscriptions/", SubscriptionList.as_view(), name="subscription-list"),
+    path(
+        "subscriptions/<int:pk>/",
+        SubscriptionDetail.as_view(),
+        name="subscription-detail",
+    ),
     path(
         "analytics/insights/<str:period>/",
         InsightsView.as_view(),
         name="InsightsView",
     ),
-    path("receipts/upload/", receipt_upload),
     path(
         "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/",
         GroupReceiptsSplitOverview.as_view(),
@@ -74,4 +84,10 @@ urlpatterns = [
         "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/",
         GroupReceiptsSplitDetail.as_view(),
     ),
+    path("folders/", FolderListCreate.as_view(), name="folder-list-create"),
+    path("folders/<int:pk>/", FolderDetail.as_view(), name="folder-detail"),
+    path("folders/<int:pk>/receipts/<int:receipt_id>/", FolderReceipt.as_view(), name="folder-receipts"),
+    path("folders/<int:pk>/receipts/", FolderReceipt.as_view(), name="folder-receipts-list"),
+    path("folders/<int:folder_id>/receipts/<int:receipt_id>/remove/", FolderReceipt.as_view(), name="remove-receipt"),
+    path("receipts/upload/", receipt_upload, name="image-upload"),
 ]

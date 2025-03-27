@@ -1,18 +1,20 @@
 from django.core.management.base import BaseCommand
-from api.models import Receipt, Item, Group, GroupMembers, User
+from api.models import Receipt, Item, Group, GroupMembers, Subscription, User
 from django.utils.timezone import now
 
 
 class Command(BaseCommand):
-    help = "Insert sample data into the database (Groups, GroupMembers, Receipts, Items, Users)."
+    help = "Insert sample data into the database (Groups, GroupMembers, Receipts, Items, Users, Subscriptions)."
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Deleting old data...")
 
-        # Order matters if you have foreign keys.
-        # Delete Items first, then Receipts, then GroupMembers, then Groups, and finally Users.
+        # Order matters since we have foreign keys.
+        # Delete Items first, then Receipts and Subscriptions,
+        # then GroupMembers, then Groups, and finally Users.
         Item.objects.all().delete()
         Receipt.objects.all().delete()
+        Subscription.objects.all().delete()
         GroupMembers.objects.all().delete()
         Group.objects.all().delete()
         User.objects.all().delete()
@@ -98,6 +100,15 @@ class Command(BaseCommand):
                         ],
                     },
                 ],
+                "subscriptions": [
+                    {
+                        "merchant": "Fawzi's Yearly Flower Festival",
+                        "total_amount": 999.00,
+                        "currency": "USD",
+                        "renewal_date": "2026-01-01",
+                        "billing_period": "Yearly",
+                    },
+                ],
             },
             {
                 "creator": users["zaheer@lahima.org"],
@@ -125,6 +136,15 @@ class Command(BaseCommand):
                                 "quantity": 10,
                             },
                         ],
+                    },
+                ],
+                "subscriptions": [
+                    {
+                        "merchant": "Willy Wonka's Weekly Jumping Rats Festival",
+                        "total_amount": 5.00,
+                        "currency": "USD",
+                        "renewal_date": "2024-01-01",
+                        "billing_period": "Weekly",
                     },
                 ],
             },
@@ -208,6 +228,34 @@ class Command(BaseCommand):
             },
         ]
 
+        # Sample data for user-based Subscriptions
+        subscriptions_data = [
+            {
+                "user_id": users["bodaciousBenjamin@milk.com"].id,
+                "merchant": "Netflix",
+                "total_amount": 30.00,
+                "currency": "CAD",
+                "renewal_date": "2025-12-25",
+                "billing_period": "Monthly",
+            },
+            {
+                "user_id": users["zaheer@lahima.org"].id,
+                "merchant": "Amazon Prime",
+                "total_amount": 100.00,
+                "currency": "USD",
+                "renewal_date": "2026-11-15",
+                "billing_period": "Yearly",
+            },
+            {
+                "user_id": users["bodaciousBenjamin@milk.com"].id,
+                "merchant": "PS Plus",
+                "total_amount": 1000,
+                "currency": "CAD",
+                "renewal_date": "2027-01-01",
+                "billing_period": "Yearly",
+            },
+        ]
+
         self.stdout.write("Inserting new groups and group members...")
 
         # Insert Groups + GroupMembers + Group-based Receipts
@@ -243,6 +291,17 @@ class Command(BaseCommand):
                         quantity=item_data["quantity"],
                     )
 
+            # Create Subscriptions for this group
+            for s_data in g_data.get("subscriptions", []):
+                Subscription.objects.create(
+                    group=new_group,
+                    merchant=s_data["merchant"],
+                    total_amount=s_data["total_amount"],
+                    currency=s_data["currency"],
+                    renewal_date=s_data["renewal_date"],
+                    billing_period=s_data["billing_period"],
+                )
+
         self.stdout.write("Inserting user-based receipts...")
 
         # Insert user-based Receipts + Items
@@ -274,8 +333,26 @@ class Command(BaseCommand):
                     quantity=item_data["quantity"],
                 )
 
+        # Insert user-based Subscriptions
+        for subscription_data in subscriptions_data:
+            # Ensure subscription is linked to exactly one of user or group
+            if ("user_id" in subscription_data and "group" in subscription_data) or (
+                "user_id" not in subscription_data and "group" not in subscription_data
+            ):
+                raise ValueError(
+                    "A subscription must be linked to either a user or a group, but not both."
+                )
+            Subscription.objects.create(
+                user_id=subscription_data["user_id"],
+                merchant=subscription_data["merchant"],
+                total_amount=subscription_data["total_amount"],
+                currency=subscription_data["currency"],
+                renewal_date=subscription_data["renewal_date"],
+                billing_period=subscription_data["billing_period"],
+            )
+
         self.stdout.write(
             self.style.SUCCESS(
-                "Successfully inserted sample Groups, Receipts, and Items!"
+                "Successfully inserted sample Groups, Receipts, Items, and Subscriptions!"
             )
         )

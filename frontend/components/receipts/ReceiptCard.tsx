@@ -23,7 +23,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDeleteReceipt(receipt.id); 
+    onDeleteReceipt(receipt.id);
   };
 
   return (
@@ -65,7 +65,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} ({item.category}) x{item.quantity} @{" "}
+            • {item.name} x{item.quantity} @{" "}
             {receipt.currency} {Number(item.price).toFixed(2)}
           </Typography>
         ))}
@@ -80,7 +80,11 @@ export default function ReceiptCard(props: IReceiptCardProps) {
         <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
           View Details
         </Button>
-        <Button variant="outlined" sx={deleteButtonStyle} onClick={handleDelete}>
+        <Button
+          variant="outlined"
+          sx={deleteButtonStyle}
+          onClick={handleDelete}
+        >
           Delete Receipt
         </Button>
       </CardContent>

@@ -1,0 +1,38 @@
+# Ignore OS-specific files
+.DS_Store
+
+# Ignore dependencies (they are installed inside the container)
+node_modules/
+
+# Ignore build output
+.next/
+out/
+build/
+
+# Ignore test coverage reports
+coverage/
+
+# Ignore private keys and credentials
+*.pem
+
+# Ignore debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Ignore environment variables (prevent secrets from being copied)
+.env
+/env
+*.env
+
+# Ignore editor settings
+.vscode/
+.idea/
+
+# Ignore Git metadata
+.git/
+.gitignore
+
+# Ignore Docker-specific files
+.dockerignore

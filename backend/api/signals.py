@@ -9,18 +9,18 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.utils.timezone import now
 from django.db import transaction
+import django.utils.timezone
 
 User = get_user_model()
 
 
 def get_spending_periods():
-    """Generate spending periods."""
-    today = now().date()
+    today = django.utils.timezone.now().date()
     return {
         "Weekly": today - timedelta(days=7),
-        "Monthly": today - relativedelta(months=1),  # Exactly one month ago
+        "Monthly": today - relativedelta(months=1),  
         "Quarterly": today.replace(month=((today.month - 1) // 3) * 3 + 1, day=1),
-        "Yearly": today - relativedelta(years=1),  # Exactly one year ago
+        "Yearly": today - relativedelta(years=1),
     }
 
 

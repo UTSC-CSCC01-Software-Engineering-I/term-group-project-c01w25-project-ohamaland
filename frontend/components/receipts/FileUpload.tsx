@@ -3,30 +3,52 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
+import { fetchWithAuth } from "@/utils/api";
+import { receiptsUploadApi } from "@/utils/api";
 
 registerPlugin(FilePondPluginFileValidateType);
 
 interface FilePondUploadProps {
   setImageUrl: (url: string) => void;
   setFile: (file: File) => void;
+  onOcrDataExtracted: (ocrData: any) => void;
 }
 
 export default function FilePondUpload({
   setImageUrl,
-  setFile
+  setFile,
+  onOcrDataExtracted
 }: FilePondUploadProps) {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
-  // Simulate setting the image URL (e.g., hardcoded URL for now)
   const handleFileUpload = async (file: File) => {
     setFile(file);
-    const fileReader = new FileReader();
-    fileReader.onloadend = () => {
-      const imageUrl = fileReader.result as string; // Simulate the image URL
-      setImageUrl(imageUrl);
-      setFileUrl(imageUrl); // Simulate the file being uploaded and displayed
-    };
-    fileReader.readAsDataURL(file); // This reads the file as a data URL
+
+    const formData = new FormData();
+    formData.append("receipt_image", file);
+
+    try {
+      const response = await fetchWithAuth(receiptsUploadApi, {
+        method: "POST",
+        body: formData,
+        headers: {}
+      });
+
+      if (!response || !response.ok) {
+        const errorData = await response?.json();
+        console.error("Receipt OCR upload failed:", errorData);
+        throw new Error("Failed to upload and process receipt");
+      }
+
+      const data = await response.json();
+
+      setImageUrl(data.receipt_image_url);
+      setFileUrl(data.receipt_image_url);
+      onOcrDataExtracted(data);
+    } catch (err) {
+      console.error("OCR upload error:", err);
+      alert("Failed to upload and process receipt.");
+    }
   };
 
   return (
@@ -35,18 +57,16 @@ export default function FilePondUpload({
         allowMultiple={false}
         maxFiles={1}
         name="file"
-        server={null} // No server endpoint as we're hardcoding
+        server={null}
         labelIdle='Drag & Drop your receipt or <span class="filepond--label-action">Browse</span>'
         onupdatefiles={(fileItems) => {
-          const file = fileItems[0]?.file as File; // Cast the file to a `File` type
+          const file = fileItems[0]?.file as File;
           if (file) {
-            handleFileUpload(file); // Call to simulate file upload
-            setFile(file);
+            handleFileUpload(file);
           }
         }}
       />
 
-      {/* Display the uploaded image or a fallback text */}
       {fileUrl ? (
         <img src={fileUrl} alt="Uploaded receipt" width={200} />
       ) : (

@@ -12,6 +12,9 @@ from .models import (
     GroupMembers,
     User,
     Insights,
+    Folder,
+    Subscription,
+    Insights,
 )
 from .signals import update_insights
 
@@ -42,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ["id", "name", "category", "price", "quantity"]
+        fields = ["id", "name", "price", "quantity"]
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
@@ -191,6 +194,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
         try:
             with transaction.atomic():
+                if "folder" not in validated_data:
+                    validated_data["folder"], _ = Folder.objects.get_or_create(user=self.context["request"].user, name="All")
+
                 receipt = Receipt.objects.create(**validated_data)
 
                 # Create items
@@ -307,6 +313,12 @@ class GroupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
 
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = "__all__"
+
+
 class InsightsSerializer(serializers.ModelSerializer):
     category_spending = serializers.SerializerMethodField()
 
@@ -331,3 +343,13 @@ class InsightsSerializer(serializers.ModelSerializer):
                 data[key] = float(value)
 
         return data
+
+class FolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = ['id', 'name', 'color', 'created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['user'] = user
+        return super().create(validated_data) 

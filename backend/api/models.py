@@ -66,7 +66,21 @@ class GroupMembers(models.Model):
             }
             ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
 
+            
+class Folder(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    color = models.CharField(max_length=7, default="#A9A9A9")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="folders")
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'name')
+
+    def __str__(self):
+        return self.name
+
+      
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("Debit", "Debit Card"),
@@ -93,7 +107,10 @@ class Receipt(models.Model):
     enable_notif = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    folder = models.ForeignKey(
+        Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name="receipts", default="All"
+    )
+    color = models.CharField(max_length=7, default="#A9A9A9")
     class Meta:
         db_table = "receipt"
 
@@ -108,6 +125,8 @@ class Receipt(models.Model):
             )
 
     def save(self, *args, **kwargs):
+        if not self.folder:
+            self.folder = Folder.objects.filter(name="All", user=self.user).first()
         # Clean the instance before saving to validate the constraints
         self.full_clean()
         super().save(*args, **kwargs)
@@ -158,22 +177,9 @@ class GroupReceiptSplit(models.Model):
 
 
 class Item(models.Model):
-    CATEGORY_CHOICES = [
-        ("Home", "Home"),
-        ("Food", "Food"),
-        ("Clothing", "Clothing"),
-        ("Utilities", "Utilities"),
-        ("Entertainment", "Entertainment"),
-        ("Fixtures", "Fixtures"),
-        ("Furniture", "Furniture"),
-        ("Health", "Health"),
-        ("Beauty", "Beauty"),
-        ("Electronics", "Electronics"),
-    ]
 
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="items")
     name = models.TextField()
-    category = models.TextField(blank=True, null=True, choices=CATEGORY_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
 
@@ -182,6 +188,46 @@ class Item(models.Model):
 
     def __str__(self):
         return f"Item {self.name} - {self.quantity}"
+
+
+class Subscription(models.Model):
+    BILLING_PERIOD_CHOICES = [
+        ("Daily", "Daily"),
+        ("Weekly", "Weekly"),
+        ("Monthly", "Monthly"),
+        ("Yearly", "Yearly"),
+        ("Custom", "Custom"),
+    ]
+
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
+    merchant = models.TextField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3)
+    renewal_date = models.DateField()
+    billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "subscription"
+
+    def clean(self):
+        if self.user_id and self.group:
+            raise ValidationError(
+                "A subscription can only be linked to either a user or a group."
+            )
+        if not self.user_id and not self.group:
+            raise ValidationError(
+                "A subscription must be linked to either a user or a group."
+            )
+
+    def save(self, *args, **kwargs):
+        # Clean the instance before saving to validate the constraints
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Subscription {self.id} - {self.merchant}"
 
 
 class Insights(models.Model):

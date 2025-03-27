@@ -1,0 +1,31 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # Deploys locally
+      # TODO: modify to deploy to remote server once setup
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Pull latest images
+        run: |
+          docker pull mallisho/catalog:backend-latest
+          docker pull mallisho/catalog:frontend-latest
+
+      - name: Stop and remove old containers
+        run: docker-compose down
+
+      - name: Start containers
+        run: docker-compose up -d --build
