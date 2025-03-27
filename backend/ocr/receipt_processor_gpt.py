@@ -1,10 +1,7 @@
 import os
-import re
 import uuid
-import base64
 import requests
 import json
-from datetime import datetime
 from dotenv import load_dotenv
 
 # Load OpenAI API key from environment variables
