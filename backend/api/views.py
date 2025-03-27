@@ -10,6 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from ocr.receipt_processor_gpt import process_receipt
+import os
+import uuid
 
 from .signals import (
     calculate_category_spending,
@@ -461,19 +464,21 @@ def me(request):
         }
     )
 
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def receipt_upload(request):
-    """Handle S3 image upload for receipt images and return the URL."""
+    """Upload receipt image to S3, run GPT OCR using the public S3 URL, and return receipt data."""
     receipt_image = request.FILES.get("receipt_image")
 
     if not receipt_image:
-        return Response(
-            {"error": "No receipt image provided"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "No receipt image provided"}, status=400)
 
     try:
+        # 1) Generate unique filename
+        file_ext = os.path.splitext(receipt_image.name)[-1] or ".jpg"
+        file_key = f"receipts/{uuid.uuid4().hex}{file_ext}"
+
+        # 2) Upload to S3
         s3_client = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -481,25 +486,26 @@ def receipt_upload(request):
             region_name=settings.AWS_S3_REGION_NAME,
         )
 
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        file_key = f"receipts/{receipt_image.name}"
-
         s3_client.upload_fileobj(
-            receipt_image,
-            bucket_name,
+            receipt_image.file,
+            settings.AWS_STORAGE_BUCKET_NAME,
             file_key,
             ExtraArgs={"ContentType": receipt_image.content_type},
         )
 
+        # 3) Build public S3 URL
         receipt_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_key}"
-        return Response({"receipt_url": receipt_url}, status=status.HTTP_200_OK)
+
+        # 4) Run GPT-based OCR using public image URL
+        ocr_result = process_receipt(receipt_url, user_id=request.user.id)
+
+        # 5) Add the S3 URL to the result
+        ocr_result["receipt_image_url"] = receipt_url
+
+        return Response(ocr_result, status=200)
 
     except Exception as e:
-        return Response(
-            {"error": f"Image upload failed: {str(e)}"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
+        return Response({"error": f"Upload or OCR failed: {str(e)}"}, status=400)
 
 class SubscriptionList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
