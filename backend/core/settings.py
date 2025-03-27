@@ -47,6 +47,7 @@ SIMPLE_JWT = {
 }
 
 INSTALLED_APPS = [
+    "daphne",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -72,6 +73,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
+
+ASGI_APPLICATION = "core.asgi.application"
+
+CHANNEL_LAYERS = {
+    'default':{
+        'BACKEND':'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 # Allow CORS
 CORS_ALLOW_ALL_ORIGINS = True  # For development, allow all origins

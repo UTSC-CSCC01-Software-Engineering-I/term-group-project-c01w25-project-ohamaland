@@ -1,3 +1,6 @@
+import os
+import uuid
+
 import boto3
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -11,8 +14,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
-import os
-import uuid
 
 from .signals import (
     calculate_category_spending,
@@ -55,11 +56,11 @@ class ReceiptOverview(APIView):
 
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()
+            receipt = serializer.save()
             # Notifications
-            if serializer.data.get("group") and serializer.data.get("enable_notif"):
-                notify_group_receipt_added(serializer.data.get("group"))
-
+            if receipt.group and receipt.enable_notif:
+                notify_group_receipt_added(receipt.group.id, receipt.id)
+                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
