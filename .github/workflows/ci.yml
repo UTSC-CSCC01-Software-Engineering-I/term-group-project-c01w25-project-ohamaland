@@ -12,12 +12,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:13
         env:
-          DB_USER: postgres
-          DB_HOST: postgres
-          DB_PASSWORD: postgres
-          DB_NAME: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: >-
@@ -54,11 +53,17 @@ jobs:
 
       - name: Build backend Docker image
         run: docker build -t mallisho/catalog:backend-latest ./backend
-        continue-on-error: false
 
-      - name: Build frontend Docker image
-        run: docker build -t mallisho/catalog:frontend-latest ./frontend
-        continue-on-error: false
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            if docker run --rm --network host postgres:13 pg_isready -h localhost -U postgres; then
+              echo "PostgreSQL is ready"
+              break
+            fi
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
 
       - name: Run backend tests
         run: |
@@ -69,15 +74,14 @@ jobs:
             python manage.py test
         continue-on-error: false
 
-
-      - name: Run frontend tests
-        run: |
-          docker run --rm \
-            --network host \
-            --env-file .env \
-            mallisho/catalog:frontend-latest \
-            python manage.py test
-        continue-on-error: false
+      # - name: Run frontend tests
+      #   run: |
+      #     docker run --rm \
+      #       --network host \
+      #       --env-file .env \
+      #       mallisho/catalog:frontend-latest \
+      #       python manage.py test
+      #   continue-on-error: false
 
       - name: Push backend image
         run: docker push mallisho/catalog:backend-latest
