@@ -1,4 +1,5 @@
 #!/bin/bash
+# This file can only be run locally with the correct .env file in /backend/core
 
 # Log in to Docker Hub
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
