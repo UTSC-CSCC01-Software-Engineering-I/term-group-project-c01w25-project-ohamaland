@@ -18,6 +18,30 @@ class User(AbstractUser):
         return self.username
 
 
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ("receipt_added", "Receipt Added"),
+        ("group_invitation", "Group Invitation"),
+        ("system", "System Notification"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    data = models.JSONField(null=True, blank=True) # Store additional data as JSON
+    is_read = models.BooleanField(default=False)
+    is_dismissed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "notification"
+        ordering = ["-created_at"]
+    
+    def __str__(self):  
+        return f"Notification for {self.user}: {self.title}"
+
+
 class Group(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)  # SET_NULL?
     name = models.TextField()

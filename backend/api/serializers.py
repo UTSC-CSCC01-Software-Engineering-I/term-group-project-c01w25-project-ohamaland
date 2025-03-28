@@ -15,6 +15,7 @@ from .models import (
     Folder,
     Subscription,
     Insights,
+    Notification,
 )
 from .signals import update_insights
 
@@ -40,6 +41,13 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'notification_type', 'title', 'message', 'data', 
+                 'is_read', 'is_dismissed', 'created_at']
 
 
 class ItemSerializer(serializers.ModelSerializer):
