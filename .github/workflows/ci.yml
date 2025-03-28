@@ -14,6 +14,26 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" >> .env
+          echo "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" >> .env
+          echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+          echo "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" >> .env
+          echo "AZURE_KEY=${{ secrets.AZURE_KEY }}" >> .env
+          cat .env
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -27,45 +47,13 @@ jobs:
 
       - name: Run backend tests
         run: |
-              docker run --rm \
-              -e "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-              -e "DB_NAME=${{ secrets.DB_NAME }}" \
-              -e "DB_USER=${{ secrets.DB_USER }}" \
-              -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-              -e "DB_HOST=${{ secrets.DB_HOST }}" \
-              -e "DB_PORT=${{ secrets.DB_PORT }}" \
-              -e "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" \
-              -e "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" \
-              -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-              -e "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" \
-              -e "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" \
-              -e "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" \
-              -e "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" \
-              -e "AZURE_KEY=${{ secrets.AZURE_KEY }}" \
-              mallisho/catalog:backend-latest python manage.py test
+          docker run --rm --env-file .env mallisho/catalog:backend-latest python manage.py test
         continue-on-error: false
 
 
       - name: Run frontend tests
         run: |
-              docker run --rm \
-              -e "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-              -e "DB_NAME=${{ secrets.DB_NAME }}" \
-              -e "DB_USER=${{ secrets.DB_USER }}" \
-              -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-              -e "DB_HOST=${{ secrets.DB_HOST }}" \
-              -e "DB_PORT=${{ secrets.DB_PORT }}" \
-              -e "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" \
-              -e "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" \
-              -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-              -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-              -e "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" \
-              -e "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" \
-              -e "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" \
-              -e "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" \
-              -e "AZURE_KEY=${{ secrets.AZURE_KEY }}" \
-              mallisho/catalog:frontend-latest python manage.py test
+          docker run --rm --env-file .env mallisho/catalog:frontend-latest python manage.py test
         continue-on-error: false
 
       - name: Push backend image
