@@ -34,6 +34,15 @@ jobs:
               -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
               -e "DB_HOST=${{ secrets.DB_HOST }}" \
               -e "DB_PORT=${{ secrets.DB_PORT }}" \
+              -e "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" \
+              -e "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" \
+              -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" \
+              -e "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" \
+              -e "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" \
+              -e "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" \
+              -e "AZURE_KEY=${{ secrets.AZURE_KEY }}" \
               mallisho/catalog:backend-latest python manage.py test
         continue-on-error: false
 
@@ -47,7 +56,15 @@ jobs:
               -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
               -e "DB_HOST=${{ secrets.DB_HOST }}" \
               -e "DB_PORT=${{ secrets.DB_PORT }}" \
-              mallisho/catalog:frontend-latest python manage.py test
+              -e "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" \
+              -e "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" \
+              -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e "AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}" \
+              -e "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" \
+              -e "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" \
+              -e "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" \
+              -e "AZURE_KEY=${{ secrets.AZURE_KEY }}" \
         continue-on-error: false
 
       - name: Push backend image
