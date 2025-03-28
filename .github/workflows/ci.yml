@@ -65,6 +65,7 @@ jobs:
               -e "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" \
               -e "AZURE_ENDPOINT=${{ secrets.AZURE_ENDPOINT }}" \
               -e "AZURE_KEY=${{ secrets.AZURE_KEY }}" \
+              mallisho/catalog:frontend-latest python manage.py test
         continue-on-error: false
 
       - name: Push backend image
