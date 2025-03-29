@@ -349,7 +349,6 @@ const notificationPaperStyle = {
 const notificationHeaderStyle = {
   padding: '10px 16px',
   paddingBottom: '5px',
-  backgroundColor: '#f5f5f5',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center'
