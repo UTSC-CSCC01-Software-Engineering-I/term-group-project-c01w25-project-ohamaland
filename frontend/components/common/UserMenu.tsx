@@ -1,9 +1,12 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
-import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper, Icon } from "@mui/material";
+import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAccessToken } from "@/utils/auth";
+import { notificationsDetailApi, notificationsWS } from "@/utils/api";
+import { brand } from "@/styles/colors";
+import { formatDistanceToNow } from "date-fns"; 
 
 // Define a notification type that matches our backend model
 interface Notification {
@@ -30,7 +33,7 @@ export default function UserMenu() {
     if (!token) return;
 
     // Create WebSocket connection
-    const ws = new WebSocket(`ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`);
+    const ws = new WebSocket(notificationsWS(token));
 
     ws.onopen = () => {
       console.log("Connected to notification websocket");
@@ -85,14 +88,8 @@ export default function UserMenu() {
     };
   }, []);
 
-  const handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-
-    // TODO: Only when a notification is clicked will we mark it as read
-    // For now, we will mark all as read when the menu is opened
-
-    // TODO: Should make this a separate function
-    // Mark all as read when opening
+  // New function to mark notifications as read
+  const markNotificationsAsRead = () => {
     if (notifications.some(n => !n.is_read)) {
       const token = getAccessToken();
 
@@ -107,7 +104,7 @@ export default function UserMenu() {
             }));
           } else {
             // Fall back to REST API
-            fetch(`/api/notifications/${notification.id}/`, {
+            fetch(notificationsDetailApi(notification.id), {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
@@ -123,6 +120,11 @@ export default function UserMenu() {
       setNotifications(notifications.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
     }
+  };
+
+  const handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+    markNotificationsAsRead();
   };
 
   const handleClose = () => {
@@ -163,7 +165,7 @@ export default function UserMenu() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleString();
+    return formatDistanceToNow(date, { addSuffix: true });
   };
 
   const open = Boolean(anchorEl);
@@ -174,7 +176,7 @@ export default function UserMenu() {
         onClick={handleNotificationClick}
       >
         <Badge badgeContent={unreadCount} color="error" overlap="circular">
-          <NotificationsIcon />
+          <NotificationsIcon sx={{ color: "white", fontSize: "28px" }} />
         </Badge>
       </IconButton>
       <AccountCircleIcon sx={iconStyle} />
@@ -192,35 +194,74 @@ export default function UserMenu() {
           vertical: 'top',
           horizontal: 'right',
         }}
+        sx={{
+          "& .MuiPaper-root": {
+            borderRadius: "8px",
+          }
+        }}
       >
         <Paper sx={notificationPaperStyle}>
           <Box sx={notificationHeaderStyle}>
-            <Typography variant="h6">Notifications</Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold' }}
+            >
+              Notifications
+            </Typography>
           </Box>
           <Divider />
 
           <List sx={notificationListStyle}>
             {notifications.length === 0 ? (
-              <ListItem>
-                <ListItemText primary="No notifications" />
+              <ListItem key="no-notifications" sx={{ justifyContent: 'center' }}>
+                <ListItemText
+                  primary="No Notifications"
+                  sx={{ textAlign: 'center', color: 'text.secondary' }}
+                />
               </ListItem>
             ) : (
-              notifications.map((notification) => (
-                <Box key={notification.id}>
+              notifications.map((notification, index) => (
+                <Box
+                  key={notification.id}
+                  sx={{ width: '100%' }}
+                >
                   <ListItem alignItems="flex-start" sx={notificationItemStyle}>
+                    {!notification.is_read && (
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: brand.primary,
+                          position: 'absolute',
+                          left: 16,
+                          top: 18,
+                        }}
+                      />
+                    )}
                     <ListItemText
+                      sx={{
+                        ml: !notification.is_read ? 2 : 0  // Add margin-left when dot is present
+                      }}
                       primary={
-                        <Typography sx={{ fontWeight: notification.is_read ? 'normal' : 'bold' }}>
+                        <Typography sx={{
+                          fontWeight: notification.is_read ? 'normal' : 'bold',
+                          color: notification.is_read ? 'text.secondary' : 'text.primary' // Lighter text for read notifications
+                        }}>
                           {notification.title}
                         </Typography>
                       }
                       secondary={
                         <>
-                          <Typography component="span" variant="body2" color="textPrimary">
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            color={notification.is_read ? 'text.disabled' : 'text.primary'} // Lighter text for read notifications
+                          >
                             {notification.message}
                           </Typography>
                           <br />
-                          <Typography component="span" variant="caption" color="textSecondary">
+                          <Typography component="span" variant="caption" color="text.secondary">
                             {formatDate(notification.created_at)}
                           </Typography>
                         </>
@@ -235,7 +276,17 @@ export default function UserMenu() {
                       <CloseIcon fontSize="small" />
                     </IconButton>
                   </ListItem>
-                  <Divider variant="inset" component="li" />
+
+                  {/* Only render divider if this is not the last item */}
+                  {index < notifications.length - 1 && (
+                    <Divider
+                      component="li"
+                      sx={{
+                        margin: '0 auto',
+                        width: '90%'
+                      }}
+                    />
+                  )}
                 </Box>
               ))
             )}
@@ -259,16 +310,17 @@ const iconStyle = {
 };
 
 const notificationPaperStyle = {
-  width: '350px',
+  width: '450px',
   maxHeight: '500px',
   overflow: 'hidden',
   display: 'flex',
-  flexDirection: 'column'
+  flexDirection: 'column',
+  overflowX: 'hidden',
 };
 
 const notificationHeaderStyle = {
   padding: '10px 16px',
-  backgroundColor: '#f5f5f5',
+  paddingBottom: '5px',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center'
@@ -277,7 +329,9 @@ const notificationHeaderStyle = {
 const notificationListStyle = {
   maxHeight: '400px',
   overflow: 'auto',
-  padding: 0
+  padding: 0,
+  overflowX: 'hidden',
+  overflowY: 'auto',
 };
 
 const notificationItemStyle = {
@@ -290,6 +344,6 @@ const notificationItemStyle = {
 
 const dismissButtonStyle = {
   position: 'absolute',
-  right: '8px',
+  right: '20px',
   top: '8px'
 };
