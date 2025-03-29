@@ -3,9 +3,6 @@ import { Subscription } from "@/types/subscriptions";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
-  Button,
-  Card,
-  CardContent,
   Divider,
   Stack,
   Typography,
@@ -13,7 +10,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ISubscriptionCardProps {
   subscription: Subscription;
@@ -24,7 +21,46 @@ interface ISubscriptionCardProps {
 export default function SubscriptionCard(props: ISubscriptionCardProps) {
   const { subscription, onClick, onDeleteSubscription } = props;
   const formattedDate = subscription.renewal_date.split("T")[0];
-  const [progress, setProgress] = useState(50);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const billingPeriod = subscription.billing_period;
+      const currentDate = new Date();
+      const renewalDate = new Date(subscription.renewal_date);
+      const startDate = new Date(renewalDate);
+
+      switch (billingPeriod) {
+        case "Daily":
+          startDate.setDate(startDate.getDate() - 1);
+          break;
+        case "Weekly":
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case "Monthly":
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+        case "Yearly":
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          break;
+        default:
+          return;
+      }
+      if (currentDate < startDate) setProgress(0);
+      else if (currentDate >= renewalDate) setProgress(100);
+      else {
+        const percentage = ((currentDate.getTime() - startDate.getTime()) /
+          (renewalDate.getTime() - startDate.getTime())) * 100;
+        setProgress(percentage);
+      }
+    };
+    updateProgress();
+
+    // Updates every hour
+    const intervalId = setInterval(updateProgress, 3600000);
+    return () => clearInterval(intervalId);
+  }, [subscription]);
+
 
   return (
     <Grid container spacing={0} sx={cardStyle} onClick={onClick}>

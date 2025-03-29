@@ -47,9 +47,9 @@ export const chart = {
 // Renewal Bar Colors
 export const renewalBarColors = {
   grey: "#757575",
-  green: "#43a047",
-  yellow: "#fbc02d",
-  red: "#d32f2f"
+  green: "#82f056",
+  yellow: "#f0db56",
+  red: "#f05656"
 }
 
 export const lightGrey = "#5d615e";
