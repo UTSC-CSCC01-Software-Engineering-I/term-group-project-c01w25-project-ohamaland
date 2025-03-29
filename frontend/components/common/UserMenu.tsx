@@ -1,12 +1,12 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
-import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper } from "@mui/material";
+import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper, Backdrop } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAccessToken } from "@/utils/auth";
 import { notificationsDetailApi, notificationsWS } from "@/utils/api";
 import { brand } from "@/styles/colors";
-import { formatDistanceToNow } from "date-fns"; 
+import { formatDistanceToNow } from "date-fns";
 
 // Define a notification type that matches our backend model
 interface Notification {
@@ -181,6 +181,18 @@ export default function UserMenu() {
       </IconButton>
       <AccountCircleIcon sx={iconStyle} />
 
+      {/* Backdrop with blur effect */}
+      <Backdrop
+        sx={{ 
+          color: '#fff', 
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }}
+        open={open}
+        onClick={handleClose}
+      />
+
       {/* Notification Popover */}
       <Popover
         open={open}
@@ -197,6 +209,12 @@ export default function UserMenu() {
         sx={{
           "& .MuiPaper-root": {
             borderRadius: "8px",
+          },
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+        }}
+        slotProps={{
+          paper: {
+            elevation: 24,
           }
         }}
       >
@@ -216,7 +234,10 @@ export default function UserMenu() {
               <ListItem key="no-notifications" sx={{ justifyContent: 'center' }}>
                 <ListItemText
                   primary="No Notifications"
-                  sx={{ textAlign: 'center', color: 'text.secondary' }}
+                  sx={{ 
+                    textAlign: 'center', 
+                    color: 'text.secondary',
+                  }}
                 />
               </ListItem>
             ) : (
@@ -246,7 +267,7 @@ export default function UserMenu() {
                       primary={
                         <Typography sx={{
                           fontWeight: notification.is_read ? 'normal' : 'bold',
-                          color: notification.is_read ? 'text.secondary' : 'text.primary' // Lighter text for read notifications
+                          color: notification.is_read ? 'text.secondary' : 'text.primary',
                         }}>
                           {notification.title}
                         </Typography>
@@ -256,12 +277,16 @@ export default function UserMenu() {
                           <Typography
                             component="span"
                             variant="body2"
-                            color={notification.is_read ? 'text.disabled' : 'text.primary'} // Lighter text for read notifications
+                            color={notification.is_read ? 'text.disabled' : 'text.primary'}
                           >
                             {notification.message}
                           </Typography>
                           <br />
-                          <Typography component="span" variant="caption" color="text.secondary">
+                          <Typography 
+                            component="span" 
+                            variant="caption" 
+                            color="text.secondary"
+                          >
                             {formatDate(notification.created_at)}
                           </Typography>
                         </>
@@ -270,7 +295,10 @@ export default function UserMenu() {
                     <IconButton
                       edge="end"
                       aria-label="dismiss"
-                      onClick={() => dismissNotification(notification.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dismissNotification(notification.id);
+                      }}
                       sx={dismissButtonStyle}
                     >
                       <CloseIcon fontSize="small" />
@@ -321,6 +349,7 @@ const notificationPaperStyle = {
 const notificationHeaderStyle = {
   padding: '10px 16px',
   paddingBottom: '5px',
+  backgroundColor: '#f5f5f5',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center'
