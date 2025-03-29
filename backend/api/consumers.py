@@ -67,7 +67,24 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             is_dismissed=False
         ).order_by('-created_at')
         
-        return NotificationSerializer(notifications, many=True).data
+        serialized_notifications = NotificationSerializer(notifications, many=True).data
+        
+        # Process each notification to make format consistent with real-time notifications
+        for notification in serialized_notifications:
+            # Change 'id' to 'notification_id' for consistency
+            if 'id' in notification:
+                notification['notification_id'] = notification['id']
+                del notification['id']
+                
+            # Parse JSON string data to make it consistent with real-time notifications
+            if notification.get('data') and isinstance(notification['data'], str):
+                try:
+                    notification['data'] = json.loads(notification['data'])
+                except json.JSONDecodeError:
+                    # If it's not valid JSON, keep as is
+                    pass
+        
+        return serialized_notifications
     
     @database_sync_to_async
     def dismiss_notification(self, notification_id):
@@ -101,11 +118,26 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'notifications': notifications
             }))
 
-    async def notify_receipt_added(self, event):
+    # General handler for all notification types
+    async def send_notification(self, event):
+        """
+        Send any notification to the connected client.
+        This generalizes notification handling instead of having
+        specific methods for each notification type.
+        """
+        # Extract the data from the event
+        notification_type = event.get('notification_type')
+        title = event.get('title')
+        message = event.get('message')
+        data = event.get('data')
+        notification_id = event.get('notification_id')
+        
         # Send the notification to the connected client
         await self.send(text_data=json.dumps({
             'type': 'notification',
-            'notification_type': 'receipt_added',
-            'message': event['message'],
-            'data': event['data']
+            'notification_type': notification_type,
+            'notification_id': notification_id,
+            'title': title,
+            'message': message,
+            'data': data
         }))

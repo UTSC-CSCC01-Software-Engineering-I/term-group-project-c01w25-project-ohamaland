@@ -119,7 +119,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "tax",
             "tip",
             "tax_last",
-            "enable_notif",
+            "send_mail",
             "created_at",
             "receipt_image_url",
             "items",

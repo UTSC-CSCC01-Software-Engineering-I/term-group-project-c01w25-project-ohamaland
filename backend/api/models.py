@@ -128,7 +128,7 @@ class Receipt(models.Model):
     tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tip = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     tax_last = models.BooleanField(default=False)
-    enable_notif = models.BooleanField(default=False)
+    send_mail = models.BooleanField(default=False)
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     folder = models.ForeignKey(

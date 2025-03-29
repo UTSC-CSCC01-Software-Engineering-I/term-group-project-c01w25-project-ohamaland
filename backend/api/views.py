@@ -59,9 +59,10 @@ class ReceiptOverview(APIView):
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             receipt = serializer.save()
+            
             # Notifications
-            if receipt.group and receipt.enable_notif:
-                notify_group_receipt_added(receipt.group.id, receipt.id)
+            if receipt.group and receipt.send_mail:
+                notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
                 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
