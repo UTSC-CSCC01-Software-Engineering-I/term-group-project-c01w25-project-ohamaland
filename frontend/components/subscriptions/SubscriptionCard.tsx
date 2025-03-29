@@ -1,6 +1,7 @@
-import { defaultText, lightGrey, textGrey, textLightGrey } from "@/styles/colors";
+import { defaultText, lightGrey, textGrey, textLightGrey, renewalBarColors } from "@/styles/colors";
 import { Subscription } from "@/types/subscriptions";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LinearProgress from '@mui/material/LinearProgress';
 import {
   Button,
   Card,
@@ -12,6 +13,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
+import { useState } from "react";
 
 interface ISubscriptionCardProps {
   subscription: Subscription;
@@ -22,19 +24,7 @@ interface ISubscriptionCardProps {
 export default function SubscriptionCard(props: ISubscriptionCardProps) {
   const { subscription, onClick, onDeleteSubscription } = props;
   const formattedDate = subscription.renewal_date.split("T")[0];
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDeleteSubscription(subscription.id);
-  };
-
-  // This will be used for the progression bar based on how close
-  // subscription is to renewal date (percentage)
-  // function getRenewalBarColor(color: string) {
-  //   return {
-  //     backgroundColor: color,
-  //   }
-  // }
+  const [progress, setProgress] = useState(50);
 
   return (
     <Grid container spacing={0} sx={cardStyle} onClick={onClick}>
@@ -68,11 +58,36 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
           Bill: {subscription.currency} ${Number(subscription.total_amount).toFixed(2)}
         </Typography>
 
-        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>{subscription.renewal_date}</Typography>
+        <Box sx={barStyle}>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={renewalBar(progress)}
+          />
+        </Box>
+
+        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>{formattedDate}</Typography>
       </Grid>
     </Grid>
   );
-  }
+}
+
+const getRenewalBarColor = (progress: number) => {
+  if (progress <= 25) return renewalBarColors.green;
+  if (progress >= 75) return renewalBarColors.red;
+  return renewalBarColors.yellow;
+};
+
+const renewalBar = (progress: number) => ({
+  backgroundColor: renewalBarColors.grey,
+  "& .MuiLinearProgress-bar": {
+    backgroundColor: getRenewalBarColor(progress),
+  },
+});
+
+const barStyle = {
+  width: "100%",
+}
 
 const cardStyle = {
   maxWidth: 304,
@@ -98,16 +113,6 @@ const merchantTextStyle = {
 const lightTextStyle = {
   fontSize: "14px",
   color: textLightGrey,
-  fontWeight: 700
-};
-
-const itemTextStyle = {
-  fontSize: "14px",
-  marginLeft: "8px",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  color: defaultText,
   fontWeight: 700
 };
 
