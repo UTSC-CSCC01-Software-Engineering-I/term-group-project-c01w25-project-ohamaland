@@ -66,7 +66,6 @@ export default function Page() {
     setBillingPeriod(event.target.value as BillingPeriod);
   };
 
-  // to handle adding a new subscription (temporary, hardcoded for now)
   const handleSaveSubscription = async (newSubscription: Subscription) => {
     try {
       const meResponse = await fetchWithAuth(userMeApi, {

@@ -52,7 +52,7 @@ export default function Page() {
       const receiptData = {
         ...newReceipt
       };
-  
+
       const receiptResponse = await fetchWithAuth(receiptsApi, {
         method: "POST",
         headers: {
@@ -60,13 +60,13 @@ export default function Page() {
         },
         body: JSON.stringify(receiptData)
       });
-  
+
       if (!receiptResponse || !receiptResponse.ok) {
         const errorData = await receiptResponse?.json();
         console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
-  
+
       const savedReceipt = await receiptResponse.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
@@ -74,7 +74,7 @@ export default function Page() {
       console.error("Error saving receipt:", error);
       throw error;
     }
-  };  
+  };
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
