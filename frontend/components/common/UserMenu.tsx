@@ -1,8 +1,9 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import CloseIcon from "@mui/icons-material/Close";
-import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper } from "@mui/material";
+import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper, Icon } from "@mui/material";
 import { useEffect, useState } from "react";
+import { getAccessToken } from "@/utils/auth";
 
 // Define a notification type that matches our backend model
 interface Notification {
@@ -17,33 +18,28 @@ interface Notification {
 }
 
 export default function UserMenu() {
-  // State for notifications
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  
-  // State for the popover
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
 
-  // Connect to websocket on component mount
   useEffect(() => {
     // Get auth token from localStorage or wherever it's stored
-    const token = localStorage.getItem('authToken');
-    
+    const token = getAccessToken();
+
     if (!token) return;
 
     // Create WebSocket connection
-    const ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/notifications/?token=${token}`);
-    
+    const ws = new WebSocket(`ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`);
+
     ws.onopen = () => {
       console.log("Connected to notification websocket");
     };
-    
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("Received from websocket:", data);
-      
+
       if (data.type === 'stored_notifications') {
         // Initial notifications loaded
         setNotifications(data.notifications);
@@ -61,13 +57,13 @@ export default function UserMenu() {
           is_dismissed: false,
           created_at: new Date().toISOString()
         };
-        
+
         setNotifications(prevNotifications => [newNotification, ...prevNotifications]);
         setUnreadCount(prevCount => prevCount + 1);
       }
       else if (data.type === 'dismiss_response' && data.success) {
         // Remove the dismissed notification
-        setNotifications(prevNotifications => 
+        setNotifications(prevNotifications =>
           prevNotifications.filter(n => n.id !== data.notification_id)
         );
         // Update unread count if needed
@@ -77,27 +73,29 @@ export default function UserMenu() {
         });
       }
     };
-    
+
     ws.onclose = () => {
       console.log("Disconnected from notification websocket");
     };
-    
+
     setSocket(ws);
-    
-    // Clean up on unmount
+
     return () => {
       ws.close();
     };
   }, []);
 
-  // Handle clicks
-  const handleNotificationClick = (event: React.MouseEvent<SVGSVGElement>) => {
-    setAnchorEl(event.currentTarget as unknown as HTMLElement);
-    
+  const handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+
+    // TODO: Only when a notification is clicked will we mark it as read
+    // For now, we will mark all as read when the menu is opened
+
+    // TODO: Should make this a separate function
     // Mark all as read when opening
     if (notifications.some(n => !n.is_read)) {
-      const token = localStorage.getItem('authToken');
-      
+      const token = getAccessToken();
+
       // Mark notifications as read in bulk
       notifications.forEach(notification => {
         if (!notification.is_read) {
@@ -120,7 +118,7 @@ export default function UserMenu() {
           }
         }
       });
-      
+
       // Update local state
       setNotifications(notifications.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
@@ -149,33 +147,38 @@ export default function UserMenu() {
         },
         body: JSON.stringify({ is_dismissed: true })
       })
-      .then(response => {
-        if (response.ok) {
-          // Update local state
-          setNotifications(notifications.filter(n => n.id !== notificationId));
-          // Update unread count if needed
-          setUnreadCount(prevCount => {
-            const notif = notifications.find(n => n.id === notificationId);
-            return notif && !notif.is_read ? prevCount - 1 : prevCount;
-          });
-        }
-      });
+        .then(response => {
+          if (response.ok) {
+            // Update local state
+            setNotifications(notifications.filter(n => n.id !== notificationId));
+            // Update unread count if needed
+            setUnreadCount(prevCount => {
+              const notif = notifications.find(n => n.id === notificationId);
+              return notif && !notif.is_read ? prevCount - 1 : prevCount;
+            });
+          }
+        });
     }
   };
 
-  // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleString();
   };
 
+  const open = Boolean(anchorEl);
+
   return (
     <Box sx={userMenuStyle}>
-      <Badge badgeContent={unreadCount} color="error" overlap="circular">
-        <NotificationsIcon sx={iconStyle} onClick={handleNotificationClick} />
-      </Badge>
+      <IconButton
+        onClick={handleNotificationClick}
+      >
+        <Badge badgeContent={unreadCount} color="error" overlap="circular">
+          <NotificationsIcon />
+        </Badge>
+      </IconButton>
       <AccountCircleIcon sx={iconStyle} />
-      
+
       {/* Notification Popover */}
       <Popover
         open={open}
@@ -195,7 +198,7 @@ export default function UserMenu() {
             <Typography variant="h6">Notifications</Typography>
           </Box>
           <Divider />
-          
+
           <List sx={notificationListStyle}>
             {notifications.length === 0 ? (
               <ListItem>
@@ -223,9 +226,9 @@ export default function UserMenu() {
                         </>
                       }
                     />
-                    <IconButton 
-                      edge="end" 
-                      aria-label="dismiss" 
+                    <IconButton
+                      edge="end"
+                      aria-label="dismiss"
                       onClick={() => dismissNotification(notification.id)}
                       sx={dismissButtonStyle}
                     >
