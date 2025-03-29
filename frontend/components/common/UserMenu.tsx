@@ -262,7 +262,7 @@ export default function UserMenu() {
                     )}
                     <ListItemText
                       sx={{
-                        ml: !notification.is_read ? 2 : 0  // Add margin-left when dot is present
+                        ml: !notification.is_read ? 2 : 0
                       }}
                       primary={
                         <Typography sx={{
