@@ -117,11 +117,13 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
               handleChange("billing_period", e.target.value as BillingPeriod)
             }
           >
-            {billingPeriods.map((method) => (
-              <MenuItem key={method} value={method}>
-                {method}
-              </MenuItem>
-            ))}
+            {billingPeriods
+              .filter((method) => method !== "All") // All is only used for filtering
+              .map((method) => (
+                <MenuItem key={method} value={method}>
+                  {method}
+                </MenuItem>
+              ))}
           </TextField>
 
           <Stack direction="row" spacing={2} justifyContent="flex-end">
