@@ -293,7 +293,7 @@ export default function UserMenu() {
                         backgroundColor: notification.is_read ? 'rgba(0, 0, 0, 0.04)' : 'rgba(25, 118, 210, 0.08)'
                       }
                     }}
-                    onMouseEnter={() => markNotificationAsRead(notification.notification_id)} // Mark as read on hover
+                    onMouseEnter={() => markNotificationAsRead(notification.notification_id)}
                   >
                     <ListItem alignItems="flex-start" sx={{ padding: '4px 8px' }}>
                       {!notification.is_read && (
@@ -316,8 +316,8 @@ export default function UserMenu() {
                         }}
                         primary={
                           <Typography sx={{
-                            fontWeight: notification.is_read ? 'normal' : 'bold',
-                            color: notification.is_read ? 'text.secondary' : 'text.primary',
+                            fontWeight: 'bold',
+                            color: 'text.primary',
                           }}>
                             {notification.title}
                           </Typography>
@@ -327,7 +327,7 @@ export default function UserMenu() {
                             <Typography
                               component="span"
                               variant="body2"
-                              color={notification.is_read ? 'text.disabled' : 'text.primary'}
+                              color={'text.primary'}
                             >
                               {notification.message}
                             </Typography>
