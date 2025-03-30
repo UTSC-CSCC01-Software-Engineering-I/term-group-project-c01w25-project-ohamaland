@@ -179,13 +179,13 @@ def notify_group_settings_changed(group_id, changed_by_user_id, admin_ids=None):
         changed_by = User.objects.get(id=changed_by_user_id)
         
         # List of users to exclude (the user who made the change and optionally all admins)
-        excluded_users = [changed_by]
+        excluded_user_ids = [changed_by_user_id]
         
         # If admin_ids is provided, exclude all admin users from notification
         if admin_ids:
             for admin_id in admin_ids:
                 if admin_id != changed_by_user_id:  # Avoid adding the same user twice
-                    excluded_users.append(admin_id)
+                    excluded_user_ids.append(admin_id)
         
         # Prepare the notification data
         notification_data = {
@@ -203,7 +203,7 @@ def notify_group_settings_changed(group_id, changed_by_user_id, admin_ids=None):
             title=f"Group Settings Updated",
             message=f"{changed_by.username} has updated settings for {group.name}.",
             data=notification_data,
-            excluded_user_ids=excluded_users
+            excluded_user_ids=excluded_user_ids
         )
             
     except (Group.DoesNotExist, User.DoesNotExist) as e:
