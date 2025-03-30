@@ -26,6 +26,8 @@ from .views import (
     me,
     receipt_upload,
     InsightsView,
+    NotificationOverview,
+    NotificationDetail,
 )
 
 urlpatterns = [
@@ -90,4 +92,6 @@ urlpatterns = [
     path("folders/<int:pk>/receipts/", FolderReceipt.as_view(), name="folder-receipts-list"),
     path("folders/<int:folder_id>/receipts/<int:receipt_id>/remove/", FolderReceipt.as_view(), name="remove-receipt"),
     path("receipts/upload/", receipt_upload, name="image-upload"),
+    path('notifications/', NotificationOverview.as_view(), name='notification-list'),
+    path('notifications/<int:pk>/', NotificationDetail.as_view(), name='notification-detail'),
 ]

@@ -1,3 +1,6 @@
+import os
+import uuid
+
 import boto3
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -11,8 +14,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
-import os
-import uuid
 
 from .signals import (
     calculate_category_spending,
@@ -30,6 +31,7 @@ from .models import (
     Insights,
     Folder,
     Subscription,
+    Notification,
 )
 from .notifications import notify_group_receipt_added
 from .serializers import (
@@ -42,6 +44,7 @@ from .serializers import (
     InsightsSerializer,
     UserSerializer,
     SubscriptionSerializer,
+    NotificationSerializer,
 )
 
 
@@ -55,11 +58,12 @@ class ReceiptOverview(APIView):
 
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()
+            receipt = serializer.save()
+            
             # Notifications
-            if serializer.data.get("group") and serializer.data.get("enable_notif"):
-                notify_group_receipt_added(serializer.data.get("group"))
-
+            if receipt.group and receipt.send_mail:
+                notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
+                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -787,3 +791,55 @@ class FolderReceipt(APIView):
         receipts = folder.receipts.all()
         serializer = ReceiptSerializer(receipts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class NotificationOverview(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Get all notifications for the current user, filtered by status"""
+        # Get query parameters
+        is_read = request.query_params.get('is_read', None)
+        is_dismissed = request.query_params.get('is_dismissed', 'false').lower() == 'true'
+        
+        # Filter notifications
+        notifications = Notification.objects.filter(user=request.user)
+        
+        if is_read is not None:
+            is_read = is_read.lower() == 'true'
+            notifications = notifications.filter(is_read=is_read)
+            
+        # By default, only show undismissed notifications unless explicitly requested
+        notifications = notifications.filter(is_dismissed=is_dismissed)
+        
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response({'notifications': serializer.data}, status=status.HTTP_200_OK)
+
+
+class NotificationDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        notification = Notification.objects.filter(id=pk, user=request.user).first()
+        if notification is None:
+            return Response(
+                {"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = NotificationSerializer(notification)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def patch(self, request, pk):
+        """Update notification status (mark as read/dismissed)"""
+        notification = Notification.objects.filter(id=pk, user=request.user).first()
+        if notification is None:
+            return Response(
+                {"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        
+        allowed_fields = {'is_read', 'is_dismissed'}
+        update_data = {k: v for k, v in request.data.items() if k in allowed_fields}
+        serializer = NotificationSerializer(notification, data=update_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
