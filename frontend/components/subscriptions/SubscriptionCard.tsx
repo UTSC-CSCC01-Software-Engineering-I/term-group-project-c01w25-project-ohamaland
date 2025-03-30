@@ -102,7 +102,7 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
           />
         </Box>
 
-        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>{formattedDate}</Typography>
+        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>{"Renewal By: "}{formattedDate}</Typography>
       </Grid>
     </Grid>
   );
@@ -127,6 +127,8 @@ const barStyle = {
 
 const cardStyle = {
   maxWidth: 304,
+  // width: 400,
+  // height: 130,
   margin: "8px",
   cursor: "pointer",
   borderRadius: "8px",
