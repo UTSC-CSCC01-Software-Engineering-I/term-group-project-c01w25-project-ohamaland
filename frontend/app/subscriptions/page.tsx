@@ -183,38 +183,48 @@ export default function Page() {
 
   return (
     <PageWrapper>
-      <Box sx={filterContainerStyle}>
-        <SubscriptionFilter
-          renewalTime={renewalTime}
-          billingPeriod={billingPeriod}
-          filterTerm={filterTerm}
-          setFilterTerm={setFilterTerm}
-          handleTimePeriodChange={handleTimePeriodChange}
-          handleBillingPeriodChange={handleBillingPeriodChange}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setIsModalOpen(true)}
-          sx={buttonStyle}
-        >
-          Add Subscription
-        </Button>
-      </Box>
-      <SubscriptionGrid
-        subscriptions={subscriptions}
-        filterTerm={filterTerm}
-        renewalTime={renewalTime}
-        renewalTimeOffset={renewalTimeOffset}
-        billingPeriod={billingPeriod}
-        onOpenDialog={handleOpenDialog}
-        onDeleteSubscription={handleDeleteSubscription}
-      />
+      <Box sx={pageLayoutStyle}>
+        <Box sx={filterContainerStyle}>
+          <SubscriptionFilter
+            renewalTime={renewalTime}
+            billingPeriod={billingPeriod}
+            filterTerm={filterTerm}
+            setFilterTerm={setFilterTerm}
+            handleTimePeriodChange={handleTimePeriodChange}
+            handleBillingPeriodChange={handleBillingPeriodChange}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setIsModalOpen(true)}
+            sx={buttonStyle}
+          >
+            Add Subscription
+          </Button>
+        </Box>
 
-      <UpcomingRenewals
-        subscriptions={subscriptions}
-        onOpenDialog={handleOpenDialog}
-      />
+        <Box sx={contentLayoutStyle}>
+          <Box sx={leftContainerStyle}>
+            <SubscriptionGrid
+              subscriptions={subscriptions}
+              filterTerm={filterTerm}
+              renewalTime={renewalTime}
+              renewalTimeOffset={renewalTimeOffset}
+              billingPeriod={billingPeriod}
+              onOpenDialog={handleOpenDialog}
+              onDeleteSubscription={handleDeleteSubscription}
+            />
+          </Box>
+
+          <Box sx={rightContainerStyle}>
+            <UpcomingRenewals
+              subscriptions={subscriptions}
+              onOpenDialog={handleOpenDialog}
+              title="Upcoming Renewals"
+            />
+          </Box>
+        </Box>
+      </Box>
 
       <SubscriptionDialog
         title="Add Subscription"
@@ -236,12 +246,31 @@ export default function Page() {
   );
 }
 
+const pageLayoutStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
+};
+
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
   gap: "16px",
-  marginBottom: "16px",
   width: "100%"
+};
+
+const contentLayoutStyle = {
+  display: "flex",
+  gap: "16px",
+};
+
+const leftContainerStyle = {
+  flex: 1,
+};
+
+const rightContainerStyle = {
+  width: "300px",
+  flexShrink: 0,
 };
 
 const buttonStyle = {

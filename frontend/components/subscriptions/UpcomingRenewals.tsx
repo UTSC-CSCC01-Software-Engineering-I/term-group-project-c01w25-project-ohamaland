@@ -1,9 +1,11 @@
+import { defaultText, textLightGrey } from "@/styles/colors";
 import { Subscription } from "@/types/subscriptions";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 
 
 interface IUpcomingRenewalsProps {
+    title: string;
     subscriptions: Subscription[];
     onOpenDialog: (subscription: Subscription) => void;
 }
@@ -14,7 +16,7 @@ export default function UpcomingRenewals(props: IUpcomingRenewalsProps){
     const upcomingRenewals = getUpcomingRenewals(props.subscriptions);
     return (
         <Box sx={upcomingRenewalsBoxStyle}>
-            <Typography>
+            <Typography sx={titleTextStyle}>
                 Upcoming Renewals
             </Typography>
 
@@ -26,11 +28,15 @@ export default function UpcomingRenewals(props: IUpcomingRenewalsProps){
                 </Typography>
             ) : (
                 upcomingRenewals.map((renewal, index) => (
-                    <Box key={index}>
-                        <Typography>
+                    <Stack
+                        key={index}
+                        sx={renewalItemStyle}
+                        onClick={() => props.onOpenDialog(renewal)}
+                    >
+                        <Typography sx={{ ...lightTextStyle, "&:hover": darkTextStyle }}>
                             {renewal.merchant} - {renewal.renewal_date}
                         </Typography>
-                    </Box>
+                    </Stack>
                 ))
             )}
         </Box>
@@ -45,8 +51,35 @@ function getUpcomingRenewals(subscriptions: Subscription[]) {
     return sortedSubscriptions.slice(0, renewalsToShow);
 }
 
+const renewalsToShow = 5;
+
 const upcomingRenewalsBoxStyle = {
 
 }
 
-const renewalsToShow = 5;
+const renewalItemStyle = {
+    padding: 1,
+    cursor: "pointer",
+    transition: "color 0.3s",
+};
+
+const lightTextStyle = {
+  fontSize: "14px",
+  color: textLightGrey,
+  fontWeight: 500
+};
+
+const darkTextStyle = {
+  fontSize: "14px",
+  color: defaultText,
+  fontWeight: 700
+};
+
+const titleTextStyle = {
+    fontWeight: 600,
+    fontSize: "18px",
+    color: "black",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis"
+  };
