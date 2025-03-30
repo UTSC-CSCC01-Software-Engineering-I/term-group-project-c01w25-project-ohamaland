@@ -4,6 +4,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
+import UpcomingSubscriptions from "@/components/subscriptions/UpcomingSubscriptions";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { fetchWithAuth, subscriptionsApi, subscriptionsDetailApi, userMeApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
@@ -209,6 +210,11 @@ export default function Page() {
         onOpenDialog={handleOpenDialog}
         onDeleteSubscription={handleDeleteSubscription}
       />
+
+      {/* <UpcomingSubscriptions
+        subscriptions={subscriptions}
+        onOpenDialog={handleOpenDialog}
+      /> */}
 
       <SubscriptionDialog
         title="Add Subscription"
