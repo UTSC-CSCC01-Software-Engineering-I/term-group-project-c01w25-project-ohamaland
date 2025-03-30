@@ -90,6 +90,7 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
         </Typography>
 
         <Divider sx={{ my: 1 }} />
+
         <Typography sx={darkTextStyle}>
           Bill: {subscription.currency} ${Number(subscription.total_amount).toFixed(2)}
         </Typography>
