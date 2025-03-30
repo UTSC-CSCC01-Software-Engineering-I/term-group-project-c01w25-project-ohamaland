@@ -261,14 +261,17 @@ const filterContainerStyle = {
 
 const contentLayoutStyle = {
   display: "flex",
-  gap: "16px",
+  gap: "32px",
 };
 
 const leftContainerStyle = {
   flex: 1,
+  marginRight: "320px",
 };
 
 const rightContainerStyle = {
+  position: "fixed",
+  right: "0px",
   width: "300px",
   flexShrink: 0,
 };

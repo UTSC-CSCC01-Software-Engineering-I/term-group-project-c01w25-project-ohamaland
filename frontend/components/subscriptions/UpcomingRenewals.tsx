@@ -11,13 +11,13 @@ interface IUpcomingRenewalsProps {
 }
 
 export default function UpcomingRenewals(props: IUpcomingRenewalsProps){
-    const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+    const { title } = props;
 
     const upcomingRenewals = getUpcomingRenewals(props.subscriptions);
     return (
         <Box sx={upcomingRenewalsBoxStyle}>
             <Typography sx={titleTextStyle}>
-                Upcoming Renewals
+                {title}
             </Typography>
 
             <Divider sx={{ my: 1 }} />
@@ -81,5 +81,7 @@ const titleTextStyle = {
     color: "black",
     whiteSpace: "nowrap",
     overflow: "hidden",
-    textOverflow: "ellipsis"
-  };
+    textOverflow: "ellipsis",
+    textAlign: "center",
+    width: "100%"
+};

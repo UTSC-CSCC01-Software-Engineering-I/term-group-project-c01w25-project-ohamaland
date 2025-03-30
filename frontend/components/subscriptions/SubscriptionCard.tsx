@@ -127,7 +127,7 @@ const barStyle = {
 }
 
 const cardStyle = {
-  maxWidth: 304,
+  maxWidth: 320,
   // width: 400,
   // height: 130,
   margin: "8px",
