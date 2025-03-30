@@ -104,6 +104,7 @@ class GroupReceiptSplitSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
     splits = GroupReceiptSplitSerializer(many=True, read_only=True)
+    folder = serializers.StringRelatedField()
 
     class Meta:
         model = Receipt
@@ -124,6 +125,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "receipt_image_url",
             "items",
             "splits",
+            "folder",
+            "color"
         ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):
@@ -328,17 +331,24 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class InsightsSerializer(serializers.ModelSerializer):
-    category_spending = serializers.SerializerMethodField()
+    folder_spending = serializers.SerializerMethodField()
 
     class Meta:
         model = Insights
-        fields = ["user", "total_spent", "category_spending", "period", "date"]
+        fields = ["user", "total_spent", "folder_spending", "period", "date"]
 
-    def get_category_spending(self, obj):
-        """Convert category_spending JSON field to list for frontend processing."""
+    def get_folder_spending(self, obj):
+        """Convert folder_spending JSON field to list for frontend processing."""
         return [
-            {"category": key, "amount": float(value)}
-            for key, value in obj.category_spending.items()
+            {"folder": key, "amount": float(value)}
+                for key, value in obj.folder_spending.items()
+        ]
+
+    def get_merchant_spending(self, obj):
+        """Convert merchant_spending JSON field to list for frontend processing."""
+        return [
+            {"merchant": key, "amount": float(value)}
+                for key, value in obj.merchant_spending.items()
         ]
 
     def to_representation(self, instance):

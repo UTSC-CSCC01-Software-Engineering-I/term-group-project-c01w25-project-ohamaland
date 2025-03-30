@@ -1,29 +1,21 @@
 import { CSSProperties } from "react";
 
-interface ISpending {
-  id: number;
-  category: string;
-  amount: number;
-  date: string;
-}
-
 interface ISpendingListProps {
-  spending: ISpending[];
-  onOpenDialog: (spending: ISpending) => void;
+  folderSpending: Record<string, [number, string]>;
+  onOpenFolder: (folderName: string) => void;
 }
 
 export default function SpendingList(props: ISpendingListProps) {
   return (
     <div style={listContainerStyle}>
-      {props.spending.map((item) => (
+      {Object.entries(props.folderSpending).map(([folderName, [amount, color]]) => (
         <div
-          key={item.id}
-          style={listItemStyle}
-          onClick={() => props.onOpenDialog(item)}
+          key={folderName}
+          style={{ ...listItemStyle, backgroundColor: color }}
+          onClick={() => props.onOpenFolder(folderName)}
         >
-          <span>{item.date}</span>
-          <span>{item.category}</span>
-          <span>${item.amount}</span>
+          <span>{folderName}</span>
+          <span>${amount.toFixed(2)}</span>
         </div>
       ))}
     </div>
@@ -33,15 +25,18 @@ export default function SpendingList(props: ISpendingListProps) {
 // Define styles with correct types
 const listContainerStyle: CSSProperties = {
   display: "flex",
-  flexDirection: "column" as const, // Ensures TypeScript recognizes it
-  gap: 10 // Use a number instead of a string for spacing
+  flexDirection: "column",
+  gap: 10,
+  padding: "16px"
 };
 
 const listItemStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
-  padding: 10, // Use a number instead of "10px"
+  padding: 10,
   border: "1px solid #ddd",
   borderRadius: 5,
-  cursor: "pointer"
+  cursor: "pointer",
+  transition: "background-color 0.3s ease, transform 0.2s ease",
+  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
 };

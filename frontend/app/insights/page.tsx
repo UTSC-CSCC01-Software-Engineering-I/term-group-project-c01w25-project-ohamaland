@@ -9,33 +9,41 @@ import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface SpendingData {
-  category: string;
+interface FolderSpending {
+  [folderName: string]: [number, string];
+}
+
+interface MerchantSpending {
+  merchant: string;
   amount: number;
+}
+
+interface SpendingData {
   date: string;
+  amount: number;
 }
 
 interface BackendSpendingResponse {
   user: number;
   total_spending: number;
-  category_spending: Record<string, number>;
+  folder_spending: FolderSpending;
+  merchant_spending: { [merchant: string]: number };
   period: string;
   date: string;
 }
 
 export default function Page() {
+  const [folderSpending, setFolderSpending] = useState<FolderSpending>({});
+  const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>([]);
   const [spendingData, setSpendingData] = useState<SpendingData[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("Monthly");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState<string>("");
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("Weekly");
-  const [categorySpending, setCategorySpending] = useState<
-    Record<string, number>
-  >({});
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchSpendingData() {
+    async function fetchInsightsData() {
       try {
         const response = await fetchWithAuth(
           insightsDetailApi(selectedPeriod),
@@ -57,63 +65,76 @@ export default function Page() {
         }
         const fetchedData: BackendSpendingResponse = await response.json();
 
-        const transformedData: SpendingData[] = Object.entries(
-          fetchedData.total_spending
-        ).map(([date, amount]) => ({
-          category: "Total",
-          amount: Number(amount),
-          date
-        }));
-
-        console.log("Transformed Spending Data:", transformedData);
-
-        setSpendingData(transformedData); // Set the transformed data to the state
-        setCategorySpending(fetchedData.category_spending || {});
+        const spendingOverTime = Object.entries(fetchedData.total_spending).map(
+          ([date, amount]) => ({
+            date,
+            amount
+          })
+        );
+        setSpendingData(spendingOverTime);
+        setFolderSpending(fetchedData.folder_spending);
+        setMerchantSpending(
+          Object.entries(fetchedData.merchant_spending).map(([merchant, amount]) => ({
+            merchant,
+            amount
+          }))
+        );
+        console.log("Fetched merchantSpending:", fetchedData.merchant_spending);
       } catch (error) {
         console.error("Error fetching spending data:", error);
       }
     }
-    fetchSpendingData();
+    fetchInsightsData();
   }, [selectedPeriod, router]);
 
   const handlePeriodChange = (event: SelectChangeEvent<string>) => {
-    setSelectedPeriod(event.target.value); // Update selected period
+    setSelectedPeriod(event.target.value);
   };
 
   return (
     <PageWrapper>
       <Box sx={filterContainerStyle}>
         <SpendingFilter
-          selectedPeriod={selectedPeriod}
-          handlePeriodChange={handlePeriodChange}
           startDate={startDate}
           endDate={endDate}
           filterTerm={filterTerm}
-          setFilterTerm={setFilterTerm}
+          selectedPeriod={selectedPeriod}
           setStartDate={setStartDate}
           setEndDate={setEndDate}
+          setFilterTerm={setFilterTerm}
+          handlePeriodChange={handlePeriodChange}
         />
         <Button variant="contained" color="primary" sx={buttonStyle}>
           View Insights
         </Button>
       </Box>
-      <SpendingChart
-        spendingData={spendingData}
-        categorySpending={categorySpending || {}}
-      />
+      <Box sx={chartContainerStyle}>
+        <SpendingChart spendingData={spendingData} folderSpending={folderSpending} merchantSpending={merchantSpending}/>
+      </Box>
     </PageWrapper>
   );
 }
 
 const filterContainerStyle = {
   display: "flex",
+  flexDirection: "row",
   alignItems: "center",
+  justifyContent: "left",
   gap: "16px",
+  width: "90vw",
   marginBottom: "16px",
-  width: "100%"
 };
 
 const buttonStyle = {
   marginLeft: "8px",
   color: "white"
+};
+
+// Full width chart container
+const chartContainerStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center", // Ensures charts are spaced evenly
+  alignItems: "center", // Ensures charts stretch to fill the height
+  padding: "0 20px", // Optional padding to ensure some spacing
 };

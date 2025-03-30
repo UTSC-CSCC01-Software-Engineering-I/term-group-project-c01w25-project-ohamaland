@@ -12,101 +12,175 @@ import {
 } from "recharts";
 
 interface ISpendingChartProps {
-  data: {
+  folderSpending: {
+    [folderName: string]: [number, string];
+  };
+  spendingData: {
     date: string;
     amount: number;
-    category: string;
+  }[];
+  merchantSpending: {
+    merchant: string;
+    amount: number;
   }[];
 }
 
-const categoryColors = {
-  Home: chart.home,
-  Food: chart.food,
-  Clothing: chart.clothing,
-  Utilities: chart.utilities,
-  Entertainment: chart.entertainment,
-  Fixtures: chart.fixtures,
-  Furniture: chart.furniture,
-  Health: chart.health,
-  Beauty: chart.beauty,
-  Electronics: chart.electronics
-} as const;
+interface IPieChartPayload {
+  payload: {
+    name: string;
+    amount: number;
+    color?: string;
+  };
+}
 
-export default function SpendingChart(props: ISpendingChartProps) {
-  console.log("Props received:", props);
-  const sortedSpendingData = [...props.data]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .reverse();
-
-  const aggregatedData = Object.entries(
-    props.data.reduce(
-      (acc, item) => {
-        acc[item.category] = (acc[item.category] || 0) + item.amount;
-        return acc;
-      },
-      {} as Record<string, number>
-    )
-  ).map(([category, amount]) => ({
-    category,
-    amount
+export default function SpendingChart({ folderSpending, spendingData, merchantSpending }: ISpendingChartProps) {
+  console.log("folderSpending:", folderSpending);
+  console.log("spendingData:", spendingData);
+  console.log("merchantSpending:", merchantSpending);
+  const folderData = Object.entries(folderSpending).map(([folder, [amount, color]]) => ({
+    name: folder,
+    amount,
+    color
   }));
 
+  const merchantColors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+  const merchantData = merchantSpending.map((item, index) => ({
+    name: item.merchant,
+    amount: item.amount,
+    color: merchantColors[index % merchantColors.length]
+  }));
+
+  const sortedSpendingData = [...spendingData].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
   return (
-    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: "20px",
+        justifyContent: "space-between",
+        width: "100%",
+        padding: "16px",
+        flexWrap: "nowrap", // Ensure all three charts stay in one row
+        overflowX: "auto" // Prevents overflow issues
+      }}
+    >
+      {/* Spending by Folder Pie Chart */}
       <div
         style={{
-          width: "45%",
-          minWidth: "450px",
+          flex: 1,
+          minWidth: "33%",
+          maxWidth: "33%",
           backgroundColor: background.light,
           padding: "16px",
-          borderRadius: "8px"
+          borderRadius: "8px",
+          fontFamily: "Arial, Helvetica, sans-serif",
+          textAlign: "center"
         }}
       >
-        <h3>Spending by Category</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <h3>Spending by Folder</h3>
+        <ResponsiveContainer width="100%" height={400}>
           <PieChart>
             <Pie
-              data={aggregatedData}
+              data={folderData}
               dataKey="amount"
-              nameKey="category"
+              nameKey="name"
               cx="50%"
               cy="50%"
               outerRadius={100}
-              label
+              label={({ name }) => name}
             >
-              {aggregatedData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={
-                    categoryColors[
-                      entry.category as keyof typeof categoryColors
-                    ] || chart.default
-                  }
-                />
+              {folderData.map((entry, idx) => (
+                <Cell key={`folder-cell-${idx}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              content={({ active, payload }: { active?: boolean; payload?: IPieChartPayload[] }) => {
+                if (active && payload && payload.length) {
+                  const { name, amount } = payload[0].payload;
+                  return (
+                    <div className="custom-tooltip" style={{ padding: "10px", backgroundColor: "#fff", borderRadius: "5px", fontFamily: "Arial, Helvetica, sans-serif" }}>
+                      <strong>{name}</strong>
+                      <p>Total: ${amount.toFixed(2)}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
+      {/* Spending Over Time Line Chart */}
       <div
         style={{
-          width: "45%",
-          minWidth: "450px",
+          flex: 1,
+          minWidth: "33%",
+          maxWidth: "33%",
           backgroundColor: background.light,
           padding: "16px",
-          borderRadius: "8px"
+          borderRadius: "8px",
+          fontFamily: "Arial, Helvetica, sans-serif",
+          textAlign: "center"
         }}
       >
         <h3>Spending Over Time</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}>
           <LineChart data={sortedSpendingData}>
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             <Line type="monotone" dataKey="amount" stroke={chart.line} />
           </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Spending by Merchant Pie Chart */}
+      <div
+        style={{
+          flex: 1,
+          minWidth: "33%",
+          maxWidth: "33%",
+          backgroundColor: background.light,
+          padding: "16px",
+          borderRadius: "8px",
+          fontFamily: "Arial, Helvetica, sans-serif",
+          textAlign: "center"
+        }}
+      >
+        <h3>Spending by Merchant</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <PieChart>
+            <Pie
+              data={merchantData}
+              dataKey="amount"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label={({ name }) => name}
+            >
+              {merchantData.map((entry, idx) => (
+                <Cell key={`merchant-cell-${idx}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              content={({ active, payload }: { active?: boolean; payload?: IPieChartPayload[] }) => {
+                if (active && payload && payload.length) {
+                  const { name, amount } = payload[0].payload;
+                  return (
+                    <div className="custom-tooltip" style={{ padding: "10px", backgroundColor: "#fff", borderRadius: "5px", fontFamily: "Arial, Helvetica, sans-serif" }}>
+                      <strong>{name}</strong>
+                      <p>Total: ${amount.toFixed(2)}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+          </PieChart>
         </ResponsiveContainer>
       </div>
     </div>

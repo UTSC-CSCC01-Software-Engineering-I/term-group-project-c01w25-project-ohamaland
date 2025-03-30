@@ -16,7 +16,8 @@ from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
 
 from .signals import (
-    calculate_category_spending,
+    calculate_folder_spending,
+    calculate_merchant_spending,
     calculate_total_spending,
     get_spending_periods,
 )
@@ -55,6 +56,9 @@ class ReceiptOverview(APIView):
         # If the group is not given, assume it's a personal receipt
         if not request.data.get("group"):
             request.data["user"] = request.user.id
+
+        if not request.data.get("folder"):
+            request.data["folder"], _ = Folder.objects.get_or_create(user=request.user, name="All")
 
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -668,12 +672,14 @@ class InsightsView(generics.ListAPIView):
         return Insights.objects.filter(user=user).order_by("-date")
 
     def get_insights(self, user, period, start_date):
-        category_spending = calculate_category_spending(user, start_date)
+        folder_spending = calculate_folder_spending(user, start_date)
         total_spending = calculate_total_spending(user, start_date)
+        merchant_spending = calculate_merchant_spending(user, start_date)
 
         return {
-            "category_spending": category_spending,
+            "folder_spending": folder_spending,
             "total_spending": total_spending,
+            "merchant_spending": merchant_spending,
             "period": period,
             "date": start_date,
         }

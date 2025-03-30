@@ -33,26 +33,44 @@ def get_all_dates_in_period(start_date, end_date):
         current_date += timedelta(days=1)
     return date_list
 
-
-def calculate_category_spending(user, start_date):
-    """Calculate category spending for the user."""
+def calculate_merchant_spending(user, start_date):
+    """Calculate merchant spending for the user."""
     if not user:
         return {}
 
-    category_spending = {}
-
-    # Sum spending for each category per receipt
+    merchant_spending = {}
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
     for receipt in receipts:
-        for item in receipt.items.all():
-            category_spending[item.category] = (
-                category_spending.get(item.category, 0) + item.price
-            )
+        merchant_name = receipt.merchant
+        if merchant_name not in merchant_spending:
+            merchant_spending[merchant_name] = 0.0
+        merchant_spending[merchant_name] += float(receipt.total_amount)
 
     # Ensure the amounts are floats
-    category_spending = {key: float(value) for key, value in category_spending.items()}
+    merchant_spending = {key: float(value) for key, value in merchant_spending.items()}
 
-    return category_spending
+    return merchant_spending
+
+
+def calculate_folder_spending(user, start_date):
+    """Calculate Folder spending for the user."""
+    if not user:
+        return {}
+
+    folder_spending = {}
+    receipts = Receipt.objects.filter(user=user, date__gte=start_date)
+    for receipt in receipts:
+        folder_name = receipt.folder.name
+        folder_color = receipt.folder.color
+        if folder_name and folder_name == "All":
+            continue
+        if folder_name not in folder_spending:
+            folder_spending[folder_name] = [0.0, folder_color]
+        folder_spending[folder_name][0] += float(receipt.total_amount)
+
+    folder_spending = {key: [float(value[0]), value[1]] for key, value in folder_spending.items()}
+
+    return folder_spending
 
 
 def calculate_total_spending(user, start_date):
@@ -100,33 +118,42 @@ def update_insights(user):
     today = now().date()
     periods = get_spending_periods()
 
-    # Calculate category spending for the user
-    category_spending = {}
+    folder_spending = {}
     total_spending = {}
+    merchant_spending = {}
 
     for period, start_date in periods.items():
         print(f"Processing period: {period}, start_date: {start_date}")
 
-        # Calculate category spending for this period
-
-        category_spending[period] = calculate_category_spending(user, start_date)
+        folder_spending[period] = calculate_folder_spending(user, start_date)
 
         # Calculate total spending for this period
         total_spending[period] = calculate_total_spending(user, start_date)
+
+        merchant_spending[period] = calculate_merchant_spending(user, start_date)
 
         # Calculate total spending in this period
         total_spent = sum(total_spending[period].values())
 
         print(f"Total spent for period {period}: {total_spent}")
         print(
-            f"Category spending for period {period}: {category_spending.get(period, {})}"
+            f"Category spending for period {period}: {folder_spending.get(period, {})}"
         )
 
-        category_spending_str = {
+        folder_spending_str = {
+        key: (
+            float(value[0]) if isinstance(value, list) else (
+                value.isoformat() if isinstance(value, date) else float(value)
+            )
+        )
+        for key, value in folder_spending[period].items()
+}
+
+        merchant_spending_str = {
             key: (
                 value.isoformat() if isinstance(value, date) else float(value)
             )  # Convert date to string & Decimal to float
-            for key, value in category_spending[period].items()
+            for key, value in merchant_spending[period].items()
         }
 
         # Update the spending analytics for this period
@@ -136,7 +163,8 @@ def update_insights(user):
             date=today,
             defaults={
                 "total_spent": total_spent,
-                "category_spending": category_spending_str,
+                "folder_spending": folder_spending_str,
+                "merchant_spending": merchant_spending_str,
             },
         )
 

@@ -103,8 +103,8 @@ class Folder(models.Model):
 
     def __str__(self):
         return self.name
+    
 
-      
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("Debit", "Debit Card"),
@@ -137,6 +137,7 @@ class Receipt(models.Model):
     color = models.CharField(max_length=7, default="#A9A9A9")
     class Meta:
         db_table = "receipt"
+
 
     def clean(self):
         if self.user and self.group:
@@ -262,8 +263,9 @@ class Insights(models.Model):
         ("Yearly", "Yearly"),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category_spending = models.JSONField(default=dict)
+    folder_spending = models.JSONField(default=dict)
     total_spent = models.DecimalField(max_digits=10, decimal_places=2)
+    merchant_spending = models.JSONField(default=dict)
     period = models.TextField(max_length=20, choices=TIME_CHOICES)
     date = models.DateField(default=now)
 
