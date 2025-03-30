@@ -817,16 +817,6 @@ class NotificationOverview(APIView):
 
 class NotificationDetail(APIView):
     permission_classes = [IsAuthenticated]
-    
-    def get(self, request, pk):
-        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
-        if receipt is None:
-            return Response(
-                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = ReceiptSerializer(receipt)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get(self, request, pk):
         notification = Notification.objects.filter(id=pk, user=request.user).first()
