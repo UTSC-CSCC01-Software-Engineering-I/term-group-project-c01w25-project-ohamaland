@@ -80,7 +80,6 @@ export default function GroupsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(groupToSave),
       });
-      console.log("Submitting group:", groupToSave);
 
       if (response && response.ok) {
         const savedGroup = await response.json();
@@ -94,24 +93,37 @@ export default function GroupsPage() {
 
   const handleSaveGroupUpdate = async (updatedGroup: Group) => {
     try {
+      const payload = {
+        name: updatedGroup.name,
+      };
+  
       const response = await fetchWithAuth(groupsDetailApi(updatedGroup.id), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedGroup),
+        body: JSON.stringify(payload),
       });
 
-      if (response && response.ok) {
-        const savedGroup = await response.json();
-        setGroups((prev) =>
-          prev.map((g) => (g.id === savedGroup.id ? savedGroup : g))
-        );
-        handleCloseDialog();
+      if (!response) {
+        console.error("No response received from backend.");
+        return;
       }
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Backend error details:", errorData);
+        return;
+      }
+  
+      const savedGroup = await response.json();
+      setGroups((prev) =>
+        prev.map((g) => (g.id === savedGroup.id ? savedGroup : g))
+      );
+      handleCloseDialog();
     } catch (error) {
       console.error("Error updating group:", error);
     }
-  };
-
+  };  
+  
   return (
     <PageWrapper>
       <Box sx={filterWrapperStyle}>
@@ -139,6 +151,7 @@ export default function GroupsPage() {
           endDate={endDate}
           filterTerm={filterTerm}
           onGroupDeleted={handleGroupDeleted}
+          onOpenDialog={handleOpenDialog}
           userId={userId ?? -1}
         />
       </Box>

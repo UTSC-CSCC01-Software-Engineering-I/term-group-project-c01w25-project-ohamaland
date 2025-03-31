@@ -14,6 +14,7 @@ import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
 interface IGroupCardProps {
   group: Group;
   onGroupDeleted: (groupId: number) => void;
+  onOpenDialog: (group: Group) => void;
 }
 
 async function getUserIdFromBackend() {
@@ -112,7 +113,7 @@ export default function GroupCard(props: IGroupCardProps) {
   }
 
   return (
-    <Card sx={cardStyle}>
+    <Card sx={cardStyle} onClick={() => props.onOpenDialog(props.group)}>
       <CardContent>
         <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
         <Typography sx={textStyle}>Creator: {props.group.creator}</Typography>
@@ -129,7 +130,10 @@ export default function GroupCard(props: IGroupCardProps) {
             variant="contained"
             color="error"
             sx={buttonStyle}
-            onClick={() => handleOpenDialog("delete")}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenDialog("delete");
+            }}
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete Group"}

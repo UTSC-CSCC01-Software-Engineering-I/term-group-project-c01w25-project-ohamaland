@@ -21,29 +21,29 @@ interface IGroupDialogProps {
 
 export default function GroupDialog(props: IGroupDialogProps) {
   const { open, onClose, onSave, title, group } = props;
-  const [editedGroup, setEditedGroup] = useState<Group | null>(group || null);
+  const [editedGroup, setEditedGroup] = useState<Group>({
+    id: Date.now(),
+    creator: 1,
+    name: "",
+    created_at: new Date().toISOString(),
+    members: [],
+    receipts: [],
+  });
 
   useEffect(() => {
-    setEditedGroup(group || null);
+    if (group) {
+      setEditedGroup(group);
+    }
   }, [group]);
 
   const handleSave = () => {
-    const newGroup: Group = {
-      id: editedGroup?.id ?? Date.now(),
-      creator: editedGroup?.creator ?? 1,
-      name: editedGroup?.name ?? "",
-      created_at: editedGroup?.created_at ?? new Date().toISOString(),
-      members: editedGroup?.members ?? [],
-      receipts: editedGroup?.receipts ?? [],
-    };
-  
-    onSave(newGroup);
+    onSave(editedGroup);
     onClose();
-  };  
+  };
 
   const handleChange = (field: keyof Group, value: string) => {
     setEditedGroup((prev) => ({
-      ...prev!,
+      ...prev,
       [field]: value
     }));
   };
@@ -57,7 +57,7 @@ export default function GroupDialog(props: IGroupDialogProps) {
           <TextField
             label="Group Name"
             fullWidth
-            value={editedGroup?.name || ""}
+            value={editedGroup.name}
             onChange={(e) => handleChange("name", e.target.value)}
           />
 
@@ -65,7 +65,7 @@ export default function GroupDialog(props: IGroupDialogProps) {
             <Button
               variant="contained"
               color="primary"
-              onClick={group ? () => onSave(editedGroup!) : handleSave}
+              onClick={handleSave}
             >
               Save
             </Button>

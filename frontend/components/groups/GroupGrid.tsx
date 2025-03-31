@@ -11,6 +11,7 @@ interface IGroupGridProps {
   filterTerm: string;
   onGroupDeleted: (groupId: number) => void;
   userId: number;
+  onOpenDialog: (group: Group) => void;
 }
 
 /**
@@ -31,11 +32,12 @@ export default function GroupGrid(props: IGroupGridProps) {
     <Grid2 container spacing={3}>
       {filteredGroups.map((group, index) => (
         <GroupCard
-          key={`${group.id}-${index}`}
-          group={group}
-          onGroupDeleted={props.onGroupDeleted}
-          userId={props.userId}
-        />
+        key={`${group.id}-${index}`}
+        group={group}
+        onGroupDeleted={props.onGroupDeleted}
+        onOpenDialog={props.onOpenDialog}
+        userId={props.userId}
+      />
       ))}
     </Grid2>
   );

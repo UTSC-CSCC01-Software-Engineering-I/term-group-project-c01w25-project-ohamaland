@@ -56,33 +56,22 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
-    identifier = serializers.CharField(write_only=True, required=False)
-    user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(source="user.id")
+    group = serializers.IntegerField(source="group.id")
 
     class Meta:
         model = GroupMembers
-        fields = ["id", "user", "identifier", "joined_at"]
+        fields = ["id", "group", "user_id", "joined_at"]
 
-    def validate(self, data):
-        identifier = data.get("identifier")
+    def create(self, validated_data):
+        user_id = validated_data.pop("user")["id"]
+        group_id = validated_data.pop("group")["id"]
 
-        if not identifier:
-            raise serializers.ValidationError(
-                "Either 'email' or 'username' must be provided."
-            )
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
 
-        user = (
-            User.objects.filter(email=identifier).first()
-            or User.objects.filter(username=identifier).first()
-        )
+        return GroupMembers.objects.create(user=user, group=group, **validated_data)
 
-        if not user:
-            raise serializers.ValidationError("User not found.")
-
-        data["user"] = user  # Add user to validated data
-        del data["identifier"]
-
-        return data
 
 
 class GroupReceiptSplitSerializer(serializers.ModelSerializer):
@@ -271,12 +260,13 @@ class GroupSerializer(serializers.ModelSerializer):
         try:
             with transaction.atomic():
                 group = Group.objects.create(**validated_data)
-                GroupMembers.objects.bulk_create(
-                    [
-                        GroupMembers(group=group, **member_data)
-                        for member_data in members_data
-                    ]
-                )
+                GroupMembers.objects.bulk_create([
+                    GroupMembers(
+                        group=group,
+                        user=User.objects.get(id=member_data["user"]["id"])
+                    )
+                    for member_data in members_data
+                ])
                 Receipt.objects.bulk_create(
                     [
                         Receipt(group=group, **receipt_data)
@@ -289,38 +279,40 @@ class GroupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Failed to create group: {str(e)}")
 
     def update(self, instance, validated_data):
-        members_data = validated_data.pop("members", [])
-        receipts_data = validated_data.pop("receipts", [])
+        members_data = validated_data.pop("members", None)
+        receipts_data = validated_data.pop("receipts", None)
 
         try:
             with transaction.atomic():
-                # Update group fields
+                # Update regular fields like name
                 for key, value in validated_data.items():
                     setattr(instance, key, value)
                 instance.save()
 
-                # Update members
-                # Should prevent deletion of creator from group
-                GroupMembers.objects.filter(group=instance).exclude(
-                    user=instance.creator
-                ).delete()
-                GroupMembers.objects.bulk_create(
-                    [
-                        GroupMembers(group=instance, **member_data)
-                        for member_data in members_data
-                    ]
-                )
+                # Only update members if provided
+                if members_data is not None:
+                    GroupMembers.objects.filter(group=instance).exclude(
+                        user=instance.creator
+                    ).delete()
 
-                # Update receipts
-                Receipt.objects.filter(group=instance).delete()
-                Receipt.objects.bulk_create(
-                    [
+                    GroupMembers.objects.bulk_create([
+                        GroupMembers(
+                            group=instance,
+                            user=User.objects.get(id=member_data["user"]["id"])
+                        )
+                        for member_data in members_data
+                    ])
+
+                # Only update receipts if provided
+                if receipts_data is not None:
+                    Receipt.objects.filter(group=instance).delete()
+                    Receipt.objects.bulk_create([
                         Receipt(group=instance, **receipt_data)
                         for receipt_data in receipts_data
-                    ]
-                )
+                    ])
 
                 return instance
+
         except Exception as e:
             raise serializers.ValidationError(f"Failed to update group: {str(e)}")
 
