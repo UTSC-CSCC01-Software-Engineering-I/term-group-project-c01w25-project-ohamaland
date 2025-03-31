@@ -1,5 +1,5 @@
 import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell, Legend } from "recharts";
-import { background } from "@/styles/colors";
+import { Box, Typography } from "@mui/material";
 
 interface ISpendingByFolderChartProps {
   folderSpending: {
@@ -16,66 +16,61 @@ const SpendingByFolderChart = ({ folderSpending, currency }: ISpendingByFolderCh
   }));
 
   return (
-    <div
-      style={{
-        flex: 1,
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-        padding: "16px",
-        borderRadius: "8px",
-        fontFamily: "Arial, Helvetica, sans-serif",
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column", // Ensures proper stacking of content
-        justifyContent: "center", // Centers the content
-      }}
-    >
+    <Box sx={chartContainerStyle}>
       <h3>Spending by Folder ({currency})</h3>
       <ResponsiveContainer width="100%" height={350}>
         <PieChart>
-          <Pie
-            data={folderData}
-            dataKey="amount"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-          >
+          <Pie data={folderData} dataKey="amount" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
             {folderData.map((entry, idx) => (
               <Cell key={`folder-cell-${idx}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const { name, amount } = payload[0].payload;
-                return (
-                  <div className="custom-tooltip" style={{ padding: "10px", backgroundColor: "#fff", borderRadius: "5px" }}>
-                    <strong>{name}</strong>
-                    <p>Total: ${amount.toFixed(2)}</p>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconSize={20}
-            layout="horizontal"
-            formatter={(value, entry) => {
-              const { color } = entry;
-              return (
-                <span style={{ color }}>
-                  {value}
-                </span>
-              );
-            }}
-          />
+          <Tooltip content={CustomTooltip} />
+          <Legend verticalAlign="bottom" align="center" iconSize={20} layout="horizontal" formatter={LegendFormatter} />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
+};
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const { name, amount } = payload[0].payload;
+    return (
+      <Box sx={tooltipStyle}>
+        <Typography variant="subtitle2">{name}</Typography>
+        <Typography variant="body2">Total: ${amount.toFixed(2)}</Typography>
+      </Box>
+    );
+  }
+  return null;
+};
+
+const LegendFormatter = (value: string, entry: any) => {
+  return <span style={{ color: entry.color }}>{value}</span>;
+};
+
+const chartContainerStyle = {
+  flex: 1,
+  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  padding: "16px",
+  borderRadius: "8px",
+  fontFamily: "Arial, Helvetica, sans-serif",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+};
+
+const titleStyle = {
+  marginBottom: "8px",
+};
+
+const tooltipStyle = {
+  padding: "10px",
+  backgroundColor: "#fff",
+  borderRadius: "5px",
+  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
 };
 
 export default SpendingByFolderChart;

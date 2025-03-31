@@ -184,6 +184,6 @@ const chartContainerStyle = {
 
 const loadingBarStyle = {
   width: "100%",
-  height: "4px",
-  marginBottom: "12px",
+  height: "8px",
+  marginBottom: "16px",
 };

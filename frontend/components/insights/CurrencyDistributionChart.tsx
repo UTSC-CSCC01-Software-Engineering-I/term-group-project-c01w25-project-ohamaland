@@ -14,89 +14,84 @@ const currencyFlagMapping: Record<string, string> = {
 
 const CurrencyDistributionChart = ({ currencyDistribution }: ICurrencyDistributionChartProps) => {
   return (
-    <div
-      style={{
-        flex: 1,
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-        padding: "16px",
-        borderRadius: "8px",
-        fontFamily: "Arial, Helvetica, sans-serif",
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-      }}
-    >
+    <Box sx={containerStyle}>
       <h3>Currency Distribution</h3>
       {currencyDistribution.map(({ currency: currencyCode, percentage }) => {
         const flagUrl = currencyFlagMapping[currencyCode] || "";
         return (
-          <Box key={currencyCode} sx={{ marginBottom: "16px" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center", // Align flag and div horizontally
-                marginBottom: "8px", // Space between the row and progress bar section
-              }}
-            >
-              {/* Flag */}
-              {flagUrl && (
-                <div
-                  style={{
-                    width: "40px", // Set width
-                    height: "40px", // Set height equal to width for a circle
-                    borderRadius: "50%", // Make the flag a circle
-                    overflow: "hidden", // Hide overflow content
-                    marginRight: "8px", // Space between flag and div
-                  }}
-                >
-                  <img
-                    src={flagUrl}
-                    alt={`${currencyCode} flag`}
-                    style={{
-                      width: "100%", // Make image take full width
-                      height: "100%", // Make image take full height
-                      objectFit: "cover", // Maintain aspect ratio, fill the circle
-                    }}
-                  />
-                </div>
-              )}
-              {/* Div with currency and percentage on top, progress bar on bottom */}
-              <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                {/* Currency and percentage on top */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "8px", // Space between currency/percentage and progress bar
-                  }}
-                >
-                  <span>{currencyCode}</span>
-                  <span>{percentage !== undefined ? percentage.toFixed(2) : "N/A"}%</span>
-                </div>
-                {/* Progress bar on bottom */}
-                <div style={{ flex: 1 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={percentage || 0}
-                    sx={{
-                      height: 10,
-                      borderRadius: 5,
-                      backgroundColor: "#000000",
-                      "& .MuiLinearProgress-bar": {
-                        borderRadius: 5,
-                        backgroundColor: chart.line,
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+          <Box key={currencyCode} sx={currencyItemStyle}>
+            <Box sx={flagContainerStyle}>{flagUrl && <img src={flagUrl} alt={`${currencyCode} flag`} style={flagStyle} />}</Box>
+            <Box sx={currencyInfoStyle}>
+              <Box sx={currencyLabelStyle}>
+                <span>{currencyCode}</span>
+                <span>{percentage !== undefined ? percentage.toFixed(2) : "N/A"}%</span>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={percentage || 0}
+                sx={progressBarStyle}
+              />
+            </Box>
           </Box>
         );
       })}
-    </div>
+    </Box>
   );
 };
 
 export default CurrencyDistributionChart;
+
+// Styles
+const containerStyle = {
+  flex: 1,
+  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  padding: "16px",
+  borderRadius: "8px",
+  fontFamily: "Arial, Helvetica, sans-serif",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+};
+
+const currencyItemStyle = {
+  display: "flex",
+  alignItems: "center",
+  marginBottom: "16px",
+};
+
+const flagContainerStyle = {
+  width: "40px",
+  height: "40px",
+  borderRadius: "50%",
+  overflow: "hidden",
+  marginRight: "8px",
+};
+
+const flagStyle = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+};
+
+const currencyInfoStyle = {
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+};
+
+const currencyLabelStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginBottom: "8px",
+};
+
+const progressBarStyle = {
+  height: 10,
+  borderRadius: 5,
+  backgroundColor: "#000000",
+  "& .MuiLinearProgress-bar": {
+    borderRadius: 5,
+    backgroundColor: chart.line,
+  },
+};
