@@ -8,7 +8,7 @@ import {
   Typography,
   styled
 } from "@mui/material";
-import InputBase from '@mui/material/InputBase';
+import InputBase from "@mui/material/InputBase";
 
 interface IDropDownSelectorProps {
   value: string;
@@ -20,29 +20,29 @@ interface IDropDownSelectorProps {
 }
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
-  '& .MuiInputBase-input': {
+  "& .MuiInputBase-input": {
     borderRadius: 4,
-    position: 'relative',
+    position: "relative",
     backgroundColor: theme.palette.background.paper,
-    border: '1px solid rgba(0, 0, 0, 0.23)',
+    border: "1px solid rgba(0, 0, 0, 0.23)",
     fontSize: 16,
-    padding: '7px 16px 7px 16px', // This is an exception to the 8px increment to match default padding
-    height: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    '&:focus': {
-      borderColor: 'rgba(0, 0, 0, 0.23)',
-      boxShadow: 'none',
-    },
-  },
+    padding: "7px 16px 7px 16px", // This is an exception to the 8px increment to match default padding
+    height: "40px",
+    display: "flex",
+    alignItems: "center",
+    transition: theme.transitions.create(["border-color", "box-shadow"]),
+    "&:focus": {
+      borderColor: "rgba(0, 0, 0, 0.23)",
+      boxShadow: "none"
+    }
+  }
 }));
 
 export default function DropDownSelector(props: IDropDownSelectorProps) {
   return (
     <FormControl variant="standard" fullWidth sx={props.formControlStyle}>
-      <Select 
-        value={props.value} 
+      <Select
+        value={props.value}
         onChange={props.onChange}
         input={<StyledInput />}
       >

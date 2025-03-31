@@ -1,5 +1,12 @@
-import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell, Legend } from "recharts";
 import { Box } from "@mui/material";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip
+} from "recharts";
 
 interface ISpendingByPaymentMethodChartProps {
   paymentMethodSpending: { payment_method: string; amount: number }[];
@@ -8,11 +15,14 @@ interface ISpendingByPaymentMethodChartProps {
 
 const graphColors = ["#8884d8", "#82ca9d", "#ff8c00", "#d0ed57"];
 
-const SpendingByPaymentMethodChart = ({ paymentMethodSpending, currency }: ISpendingByPaymentMethodChartProps) => {
+const SpendingByPaymentMethodChart = ({
+  paymentMethodSpending,
+  currency
+}: ISpendingByPaymentMethodChartProps) => {
   const paymentMethodData = paymentMethodSpending.map((item, index) => ({
     name: item.payment_method,
     amount: item.amount,
-    color: graphColors[index % graphColors.length],
+    color: graphColors[index % graphColors.length]
   }));
 
   return (
@@ -42,7 +52,9 @@ const SpendingByPaymentMethodChart = ({ paymentMethodSpending, currency }: ISpen
             align="center"
             iconSize={24}
             layout="horizontal"
-            formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
+            formatter={(value, entry) => (
+              <span style={{ color: entry.color }}>{value}</span>
+            )}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -73,13 +85,13 @@ const chartContainerStyle = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-start",
-  height: "100%",
+  height: "100%"
 };
 
 const tooltipStyle = {
   padding: "8px",
   backgroundColor: "#fff",
-  borderRadius: "5px",
+  borderRadius: "5px"
 };
 
 export default SpendingByPaymentMethodChart;

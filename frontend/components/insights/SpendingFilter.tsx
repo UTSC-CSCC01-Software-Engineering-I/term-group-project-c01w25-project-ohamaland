@@ -49,7 +49,6 @@ const filterContainerStyle = {
   flexWrap: "wrap" as const
 };
 
-
 const formControlStyle = {
   width: "160px",
   backgroundColor: "white",

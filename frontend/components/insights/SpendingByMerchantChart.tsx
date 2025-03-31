@@ -1,18 +1,37 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Box } from "@mui/material";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
 
 interface ISpendingByMerchantChartProps {
   merchantSpending: { merchant: string; amount: number }[];
   currency: string;
 }
 
-const graphColors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+const graphColors = [
+  "#FF6384",
+  "#36A2EB",
+  "#FFCE56",
+  "#4BC0C0",
+  "#9966FF",
+  "#FF9F40"
+];
 
-const SpendingByMerchantChart = ({ merchantSpending, currency }: ISpendingByMerchantChartProps) => {
+const SpendingByMerchantChart = ({
+  merchantSpending,
+  currency
+}: ISpendingByMerchantChartProps) => {
   const merchantData = merchantSpending.map((item, index) => ({
     name: item.merchant,
     amount: item.amount,
-    color: graphColors[index % graphColors.length],
+    color: graphColors[index % graphColors.length]
   }));
 
   return (
@@ -57,13 +76,13 @@ const chartContainerStyle = {
   textAlign: "center",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "flex-start",
+  justifyContent: "flex-start"
 };
 
 const tooltipStyle = {
   padding: "8px",
   backgroundColor: "#fff",
-  borderRadius: "5px",
+  borderRadius: "5px"
 };
 
 export default SpendingByMerchantChart;

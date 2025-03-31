@@ -9,9 +9,9 @@ interface IPageWrapperProps {
 export default function PageWrapper(props: IPageWrapperProps) {
   return (
     <Stack sx={pageContainerStyle}>
-     <Header/>
+      <Header />
       <Box sx={mainContentStyle}>
-        <SideBar loggedIn={true}/>
+        <SideBar loggedIn={true} />
         <Box sx={contentAreaStyle}>{props.children}</Box>
       </Box>
     </Stack>

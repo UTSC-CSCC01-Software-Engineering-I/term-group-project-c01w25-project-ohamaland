@@ -1,14 +1,14 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
 import { Receipt } from "@/types/receipts";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 import {
-  Divider,
-  Stack,
-  Typography,
-  Grid,
   Box,
+  Divider,
+  Grid,
   IconButton,
+  Stack,
+  Typography
 } from "@mui/material";
 
 interface IReceiptCardProps {
@@ -24,10 +24,10 @@ export default function ReceiptCard(props: IReceiptCardProps) {
   function getColorStripStyle(color: string) {
     return {
       backgroundColor: color,
-      height: '100%',
-      width: '16px',
-      borderRadius: '8px 0 0 8px'
-    }
+      height: "100%",
+      width: "16px",
+      borderRadius: "8px 0 0 8px"
+    };
   }
 
   return (
@@ -36,14 +36,10 @@ export default function ReceiptCard(props: IReceiptCardProps) {
         <Box style={getColorStripStyle("#c6fc03")} />
       </Grid>
       <Grid xs={11} sx={cardContentStyle}>
-        <Stack
-          direction="column"
-          justifyContent="space-between"
-          mb={1}
-        >
+        <Stack direction="column" justifyContent="space-between" mb={1}>
           <Box sx={headerBoxStyle}>
             <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
-            <IconButton 
+            <IconButton
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteReceipt(receipt.id);
@@ -67,18 +63,20 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} x{item.quantity} @{" "}
-            ${Number(item.price).toFixed(2)} {receipt.currency}
+            • {item.name} x{item.quantity} @ ${Number(item.price).toFixed(2)}{" "}
+            {receipt.currency}
           </Typography>
         ))}
 
         {receipt.items.length > 2 && (
-          <Typography sx={{... darkTextStyle, marginLeft: "8px"}}>
+          <Typography sx={{ ...darkTextStyle, marginLeft: "8px" }}>
             + {receipt.items.length - 2} more...
           </Typography>
         )}
 
-        <Typography sx={{ ...darkTextStyle, textAlign: "right" }}>{receipt.payment_method}</Typography>
+        <Typography sx={{ ...darkTextStyle, textAlign: "right" }}>
+          {receipt.payment_method}
+        </Typography>
       </Grid>
     </Grid>
   );
@@ -94,7 +92,7 @@ const cardStyle = {
 
 const cardContentStyle = {
   padding: "8px"
-}
+};
 
 const merchantTextStyle = {
   fontWeight: 600,
@@ -130,9 +128,9 @@ const darkTextStyle = {
 const headerBoxStyle = {
   display: "flex",
   justifyContent: "space-between"
-}
+};
 
 const deleteIconStyle = {
   color: textLightGrey,
   padding: 0
-}
+};

@@ -1,20 +1,20 @@
-import * as React from 'react';
 import { ReceiptItem } from "@/types/receipts";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import AddIcon from '@mui/icons-material/Add';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import { Typography } from '@mui/material';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import * as React from "react";
 
 interface IItemsTableProps {
   items: ReceiptItem[];
@@ -34,18 +34,25 @@ function priceRow(qty: number, unit: number) {
 export default function ItemsTable(props: IItemsTableProps) {
   const { items, onItemsChange, onTaxChange, initialTax } = props;
   const [taxRate, setTaxRate] = React.useState(() => {
-    const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const itemsSubtotal = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
     if (itemsSubtotal > 0 && initialTax) {
       return (initialTax / itemsSubtotal) * 100;
     }
     return 0;
   });
 
-  const handleItemChange = (index: number, field: keyof ReceiptItem, value: string | number) => {
+  const handleItemChange = (
+    index: number,
+    field: keyof ReceiptItem,
+    value: string | number
+  ) => {
     const newItems = [...items];
     newItems[index] = {
       ...newItems[index],
-      [field]: value === '' ? 0 : value
+      [field]: value === "" ? 0 : value
     };
     onItemsChange(newItems);
   };
@@ -57,7 +64,7 @@ export default function ItemsTable(props: IItemsTableProps) {
 
   const handleAddItem = () => {
     const newItem: ReceiptItem = {
-      name: '',
+      name: "",
       price: 0,
       quantity: 1
     };
@@ -65,17 +72,22 @@ export default function ItemsTable(props: IItemsTableProps) {
   };
 
   const handleTaxRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value === '' ? 0 : Number(event.target.value);
+    const value = event.target.value === "" ? 0 : Number(event.target.value);
     setTaxRate(value);
     if (onTaxChange) {
-      const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const itemsSubtotal = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
       const taxAmount = (itemsSubtotal * value) / 100;
       onTaxChange(taxAmount);
     }
   };
 
-  const handleTaxAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value === '' ? 0 : Number(event.target.value);
+  const handleTaxAmountChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value === "" ? 0 : Number(event.target.value);
     if (itemsSubtotal > 0) {
       const newTaxRate = (value / itemsSubtotal) * 100;
       setTaxRate(newTaxRate);
@@ -85,13 +97,16 @@ export default function ItemsTable(props: IItemsTableProps) {
     }
   };
 
-  const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const itemsSubtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const taxAmount = (itemsSubtotal * taxRate) / 100;
   const total = itemsSubtotal + taxAmount;
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography marginTop={"8px"} marginBottom={"4px"}>
           Items
         </Typography>
@@ -100,11 +115,11 @@ export default function ItemsTable(props: IItemsTableProps) {
           startIcon={<AddIcon />}
           onClick={handleAddItem}
           sx={{
-            color: 'rgba(0, 0, 0, 0.54)',
-            borderColor: 'rgba(0, 0, 0, 0.54)',
-            '&:hover': {
-              color: 'rgba(0, 0, 0, 0.87)',
-              borderColor: 'rgba(0, 0, 0, 0.87)'
+            color: "rgba(0, 0, 0, 0.54)",
+            borderColor: "rgba(0, 0, 0, 0.54)",
+            "&:hover": {
+              color: "rgba(0, 0, 0, 0.87)",
+              borderColor: "rgba(0, 0, 0, 0.87)"
             }
           }}
         >
@@ -128,7 +143,9 @@ export default function ItemsTable(props: IItemsTableProps) {
                 <TableCell>
                   <TextField
                     value={item.name}
-                    onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                    onChange={(e) =>
+                      handleItemChange(index, "name", e.target.value)
+                    }
                     size="small"
                     fullWidth
                     placeholder="Enter item name"
@@ -137,19 +154,29 @@ export default function ItemsTable(props: IItemsTableProps) {
                 <TableCell align="right">
                   <TextField
                     value={item.quantity}
-                    onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
+                    onChange={(e) =>
+                      handleItemChange(
+                        index,
+                        "quantity",
+                        Number(e.target.value)
+                      )
+                    }
                     size="small"
-                    sx={{ width: '100px' }}
+                    sx={{ width: "100px" }}
                   />
                 </TableCell>
                 <TableCell align="right">
                   <TextField
                     value={item.price}
-                    onChange={(e) => handleItemChange(index, 'price', Number(e.target.value))}
+                    onChange={(e) =>
+                      handleItemChange(index, "price", Number(e.target.value))
+                    }
                     size="small"
-                    sx={{ width: '100px' }}
+                    sx={{ width: "100px" }}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      )
                     }}
                   />
                 </TableCell>
@@ -157,13 +184,13 @@ export default function ItemsTable(props: IItemsTableProps) {
                   ${ccyFormat(priceRow(item.quantity, item.price))}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton 
+                  <IconButton
                     onClick={() => handleDeleteItem(index)}
                     size="small"
-                    sx={{ 
-                      color: 'rgba(0, 0, 0, 0.54)',
-                      '&:hover': {
-                        color: 'rgba(0, 0, 0, 0.87)'
+                    sx={{
+                      color: "rgba(0, 0, 0, 0.54)",
+                      "&:hover": {
+                        color: "rgba(0, 0, 0, 0.87)"
                       }
                     }}
                   >
@@ -173,14 +200,18 @@ export default function ItemsTable(props: IItemsTableProps) {
               </TableRow>
             ))}
             <TableRow>
-              <TableCell colSpan={3} align="right">Items Subtotal</TableCell>
+              <TableCell colSpan={3} align="right">
+                Items Subtotal
+              </TableCell>
               <TableCell align="right">
                 <TextField
                   value={itemsSubtotal}
                   size="small"
-                  sx={{ width: '100px' }}
+                  sx={{ width: "100px" }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    )
                   }}
                   disabled
                 />
@@ -195,9 +226,11 @@ export default function ItemsTable(props: IItemsTableProps) {
                   value={taxRate}
                   onChange={handleTaxRateChange}
                   size="small"
-                  sx={{ width: '100px' }}
+                  sx={{ width: "100px" }}
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    )
                   }}
                 />
               </TableCell>
@@ -206,19 +239,21 @@ export default function ItemsTable(props: IItemsTableProps) {
                   value={taxAmount}
                   onChange={handleTaxAmountChange}
                   size="small"
-                  sx={{ width: '100px' }}
+                  sx={{ width: "100px" }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    )
                   }}
                 />
               </TableCell>
               <TableCell></TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={3} align="right">Total</TableCell>
-              <TableCell align="right">
-                ${ccyFormat(total)}
+              <TableCell colSpan={3} align="right">
+                Total
               </TableCell>
+              <TableCell align="right">${ccyFormat(total)}</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableBody>

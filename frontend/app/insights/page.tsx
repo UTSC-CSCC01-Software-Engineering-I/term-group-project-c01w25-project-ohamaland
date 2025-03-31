@@ -5,12 +5,16 @@ import CurrencyDistributionChart from "@/components/insights/CurrencyDistributio
 import SpendingByFolderChart from "@/components/insights/SpendingByFolderChart";
 import SpendingByMerchantChart from "@/components/insights/SpendingByMerchantChart";
 import SpendingByPaymentMethodChart from "@/components/insights/SpendingByPaymentMethodChart";
-import SpendingChart from "@/components/insights/SpendingChart";
 import SpendingFilter from "@/components/insights/SpendingFilter";
 import SpendingOverTimeChart from "@/components/insights/SpendingOverTimeChart";
-import { background } from "@/styles/colors";
 import { fetchWithAuth, insightsDetailApi } from "@/utils/api";
-import { Box, LinearProgress, SelectChangeEvent, Typography, Grid } from "@mui/material";
+import {
+  Box,
+  Grid,
+  LinearProgress,
+  SelectChangeEvent,
+  Typography
+} from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -53,10 +57,16 @@ interface BackendSpendingResponse {
 
 export default function Page() {
   const [folderSpending, setFolderSpending] = useState<FolderSpending>({});
-  const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>([]);
+  const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>(
+    []
+  );
   const [spendingData, setSpendingData] = useState<SpendingData[]>([]);
-  const [paymentMethodSpending, setPaymentMethodSpending] = useState<PaymentMethodSpending[]>([]);
-  const [currencyDistribution, setCurrencyDistribution] = useState<CurrencyDistribution[]>([]);
+  const [paymentMethodSpending, setPaymentMethodSpending] = useState<
+    PaymentMethodSpending[]
+  >([]);
+  const [currencyDistribution, setCurrencyDistribution] = useState<
+    CurrencyDistribution[]
+  >([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("Monthly");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
@@ -99,22 +109,28 @@ export default function Page() {
         setSpendingData(spendingOverTime);
         setFolderSpending(fetchedData.folder_spending);
         setPaymentMethodSpending(
-          Object.entries(fetchedData.payment_method_spending).map(([payment_method, amount]) => ({
-            payment_method,
-            amount
-          }))
+          Object.entries(fetchedData.payment_method_spending).map(
+            ([payment_method, amount]) => ({
+              payment_method,
+              amount
+            })
+          )
         );
         setMerchantSpending(
-          Object.entries(fetchedData.merchant_spending).map(([merchant, amount]) => ({
-            merchant,
-            amount
-          }))
+          Object.entries(fetchedData.merchant_spending).map(
+            ([merchant, amount]) => ({
+              merchant,
+              amount
+            })
+          )
         );
         setCurrencyDistribution(
-          Object.entries(fetchedData.currency_distribution).map(([currency, percentage]) => ({
-            currency,
-            percentage
-          }))
+          Object.entries(fetchedData.currency_distribution).map(
+            ([currency, percentage]) => ({
+              currency,
+              percentage
+            })
+          )
         );
       } catch (error) {
         console.error("Error fetching spending data:", error);
@@ -132,7 +148,9 @@ export default function Page() {
   return (
     <PageWrapper>
       <Box sx={headerContainerStyle}>
-        <Typography variant="h4" fontWeight="bold">Insights</Typography>
+        <Typography variant="h4" fontWeight="bold">
+          Insights
+        </Typography>
         <SpendingFilter
           startDate={startDate}
           endDate={endDate}
@@ -149,37 +167,51 @@ export default function Page() {
 
       {!loading && (
         <Grid container spacing={1} sx={{ padding: "24px" }}>
-        {/* Spending Over Time Chart (2/3 width) */}
-        <Grid item xs={8}>
-          <Box sx={{ height: "100%" }}>
-            <SpendingOverTimeChart spendingData={spendingData} currency={currency} />
-          </Box>
+          {/* Spending Over Time Chart (2/3 width) */}
+          <Grid item xs={8}>
+            <Box sx={{ height: "100%" }}>
+              <SpendingOverTimeChart
+                spendingData={spendingData}
+                currency={currency}
+              />
+            </Box>
+          </Grid>
+
+          {/* Currency Distribution Chart (1/3 width, full height) */}
+          <Grid item xs={4}>
+            <Box sx={{ height: "100%" }}>
+              <CurrencyDistributionChart
+                currencyDistribution={currencyDistribution}
+              />
+            </Box>
+          </Grid>
+
+          {/* Bottom row: 3 equally sized charts */}
+          <Grid item xs={4}>
+            <Box sx={{ height: "100%" }}>
+              <SpendingByMerchantChart
+                merchantSpending={merchantSpending}
+                currency={currency}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={4}>
+            <Box sx={{ height: "100%" }}>
+              <SpendingByFolderChart
+                folderSpending={folderSpending}
+                currency={currency}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={4}>
+            <Box sx={{ height: "100%" }}>
+              <SpendingByPaymentMethodChart
+                paymentMethodSpending={paymentMethodSpending}
+                currency={currency}
+              />
+            </Box>
+          </Grid>
         </Grid>
-      
-        {/* Currency Distribution Chart (1/3 width, full height) */}
-        <Grid item xs={4}>
-          <Box sx={{ height: "100%" }}>
-            <CurrencyDistributionChart currencyDistribution={currencyDistribution} />
-          </Box>
-        </Grid>
-      
-        {/* Bottom row: 3 equally sized charts */}
-        <Grid item xs={4}>
-          <Box sx={{ height: "100%" }}>
-            <SpendingByMerchantChart merchantSpending={merchantSpending} currency={currency} />
-          </Box>
-        </Grid>
-        <Grid item xs={4}>
-          <Box sx={{ height: "100%" }}>
-            <SpendingByFolderChart folderSpending={folderSpending} currency={currency} />
-          </Box>
-        </Grid>
-        <Grid item xs={4}>
-          <Box sx={{ height: "100%" }}>
-            <SpendingByPaymentMethodChart paymentMethodSpending={paymentMethodSpending} currency={currency} />
-          </Box>
-        </Grid>
-      </Grid>
       )}
     </PageWrapper>
   );
@@ -192,11 +224,11 @@ const headerContainerStyle = {
   padding: "16px 24px",
   boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   borderRadius: "12px",
-  borderBottom: "1px solid #ddd",
+  borderBottom: "1px solid #ddd"
 };
 
 const loadingBarStyle = {
   width: "100%",
   height: "8px",
-  marginBottom: "16px",
+  marginBottom: "16px"
 };

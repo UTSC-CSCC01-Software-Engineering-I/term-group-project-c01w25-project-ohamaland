@@ -48,11 +48,11 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
   };
 
   return (
-    <Dialog 
-      open={open} 
-      fullWidth 
+    <Dialog
+      open={open}
+      fullWidth
       maxWidth="xl"
-      onClose={onClose} 
+      onClose={onClose}
       sx={dialogStyle}
     >
       <DialogTitle sx={dialogTitleStyle}>
@@ -103,8 +103,8 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
           options={paymentMethods}
           formControlStyle={formControlStyle}
         />
-        <ItemsTable 
-          items={editedReceipt.items} 
+        <ItemsTable
+          items={editedReceipt.items}
           onItemsChange={(items) => handleChange("items", items)}
           onTaxChange={(tax) => handleChange("tax", tax)}
           initialTax={editedReceipt.tax}
@@ -153,6 +153,6 @@ const formControlStyle = {
 
 const dialogStyle = {
   "& .MuiDialog-paper": {
-    width: "90vw",
+    width: "90vw"
   }
-}
+};
