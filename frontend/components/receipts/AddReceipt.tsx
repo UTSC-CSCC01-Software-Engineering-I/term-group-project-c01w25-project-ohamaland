@@ -95,10 +95,27 @@ export default function AddReceipt(props: IAddReceiptProps) {
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      // Calculate subtotal from items
+      const subtotal = newReceipt.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      // Calculate total amount including tax and tip
+      const totalAmount =
+        subtotal + (newReceipt.tax || 0) + (newReceipt.tip || 0);
+
       // Format the date as YYYY-MM-DD before saving
       const formattedReceipt = {
         ...newReceipt,
-        date: dayjs(newReceipt.date).format("YYYY-MM-DD")
+        date: dayjs(newReceipt.date).format("YYYY-MM-DD"),
+        total_amount: Number(totalAmount.toFixed(2)),
+        tax: Number((newReceipt.tax || 0).toFixed(2)),
+        tip: Number((newReceipt.tip || 0).toFixed(2)),
+        items: newReceipt.items.map((item) => ({
+          ...item,
+          price: Number(item.price.toFixed(2))
+        }))
       };
       await onSave(formattedReceipt, file);
       setNewReceipt({

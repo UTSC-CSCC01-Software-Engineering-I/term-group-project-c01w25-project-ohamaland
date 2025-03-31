@@ -11,6 +11,7 @@ export interface Receipt {
   tax_rate?: number;
   tip_rate?: number;
   category?: Category;
+  color?: string;
   file?: string;
 }
 

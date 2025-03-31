@@ -33,7 +33,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
   return (
     <Grid container spacing={0} sx={cardStyle} onClick={onClick}>
       <Grid xs={1}>
-        <Box style={getColorStripStyle("#c6fc03")} />
+        <Box style={getColorStripStyle(receipt.color)} />
       </Grid>
       <Grid xs={11} sx={cardContentStyle}>
         <Stack direction="column" justifyContent="space-between" mb={1}>

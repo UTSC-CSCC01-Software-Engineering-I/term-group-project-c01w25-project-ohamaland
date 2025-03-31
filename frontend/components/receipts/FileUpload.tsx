@@ -63,7 +63,7 @@ export default function FilePondUpload({
         name="file"
         credits={false}
         server={null}
-        labelIdle='Drag & Drop your receipt or <span class="filepond--label-action">Browse</span>'
+        labelIdle='Drag & Drop Your Receipt or <span class="filepond--label-action">Browse</span>'
         onupdatefiles={(fileItems) => {
           const file = fileItems[0]?.file as File;
           if (file) {
