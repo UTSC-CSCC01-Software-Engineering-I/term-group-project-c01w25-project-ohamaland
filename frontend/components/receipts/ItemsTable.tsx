@@ -9,6 +9,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface IItemsTableProps {
   items: ReceiptItem[];
@@ -41,6 +43,11 @@ export default function ItemsTable(props: IItemsTableProps) {
       ...newItems[index],
       [field]: value === '' ? 0 : value
     };
+    onItemsChange(newItems);
+  };
+
+  const handleDeleteItem = (index: number) => {
+    const newItems = items.filter((_, i) => i !== index);
     onItemsChange(newItems);
   };
 
@@ -78,6 +85,7 @@ export default function ItemsTable(props: IItemsTableProps) {
             <TableCell align="right">Quantity</TableCell>
             <TableCell align="right">Unit Price</TableCell>
             <TableCell align="right">Total</TableCell>
+            <TableCell align="right" width={50}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -113,6 +121,20 @@ export default function ItemsTable(props: IItemsTableProps) {
               <TableCell align="right">
                 ${ccyFormat(priceRow(item.quantity, item.price))}
               </TableCell>
+              <TableCell align="right">
+                <IconButton 
+                  onClick={() => handleDeleteItem(index)}
+                  size="small"
+                  sx={{ 
+                    color: 'rgba(0, 0, 0, 0.54)',
+                    '&:hover': {
+                      color: 'rgba(0, 0, 0, 0.87)'
+                    }
+                  }}
+                >
+                  <DeleteOutlineIcon />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
           <TableRow>
@@ -128,6 +150,7 @@ export default function ItemsTable(props: IItemsTableProps) {
                 disabled
               />
             </TableCell>
+            <TableCell></TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Tax</TableCell>
@@ -154,12 +177,14 @@ export default function ItemsTable(props: IItemsTableProps) {
                 }}
               />
             </TableCell>
+            <TableCell></TableCell>
           </TableRow>
           <TableRow>
             <TableCell colSpan={3} align="right">Total</TableCell>
             <TableCell align="right">
               ${ccyFormat(total)}
             </TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableBody>
       </Table>
