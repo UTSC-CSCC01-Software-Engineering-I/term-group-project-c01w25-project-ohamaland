@@ -99,7 +99,7 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
 }
 
 const gridStyle = {
-  maxHeight: "60vh", // TODO: change this in the future using vh is not good should take max possible
+  maxHeight: "60vh",
   overflowY: "auto",
   marginTop: "24px"
 };

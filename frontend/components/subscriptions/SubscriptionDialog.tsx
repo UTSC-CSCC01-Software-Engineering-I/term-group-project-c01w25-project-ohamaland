@@ -118,7 +118,7 @@ export default function SubscriptionDialog(props: ISubscriptionDialogProps) {
             }
           >
             {billingPeriods
-              .filter((method) => method !== "All") // All is only used for filtering
+              .filter((method) => method !== "All")
               .map((method) => (
                 <MenuItem key={method} value={method}>
                   {method}

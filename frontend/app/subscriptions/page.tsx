@@ -290,7 +290,7 @@ const leftContainerStyle = {
 const rightContainerStyle = {
   position: "fixed",
   right: "0px",
-  width: "300px",
+  width: "304px",
   flexShrink: 0
 };
 
