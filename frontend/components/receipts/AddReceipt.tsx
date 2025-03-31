@@ -1,4 +1,7 @@
+import DropDownSelector from "@/components/common/DropDownSelector";
+import { defaultText } from "@/styles/colors";
 import {
+  Category,
   Currency,
   PaymentMethod,
   Receipt,
@@ -6,230 +9,233 @@ import {
   currencies,
   paymentMethods
 } from "@/types/receipts";
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Box,
   Button,
-  MenuItem,
-  Modal,
-  Stack,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   TextField,
   Typography
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
+import ItemsTable from "./ItemsTable";
 import FilePondUpload from "./FileUpload";
 
 interface IAddReceiptProps {
   open: boolean;
   onClose: () => void;
-  onSave: (newReceipt: Receipt, file: File | null) => void;
+  onSave: (receipt: Receipt, file: File | null) => void;
+}
+
+interface OcrData {
+  merchant?: string;
+  total_amount?: number;
+  currency?: Currency;
+  date?: string;
+  payment_method?: PaymentMethod;
+  items?: Array<{
+    id?: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
 }
 
 export default function AddReceipt(props: IAddReceiptProps) {
   const { open, onClose, onSave } = props;
-  const [merchant, setMerchant] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [currency, setCurrency] = useState<Currency>("");
-  const [date, setDate] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
-  const [items, setItems] = useState<ReceiptItem[]>([]);
-  const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [newReceipt, setNewReceipt] = useState<Receipt>({
+    id: Date.now(), // Add a temporary ID for new receipts
+    merchant: "",
+    date: new Date().toISOString(),
+    currency: "USD",
+    payment_method: "Credit",
+    items: [],
+    total_amount: 0,
+    tax: 0,
+    tip: 0
+  });
   const [file, setFile] = useState<File | null>(null);
+  const [receiptImageUrl, setReceiptImageUrl] = useState<string>("");
 
-  // -- 1) Helper to handle item updates --
-  const handleItemChange = (
-    index: number,
-    field: keyof ReceiptItem,
-    value: string | number
+  const handleChange = (
+    field: keyof Receipt,
+    value: string | number | Category | Currency | ReceiptItem[]
   ) => {
-    setItems((prevItems) => {
-      const updatedItems = [...prevItems];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        [field]: value
-      };
-      return updatedItems;
-    });
+    setNewReceipt((prev) => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  // -- 2) When OCR is done, fill in fields + items
-  const handleOcrDataExtracted = (ocrData: any) => {
-    if (ocrData.merchant) setMerchant(ocrData.merchant);
-    if (ocrData.total_amount) setTotalAmount(String(ocrData.total_amount));
-    if (ocrData.currency) setCurrency(ocrData.currency);
+  const handleOcrDataExtracted = (ocrData: OcrData) => {
+    if (ocrData.merchant) handleChange("merchant", ocrData.merchant);
+    if (ocrData.total_amount) handleChange("total_amount", ocrData.total_amount);
+    if (ocrData.currency) handleChange("currency", ocrData.currency);
     if (ocrData.date) {
-      const formattedDate = ocrData.date.split("T")[0];
-      setDate(formattedDate);
+      // Ensure the date is properly formatted
+      const date = new Date(ocrData.date);
+      if (!isNaN(date.getTime())) {
+        handleChange("date", date.toISOString());
+      }
     }
-    if (ocrData.payment_method) setPaymentMethod(ocrData.payment_method);
-
-    if (ocrData.items) {
-      const parsedItems: ReceiptItem[] = ocrData.items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity
-      }));
-      setItems(parsedItems);
-    }
+    if (ocrData.payment_method) handleChange("payment_method", ocrData.payment_method);
+    if (ocrData.items) handleChange("items", ocrData.items);
   };
 
-  // -- 3) Final Save --
-  const handleSave = () => {
-    const newReceipt: Receipt = {
-      id: Date.now(),
-      merchant,
-      total_amount: parseFloat(totalAmount),
-      currency,
-      date,
-      payment_method: paymentMethod,
-      items,
-      receipt_image_url: receiptImageUrl || ""
-    };
-    onSave(newReceipt, file);
-    onClose();
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      // Format the date as YYYY-MM-DD before saving
+      const formattedReceipt = {
+        ...newReceipt,
+        date: dayjs(newReceipt.date).format('YYYY-MM-DD')
+      };
+      await onSave(formattedReceipt, file);
+      setNewReceipt({
+        id: Date.now(), // Add a temporary ID for new receipts
+        merchant: "",
+        date: new Date().toISOString(),
+        currency: "USD",
+        payment_method: "Credit",
+        items: [],
+        total_amount: 0,
+        tax: 0,
+        tip: 0
+      });
+      setFile(null);
+      setReceiptImageUrl("");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box sx={modalStyle}>
-        <Typography sx={modalTitleStyle}>Add Receipt</Typography>
+    <Dialog
+      open={open}
+      fullWidth
+      maxWidth="xl"
+      onClose={onClose}
+      sx={dialogStyle}
+    >
+      <DialogTitle sx={dialogTitleStyle}>
+        <Typography sx={dialogTitleTextStyle}>Add New Receipt</Typography>
+        <IconButton onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Typography marginTop={"8px"}>Merchant</Typography>
+        <TextField
+          fullWidth
+          value={newReceipt.merchant}
+          onChange={(e) => handleChange("merchant", e.target.value)}
+        />
 
-        <Stack spacing={2}>
-          {/* Basic Fields */}
-          <TextField
-            label="Merchant"
-            fullWidth
-            value={merchant}
-            onChange={(e) => setMerchant(e.target.value)}
+        <Typography marginTop={"8px"}>Date</Typography>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            value={dayjs(newReceipt.date)}
+            onChange={(newDate: Dayjs | null) =>
+              newDate && handleChange("date", newDate.toISOString())
+            }
           />
+        </LocalizationProvider>
+        <Typography marginTop={"8px"} marginBottom={"4px"}>
+          Currency
+        </Typography>
+        <DropDownSelector
+          value={newReceipt.currency}
+          inputId="currency-select-label"
+          label="Currency"
+          onChange={(e) => handleChange("currency", e.target.value as Currency)}
+          options={currencies}
+          formControlStyle={formControlStyle}
+        />
 
-          <TextField
-            label="Total Amount"
-            fullWidth
-            type="number"
-            value={totalAmount}
-            onChange={(e) => setTotalAmount(e.target.value)}
-          />
+        <Typography marginTop={"8px"} marginBottom={"4px"}>
+          Payment Method
+        </Typography>
+        <DropDownSelector
+          value={newReceipt.payment_method}
+          inputId="paymentmethod-select-label"
+          label="Payment Method"
+          onChange={(e) =>
+            handleChange("payment_method", e.target.value as PaymentMethod)
+          }
+          options={paymentMethods}
+          formControlStyle={formControlStyle}
+        />
 
-          <TextField
-            select
-            label="Currency"
-            fullWidth
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value as Currency)}
-          >
-            {currencies.map((curr) => (
-              <MenuItem key={curr} value={curr}>
-                {curr}
-              </MenuItem>
-            ))}
-          </TextField>
+        <Typography marginTop={"8px"} marginBottom={"4px"}>
+          Upload Receipt
+        </Typography>
+        <FilePondUpload
+          setFile={setFile}
+          setImageUrl={setReceiptImageUrl}
+          onOcrDataExtracted={handleOcrDataExtracted}
+        />
 
-          <TextField
-            label="Date"
-            type="date"
-            fullWidth
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <TextField
-            select
-            label="Payment Method"
-            fullWidth
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-          >
-            {paymentMethods.map((method) => (
-              <MenuItem key={method} value={method}>
-                {method}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          {/* OCR Upload */}
-          <FilePondUpload
-            setImageUrl={setReceiptImageUrl}
-            setFile={setFile}
-            onOcrDataExtracted={handleOcrDataExtracted}
-          />
-
-          {/* -- 4) Editable Items -- */}
-          {items.length > 0 && (
-            <Box>
-              <Typography variant="h6">Items</Typography>
-              {items.map((item, idx) => (
-                <Stack
-                  key={item.id || idx}
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mt: 1 }}
-                >
-                  <TextField
-                    label="Name"
-                    value={item.name}
-                    onChange={(e) =>
-                      handleItemChange(idx, "name", e.target.value)
-                    }
-                  />
-                  <TextField
-                    label="Price"
-                    type="number"
-                    value={item.price}
-                    onChange={(e) =>
-                      handleItemChange(idx, "price", parseFloat(e.target.value))
-                    }
-                  />
-                  <TextField
-                    label="Qty"
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleItemChange(
-                        idx,
-                        "quantity",
-                        parseInt(e.target.value, 10)
-                      )
-                    }
-                  />
-                </Stack>
-              ))}
-            </Box>
-          )}
-
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Save
-            </Button>
-            <Button variant="outlined" onClick={onClose}>
-              Cancel
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
-    </Modal>
+        <ItemsTable
+          items={newReceipt.items}
+          onItemsChange={(items) => handleChange("items", items)}
+          onTaxChange={(tax) => handleChange("tax", tax)}
+          onTipChange={(tip) => handleChange("tip", tip)}
+          initialTax={newReceipt.tax}
+          initialTip={newReceipt.tip}
+        />
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: "8px" }}
+          disabled={isLoading}
+        >
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : "Save"}
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-const modalStyle = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 450,
-  maxHeight: "80vh",
-  overflow: "auto",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: 2
+const dialogTitleStyle = {
+  display: "flex",
+  justifyContent: "space-between"
 };
 
-const modalTitleStyle = {
-  fontSize: "24px",
-  fontWeight: 600,
-  color: "black",
-  marginBottom: "8px"
+const dialogTitleTextStyle = {
+  fontSize: "24px"
+};
+
+const formControlStyle = {
+  width: "160px",
+  backgroundColor: "white",
+  borderRadius: "8px",
+  boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+  "& .MuiOutlinedInput-root": {
+    color: defaultText,
+    "& fieldset": {
+      border: "none"
+    },
+    "&:hover fieldset": {
+      border: "none"
+    },
+    "&.Mui-focused fieldset": {
+      border: `2px solid ${defaultText}`
+    }
+  }
+};
+
+const dialogStyle = {
+  "& .MuiDialog-paper": {
+    width: "90vw"
+  }
 };

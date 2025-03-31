@@ -240,25 +240,6 @@ export default function ItemsTable(props: IItemsTableProps) {
               </TableRow>
             ))}
             <TableRow>
-              <TableCell colSpan={3} align="right">
-                Items Subtotal
-              </TableCell>
-              <TableCell align="right">
-                <TextField
-                  value={itemsSubtotal}
-                  size="small"
-                  sx={{ width: "100px" }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">$</InputAdornment>
-                    )
-                  }}
-                  disabled
-                />
-              </TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell>Tax</TableCell>
               <TableCell></TableCell>
               <TableCell align="right">
