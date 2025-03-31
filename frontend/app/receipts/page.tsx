@@ -114,7 +114,21 @@ export default function Page() {
         .toISOString()
         .split("T")[0];
 
-      const updatedData = { ...updatedReceipt, date: formattedDate };
+      // Calculate total from items and tax
+      const itemsSubtotal = updatedReceipt.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const taxAmount = updatedReceipt.tax || 0;
+      const total = itemsSubtotal + taxAmount + (updatedReceipt.tip || 0);
+
+      const updatedData = { 
+        ...updatedReceipt, 
+        date: formattedDate,
+        total_amount: total,
+        tax: taxAmount,
+        tip: updatedReceipt.tip || 0
+      };
+
+      // Remove tax_rate as it's not in the backend model
+      delete updatedData.tax_rate;
 
       const response = await fetchWithAuth(
         receiptsDetailApi(updatedReceipt.id),

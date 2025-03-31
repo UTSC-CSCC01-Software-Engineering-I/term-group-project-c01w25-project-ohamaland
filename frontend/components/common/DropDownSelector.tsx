@@ -1,13 +1,14 @@
 import {
   FormControl,
-  InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
   SxProps,
   Theme,
-  Typography
+  Typography,
+  styled
 } from "@mui/material";
+import InputBase from '@mui/material/InputBase';
 
 interface IDropDownSelectorProps {
   value: string;
@@ -18,13 +19,33 @@ interface IDropDownSelectorProps {
   formControlStyle: SxProps<Theme> | undefined;
 }
 
+const StyledInput = styled(InputBase)(({ theme }) => ({
+  '& .MuiInputBase-input': {
+    borderRadius: 4,
+    position: 'relative',
+    backgroundColor: theme.palette.background.paper,
+    border: '1px solid rgba(0, 0, 0, 0.23)',
+    fontSize: 16,
+    padding: '7px 16px 7px 16px', // This is an exception to the 8px increment to match default padding
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    '&:focus': {
+      borderColor: 'rgba(0, 0, 0, 0.23)',
+      boxShadow: 'none',
+    },
+  },
+}));
+
 export default function DropDownSelector(props: IDropDownSelectorProps) {
   return (
     <FormControl variant="standard" fullWidth sx={props.formControlStyle}>
-      <InputLabel id={props.inputId}>
-        <Typography>{props.label}</Typography>
-      </InputLabel>
-      <Select value={props.value} label={props.label} onChange={props.onChange}>
+      <Select 
+        value={props.value} 
+        onChange={props.onChange}
+        input={<StyledInput />}
+      >
         {props.options.map((option, index) => (
           <MenuItem key={index} value={option}>
             <Typography>{option}</Typography>

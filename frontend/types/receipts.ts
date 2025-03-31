@@ -8,6 +8,9 @@ export type Receipt = {
   items: ReceiptItem[];
   payment_method: PaymentMethod;
   receipt_image_url: string | null;
+  tax?: number;
+  tip?: number;
+  tax_rate?: number;
 };
 
 export type Currency = "USD" | "CAD" | "";

@@ -13,6 +13,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 interface IItemsTableProps {
   items: ReceiptItem[];
   onItemsChange: (items: ReceiptItem[]) => void;
+  onTaxChange?: (tax: number) => void;
+  initialTax?: number;
 }
 
 function ccyFormat(num: number) {
@@ -24,37 +26,42 @@ function priceRow(qty: number, unit: number) {
 }
 
 export default function ItemsTable(props: IItemsTableProps) {
-  const { items, onItemsChange } = props;
-  const [taxRate, setTaxRate] = React.useState(0);
+  const { items, onItemsChange, onTaxChange, initialTax } = props;
+  const [taxRate, setTaxRate] = React.useState(() => {
+    const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (itemsSubtotal > 0 && initialTax) {
+      return (initialTax / itemsSubtotal) * 100;
+    }
+    return 0;
+  });
 
   const handleItemChange = (index: number, field: keyof ReceiptItem, value: string | number) => {
     const newItems = [...items];
     newItems[index] = {
       ...newItems[index],
-      [field]: value
+      [field]: value === '' ? 0 : value
     };
     onItemsChange(newItems);
   };
 
   const handleTaxRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
+    const value = event.target.value === '' ? 0 : Number(event.target.value);
     setTaxRate(value);
-  };
-
-  const handleTotalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
-    if (itemsSubtotal > 0) {
-      const newTaxAmount = value - itemsSubtotal;
-      const newTaxRate = (newTaxAmount / itemsSubtotal) * 100;
-      setTaxRate(newTaxRate);
+    if (onTaxChange) {
+      const itemsSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const taxAmount = (itemsSubtotal * value) / 100;
+      onTaxChange(taxAmount);
     }
   };
 
   const handleTaxAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
+    const value = event.target.value === '' ? 0 : Number(event.target.value);
     if (itemsSubtotal > 0) {
       const newTaxRate = (value / itemsSubtotal) * 100;
       setTaxRate(newTaxRate);
+      if (onTaxChange) {
+        onTaxChange(value);
+      }
     }
   };
 
@@ -151,15 +158,7 @@ export default function ItemsTable(props: IItemsTableProps) {
           <TableRow>
             <TableCell colSpan={3} align="right">Total</TableCell>
             <TableCell align="right">
-              <TextField
-                value={total}
-                onChange={handleTotalChange}
-                size="small"
-                sx={{ width: '100px' }}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                }}
-              />
+              ${ccyFormat(total)}
             </TableCell>
           </TableRow>
         </TableBody>
