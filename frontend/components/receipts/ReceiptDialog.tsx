@@ -1,15 +1,21 @@
+"use client";
+
 import DropDownSelector from "@/components/common/DropDownSelector"; // Ensure this component exists
 import { defaultText } from "@/styles/colors";
+import { IFolder } from "@/types/folders";
 import {
   Category,
   Currency,
   PaymentMethod,
   Receipt,
+  ReceiptItem,
   currencies,
   paymentMethods
 } from "@/types/receipts";
+import { folderService } from "@/utils/folderService";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  Box,
   Button,
   Dialog,
   DialogContent,
@@ -22,7 +28,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ItemsTable from "./ItemsTable";
 
 interface IReceiptDialogProps {
   receipt: Receipt;
@@ -31,17 +38,31 @@ interface IReceiptDialogProps {
   onSave: (updatedReceipt: Receipt) => void;
 }
 
-export default function ReceiptDialog({
-  receipt,
-  open,
-  onClose,
-  onSave
-}: IReceiptDialogProps) {
+export default function ReceiptDialog(props: IReceiptDialogProps) {
+  const { receipt, open, onClose, onSave } = props;
   const [editedReceipt, setEditedReceipt] = useState(receipt);
+  const [folders, setFolders] = useState<IFolder[]>([]);
+  const [selectedFolderName, setSelectedFolderName] = useState<string | null>(
+    receipt.folder || null
+  );
+
+  useEffect(() => {
+    async function fetchFolders() {
+      try {
+        const foldersData = await folderService.getAllFolders();
+        setFolders(foldersData);
+      } catch (error) {
+        console.error("Error fetching folders:", error);
+      }
+    }
+    if (open) {
+      fetchFolders();
+    }
+  }, [open]);
 
   const handleChange = (
     field: keyof Receipt,
-    value: string | number | Category | Currency
+    value: string | number | Category | Currency | ReceiptItem[] | null
   ) => {
     setEditedReceipt((prev) => ({
       ...prev,
@@ -49,10 +70,57 @@ export default function ReceiptDialog({
     }));
   };
 
+  const handleFolderChange = async (folderName: string | null) => {
+    setSelectedFolderName(folderName);
+    if (folderName) {
+      try {
+        const selectedFolder = folders.find(
+          (folder) => folder.name === folderName
+        );
+        if (selectedFolder) {
+          await folderService.addReceiptToFolder(
+            selectedFolder.id,
+            editedReceipt.id
+          );
+          handleChange("folder", folderName);
+          handleChange("color", selectedFolder.color);
+        }
+      } catch (error) {
+        console.error("Error adding receipt to folder:", error);
+      }
+    } else if (editedReceipt.folder) {
+      try {
+        const currentFolder = folders.find(
+          (folder) => folder.name === editedReceipt.folder
+        );
+        if (currentFolder) {
+          await folderService.removeReceiptFromFolder(
+            currentFolder.id,
+            editedReceipt.id
+          );
+          handleChange("folder", null);
+          handleChange("color", "#000000"); // Reset to default color
+        }
+      } catch (error) {
+        console.error("Error removing receipt from folder:", error);
+      }
+    }
+  };
+
+  const selectedFolder = folders.find(
+    (folder) => folder.name === selectedFolderName
+  );
+
   return (
-    <Dialog open={open} fullWidth onClose={onClose}>
+    <Dialog
+      open={open}
+      fullWidth
+      maxWidth="xl"
+      onClose={onClose}
+      sx={dialogStyle}
+    >
       <DialogTitle sx={dialogTitleStyle}>
-        <Typography sx={dialogTitleTextStyle}>Edit Receipt</Typography>
+        <Typography sx={dialogTitleTextStyle}>Receipt Details</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -74,13 +142,35 @@ export default function ReceiptDialog({
             }
           />
         </LocalizationProvider>
-        <Typography marginTop={"8px"}>Total Amount</Typography>
-        <TextField
-          fullWidth
-          type="string"
-          value={editedReceipt.total_amount}
-          onChange={(e) => handleChange("total_amount", Number(e.target.value))}
-        />
+
+        <Typography marginTop={"8px"} marginBottom={"4px"}>
+          Folder
+        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {selectedFolder && (
+            <Box
+              sx={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "4px",
+                backgroundColor: selectedFolder.color
+              }}
+            />
+          )}
+          <DropDownSelector
+            value={selectedFolderName || ""}
+            inputId="folder-select-label"
+            label="Folder"
+            onChange={(e) => handleFolderChange(e.target.value || null)}
+            options={[
+              ...folders.map((folder) => ({
+                value: folder.name,
+                label: folder.name
+              }))
+            ]}
+            formControlStyle={formControlStyle}
+          />
+        </Box>
 
         <Typography marginTop={"8px"} marginBottom={"4px"}>
           Currency
@@ -107,7 +197,14 @@ export default function ReceiptDialog({
           options={paymentMethods}
           formControlStyle={formControlStyle}
         />
-
+        <ItemsTable
+          items={editedReceipt.items}
+          onItemsChange={(items) => handleChange("items", items)}
+          onTaxChange={(tax) => handleChange("tax", tax)}
+          onTipChange={(tip) => handleChange("tip", tip)}
+          initialTax={editedReceipt.tax}
+          initialTip={editedReceipt.tip}
+        />
         <Button
           onClick={() => onSave(editedReceipt)}
           variant="contained"
@@ -147,5 +244,11 @@ const formControlStyle = {
     "&.Mui-focused fieldset": {
       border: `2px solid ${defaultText}`
     }
+  }
+};
+
+const dialogStyle = {
+  "& .MuiDialog-paper": {
+    width: "90vw"
   }
 };

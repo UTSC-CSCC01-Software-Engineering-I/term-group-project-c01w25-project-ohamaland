@@ -1,12 +1,11 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
-import { categories, Category } from "@/types/receipts";
+import { Category } from "@/types/receipts";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, InputBase, SelectChangeEvent } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { Dispatch, SetStateAction } from "react";
-import DropDownSelector from "../common/DropDownSelector";
 
 interface IReceiptFilterProps {
   startDate: Dayjs | null;
@@ -56,16 +55,6 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
           }}
         />
       </LocalizationProvider>
-
-      {/* Category Selector */}
-      <DropDownSelector
-        value={props.category}
-        inputId="category-select-label"
-        label="Category"
-        onChange={props.handleCategoryChange}
-        options={categories}
-        formControlStyle={formControlStyle}
-      />
     </Box>
   );
 }
@@ -94,24 +83,5 @@ const inputStyle = {
     color: textLightGrey,
     fontSize: "14px",
     fontWeight: 400
-  }
-};
-
-const formControlStyle = {
-  width: "160px",
-  backgroundColor: "white",
-  borderRadius: "8px",
-  boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
-  "& .MuiOutlinedInput-root": {
-    color: defaultText,
-    "& fieldset": {
-      border: "none"
-    },
-    "&:hover fieldset": {
-      border: "none"
-    },
-    "&.Mui-focused fieldset": {
-      border: `2px solid ${defaultText}`
-    }
   }
 };

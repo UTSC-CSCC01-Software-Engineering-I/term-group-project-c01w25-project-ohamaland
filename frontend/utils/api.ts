@@ -1,6 +1,6 @@
 import { getAccessToken, removeAccessToken } from "./auth";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+export const API_BASE_URL = "http://127.0.0.1:8000/api";
 
 export async function handleApiResponse(response: Response) {
   if (response.status === 401) {
@@ -51,5 +51,7 @@ export const subscriptionsDetailApi = (id: number) =>
 export const insightsApi = API_BASE_URL + "/analytics/insights/";
 export const insightsDetailApi = (period: string) =>
   API_BASE_URL + `/analytics/insights/${period}/`;
-export const notificationsWS = (token: string) => `ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`;
-export const notificationsDetailApi = (id: number) => API_BASE_URL + `/notifications/${id}/`;
+export const notificationsWS = (token: string) =>
+  `ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`;
+export const notificationsDetailApi = (id: number) =>
+  API_BASE_URL + `/notifications/${id}/`;

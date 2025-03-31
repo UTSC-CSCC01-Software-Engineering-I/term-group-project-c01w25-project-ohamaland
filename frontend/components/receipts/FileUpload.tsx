@@ -1,4 +1,5 @@
 import { fetchWithAuth, receiptsUploadApi } from "@/utils/api";
+import { Box, CircularProgress } from "@mui/material";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
@@ -8,20 +9,20 @@ import { FilePond, registerPlugin } from "react-filepond";
 registerPlugin(FilePondPluginFileValidateType);
 
 interface FilePondUploadProps {
-  setImageUrl: (url: string) => void;
   setFile: (file: File) => void;
   onOcrDataExtracted: (ocrData: any) => void;
 }
 
 export default function FilePondUpload({
-  setImageUrl,
   setFile,
   onOcrDataExtracted
 }: FilePondUploadProps) {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileUpload = async (file: File) => {
     setFile(file);
+    setIsProcessing(true);
 
     const formData = new FormData();
     formData.append("receipt_image", file);
@@ -41,23 +42,25 @@ export default function FilePondUpload({
 
       const data = await response.json();
 
-      setImageUrl(data.receipt_image_url);
       setFileUrl(data.receipt_image_url);
       onOcrDataExtracted(data);
     } catch (err) {
       console.error("OCR upload error:", err);
       alert("Failed to upload and process receipt.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div>
+    <Box>
       <FilePond
         allowMultiple={false}
         maxFiles={1}
         name="file"
+        credits={false}
         server={null}
-        labelIdle='Drag & Drop your receipt or <span class="filepond--label-action">Browse</span>'
+        labelIdle='Drag & Drop Your Receipt or <span class="filepond--label-action">Browse</span>'
         onupdatefiles={(fileItems) => {
           const file = fileItems[0]?.file as File;
           if (file) {
@@ -66,11 +69,23 @@ export default function FilePondUpload({
         }}
       />
 
-      {fileUrl ? (
+      {isProcessing ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginTop: "8px"
+          }}
+        >
+          <CircularProgress size={20} />
+          <span>Processing receipt...</span>
+        </div>
+      ) : fileUrl ? (
         <img src={fileUrl} alt="Uploaded receipt" width={200} />
       ) : (
         <p>No receipt uploaded yet.</p>
       )}
-    </div>
+    </Box>
   );
 }

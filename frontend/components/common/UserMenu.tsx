@@ -1,13 +1,24 @@
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import CloseIcon from "@mui/icons-material/Close";
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-import { Badge, Box, Popover, Typography, List, ListItem, ListItemText, IconButton, Divider, Paper, Button } from "@mui/material";
-import { useEffect, useState } from "react";
-import { getAccessToken } from "@/utils/auth";
-import { notificationsDetailApi, notificationsWS } from "@/utils/api";
 import { brand } from "@/styles/colors";
+import { notificationsDetailApi, notificationsWS } from "@/utils/api";
+import { getAccessToken } from "@/utils/auth";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import CloseIcon from "@mui/icons-material/Close";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Popover,
+  Typography
+} from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
+import { useEffect, useState } from "react";
 
 interface Notification {
   notification_id: number;
@@ -43,17 +54,18 @@ export default function UserMenu() {
       const data = JSON.parse(event.data);
       console.log("Received from websocket:", data);
 
-      if (data.type === 'stored_notifications') {
+      if (data.type === "stored_notifications") {
         // Initial notifications loaded
         setNotifications(data.notifications);
-        setUnreadCount(data.notifications.filter((n: Notification) => !n.is_read).length);
-      }
-      else if (data.type === 'notification') {
+        setUnreadCount(
+          data.notifications.filter((n: Notification) => !n.is_read).length
+        );
+      } else if (data.type === "notification") {
         // New notification received
         const newNotification = {
-          notification_id: data.notification_id,  // Using notification_id instead of id
+          notification_id: data.notification_id, // Using notification_id instead of id
           notification_type: data.notification_type,
-          title: data.title,  // Using title directly from data
+          title: data.title, // Using title directly from data
           message: data.message,
           data: data.data,
           is_read: false,
@@ -61,24 +73,29 @@ export default function UserMenu() {
           created_at: new Date().toISOString()
         };
 
-        setNotifications(prevNotifications => [newNotification, ...prevNotifications]);
-        setUnreadCount(prevCount => prevCount + 1);
-      }
-      else if (data.type === 'dismiss_response' && data.success) {
+        setNotifications((prevNotifications) => [
+          newNotification,
+          ...prevNotifications
+        ]);
+        setUnreadCount((prevCount) => prevCount + 1);
+      } else if (data.type === "dismiss_response" && data.success) {
         // Remove the dismissed notification
-        setNotifications(prevNotifications =>
-          prevNotifications.filter(n => n.notification_id !== data.notification_id)
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (n) => n.notification_id !== data.notification_id
+          )
         );
         // Update unread count if needed
-        setUnreadCount(prevCount => {
-          const notif = notifications.find(n => n.notification_id === data.notification_id);
+        setUnreadCount((prevCount) => {
+          const notif = notifications.find(
+            (n) => n.notification_id === data.notification_id
+          );
           return notif && !notif.is_read ? prevCount - 1 : prevCount;
         });
-      }
-      else if (data.type === 'mark_read_response' && data.success) {
+      } else if (data.type === "mark_read_response" && data.success) {
         // Update the read status of notification
-        setNotifications(prevNotifications =>
-          prevNotifications.map(n =>
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((n) =>
             n.notification_id === data.notification_id
               ? { ...n, is_read: true }
               : n
@@ -100,60 +117,64 @@ export default function UserMenu() {
 
   // Mark a single notification as read
   const markNotificationAsRead = (notificationId: number) => {
-    if (!notifications.find(n => n.notification_id === notificationId)?.is_read) {
+    if (
+      !notifications.find((n) => n.notification_id === notificationId)?.is_read
+    ) {
       const token = getAccessToken();
 
       // Send via WebSocket if connected
       if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-          action: 'mark_read',
-          notification_id: notificationId
-        }));
+        socket.send(
+          JSON.stringify({
+            action: "mark_read",
+            notification_id: notificationId
+          })
+        );
       } else {
         // Fall back to REST API
         fetch(notificationsDetailApi(notificationId), {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({ is_read: true })
         });
       }
 
       // Update local state
-      setNotifications(prevNotifications =>
-        prevNotifications.map(n =>
-          n.notification_id === notificationId
-            ? { ...n, is_read: true }
-            : n
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((n) =>
+          n.notification_id === notificationId ? { ...n, is_read: true } : n
         )
       );
-      setUnreadCount(prevCount => prevCount - 1);
+      setUnreadCount((prevCount) => prevCount - 1);
     }
   };
 
   // Mark all notifications as read
   const markAllAsRead = () => {
-    if (notifications.some(n => !n.is_read)) {
+    if (notifications.some((n) => !n.is_read)) {
       const token = getAccessToken();
 
       // Mark notifications as read in bulk
-      notifications.forEach(notification => {
+      notifications.forEach((notification) => {
         if (!notification.is_read) {
           // Send via WebSocket if connected
           if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({
-              action: 'mark_read',
-              notification_id: notification.notification_id
-            }));
+            socket.send(
+              JSON.stringify({
+                action: "mark_read",
+                notification_id: notification.notification_id
+              })
+            );
           } else {
             // Fall back to REST API
             fetch(notificationsDetailApi(notification.notification_id), {
-              method: 'PATCH',
+              method: "PATCH",
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
               },
               body: JSON.stringify({ is_read: true })
             });
@@ -162,12 +183,14 @@ export default function UserMenu() {
       });
 
       // Update local state
-      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
     }
   };
 
-  const handleNotificationClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNotificationClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     setAnchorEl(event.currentTarget);
     // No longer marking all as read on click
   };
@@ -179,32 +202,37 @@ export default function UserMenu() {
   const dismissNotification = (notificationId: number) => {
     // Send via WebSocket if connected
     if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({
-        action: 'dismiss_notification',
-        notification_id: notificationId
-      }));
+      socket.send(
+        JSON.stringify({
+          action: "dismiss_notification",
+          notification_id: notificationId
+        })
+      );
     } else {
       // Fall back to REST API
       const token = getAccessToken();
       fetch(notificationsDetailApi(notificationId), {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ is_dismissed: true })
-      })
-        .then(response => {
-          if (response.ok) {
-            // Update local state
-            setNotifications(notifications.filter(n => n.notification_id !== notificationId));
-            // Update unread count if needed
-            setUnreadCount(prevCount => {
-              const notif = notifications.find(n => n.notification_id === notificationId);
-              return notif && !notif.is_read ? prevCount - 1 : prevCount;
-            });
-          }
-        });
+      }).then((response) => {
+        if (response.ok) {
+          // Update local state
+          setNotifications(
+            notifications.filter((n) => n.notification_id !== notificationId)
+          );
+          // Update unread count if needed
+          setUnreadCount((prevCount) => {
+            const notif = notifications.find(
+              (n) => n.notification_id === notificationId
+            );
+            return notif && !notif.is_read ? prevCount - 1 : prevCount;
+          });
+        }
+      });
     }
   };
 
@@ -214,13 +242,11 @@ export default function UserMenu() {
   };
 
   const open = Boolean(anchorEl);
-  const hasUnreadNotifications = notifications.some(n => !n.is_read);
+  const hasUnreadNotifications = notifications.some((n) => !n.is_read);
 
   return (
     <Box sx={userMenuStyle}>
-      <IconButton
-        onClick={handleNotificationClick}
-      >
+      <IconButton onClick={handleNotificationClick}>
         <Badge badgeContent={unreadCount} color="error" overlap="circular">
           <NotificationsIcon sx={{ color: "white", fontSize: "28px" }} />
         </Badge>
@@ -233,43 +259,43 @@ export default function UserMenu() {
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right"
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right"
         }}
         sx={{
           "& .MuiPaper-root": {
-            borderRadius: "8px",
+            borderRadius: "8px"
           },
-          zIndex: (theme) => theme.zIndex.drawer + 2,
+          zIndex: (theme) => theme.zIndex.drawer + 2
         }}
         slotProps={{
           paper: {
-            elevation: 24,
+            elevation: 24
           }
         }}
       >
         <Paper sx={notificationPaperStyle}>
           <Box sx={notificationHeaderStyle}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 'bold' }}
-            >
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
               Notifications
             </Typography>
           </Box>
 
           <List sx={notificationListStyle}>
             {notifications.length === 0 ? (
-              <ListItem key="no-notifications" sx={{ justifyContent: 'center' }}>
+              <ListItem
+                key="no-notifications"
+                sx={{ justifyContent: "center" }}
+              >
                 <ListItemText
                   primary="No Notifications"
                   sx={{
-                    textAlign: 'center',
-                    color: 'text.secondary',
+                    textAlign: "center",
+                    color: "text.secondary"
                   }}
                 />
               </ListItem>
@@ -278,34 +304,43 @@ export default function UserMenu() {
                 <Box
                   key={notification.notification_id}
                   sx={{
-                    width: '100%',
-                    padding: '0px 12px'
+                    width: "100%",
+                    padding: "0px 12px"
                   }}
                 >
                   <Paper
                     elevation={1}
                     sx={{
-                      borderRadius: '8px',
-                      padding: '8px',
-                      backgroundColor: notification.is_read ? 'rgba(0, 0, 0, 0.02)' : 'rgba(25, 118, 210, 0.04)',
-                      position: 'relative',
-                      '&:hover': {
-                        backgroundColor: notification.is_read ? 'rgba(0, 0, 0, 0.04)' : 'rgba(25, 118, 210, 0.08)'
+                      borderRadius: "8px",
+                      padding: "8px",
+                      backgroundColor: notification.is_read
+                        ? "rgba(0, 0, 0, 0.02)"
+                        : "rgba(25, 118, 210, 0.04)",
+                      position: "relative",
+                      "&:hover": {
+                        backgroundColor: notification.is_read
+                          ? "rgba(0, 0, 0, 0.04)"
+                          : "rgba(25, 118, 210, 0.08)"
                       }
                     }}
-                    onMouseEnter={() => markNotificationAsRead(notification.notification_id)}
+                    onMouseEnter={() =>
+                      markNotificationAsRead(notification.notification_id)
+                    }
                   >
-                    <ListItem alignItems="flex-start" sx={{ padding: '4px 8px' }}>
+                    <ListItem
+                      alignItems="flex-start"
+                      sx={{ padding: "4px 8px" }}
+                    >
                       {!notification.is_read && (
                         <Box
                           sx={{
                             width: 8,
                             height: 8,
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             backgroundColor: brand.primary,
-                            position: 'absolute',
+                            position: "absolute",
                             left: 6,
-                            top: 16,
+                            top: 16
                           }}
                         />
                       )}
@@ -315,10 +350,12 @@ export default function UserMenu() {
                           pr: 3 // Make space for the close button
                         }}
                         primary={
-                          <Typography sx={{
-                            fontWeight: 'bold',
-                            color: 'text.primary',
-                          }}>
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                              color: "text.primary"
+                            }}
+                          >
                             {notification.title}
                           </Typography>
                         }
@@ -327,7 +364,7 @@ export default function UserMenu() {
                             <Typography
                               component="span"
                               variant="body2"
-                              color={'text.primary'}
+                              color={"text.primary"}
                             >
                               {notification.message}
                             </Typography>
@@ -350,10 +387,10 @@ export default function UserMenu() {
                           dismissNotification(notification.notification_id);
                         }}
                         sx={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '8px',
-                          padding: '4px',
+                          position: "absolute",
+                          right: "8px",
+                          top: "8px",
+                          padding: "4px"
                         }}
                         size="small"
                       >
@@ -367,27 +404,29 @@ export default function UserMenu() {
           </List>
 
           {/* Mark all as read button at the bottom - always shown */}
-          <Box sx={{
-            paddingX: "16px",
-            paddingTop: "4px",
-            paddingBottom: "8px",
-            justifyContent: 'center',
-          }}>
+          <Box
+            sx={{
+              paddingX: "16px",
+              paddingTop: "4px",
+              paddingBottom: "8px",
+              justifyContent: "center"
+            }}
+          >
             <Button
               onClick={markAllAsRead}
               variant="text"
               disabled={!hasUnreadNotifications}
               size="small"
               sx={{
-                color: hasUnreadNotifications ? '#2196f3' : '#9e9e9e', // Light blue when notifications exist, gray otherwise
-                fontSize: '0.8rem',
-                padding: '2px 8px',
-                minWidth: 'auto',
-                '&.Mui-disabled': {
-                  color: '#9e9e9e', // Keep gray when disabled
+                color: hasUnreadNotifications ? "#2196f3" : "#9e9e9e", // Light blue when notifications exist, gray otherwise
+                fontSize: "0.8rem",
+                padding: "2px 8px",
+                minWidth: "auto",
+                "&.Mui-disabled": {
+                  color: "#9e9e9e" // Keep gray when disabled
                 }
               }}
-              startIcon={<DoneAllIcon sx={{ fontSize: '1rem' }} />}
+              startIcon={<DoneAllIcon sx={{ fontSize: "1rem" }} />}
             >
               Mark all as read
             </Button>
@@ -411,26 +450,26 @@ const iconStyle = {
 };
 
 const notificationPaperStyle = {
-  width: '525px',
-  maxHeight: '500px',
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-  overflowX: 'hidden',
+  width: "525px",
+  maxHeight: "500px",
+  overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+  overflowX: "hidden"
 };
 
 const notificationHeaderStyle = {
-  padding: '10px 16px',
-  paddingBottom: '0px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center'
+  padding: "10px 16px",
+  paddingBottom: "0px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center"
 };
 
 const notificationListStyle = {
-  maxHeight: '400px',
-  overflow: 'auto',
-  padding: '4px 0',
-  overflowX: 'hidden',
-  overflowY: 'auto',
+  maxHeight: "400px",
+  overflow: "auto",
+  padding: "4px 0",
+  overflowX: "hidden",
+  overflowY: "auto"
 };

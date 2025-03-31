@@ -1,5 +1,12 @@
-import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell, Legend } from "recharts";
 import { Box, Typography } from "@mui/material";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip
+} from "recharts";
 
 interface ISpendingByFolderChartProps {
   folderSpending: {
@@ -8,25 +15,43 @@ interface ISpendingByFolderChartProps {
   currency: string;
 }
 
-const SpendingByFolderChart = ({ folderSpending, currency }: ISpendingByFolderChartProps) => {
-  const folderData = Object.entries(folderSpending).map(([folder, [amount, color]]) => ({
-    name: folder,
-    amount,
-    color
-  }));
+const SpendingByFolderChart = ({
+  folderSpending,
+  currency
+}: ISpendingByFolderChartProps) => {
+  const folderData = Object.entries(folderSpending).map(
+    ([folder, [amount, color]]) => ({
+      name: folder,
+      amount,
+      color
+    })
+  );
 
   return (
     <Box sx={chartContainerStyle}>
       <h3>Spending by Folder ({currency})</h3>
       <ResponsiveContainer width="100%" height={360}>
         <PieChart>
-          <Pie data={folderData} dataKey="amount" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
+          <Pie
+            data={folderData}
+            dataKey="amount"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+          >
             {folderData.map((entry, idx) => (
               <Cell key={`folder-cell-${idx}`} fill={entry.color} />
             ))}
           </Pie>
           <Tooltip content={CustomTooltip} />
-          <Legend verticalAlign="bottom" align="center" iconSize={24} layout="horizontal" formatter={LegendFormatter} />
+          <Legend
+            verticalAlign="bottom"
+            align="center"
+            iconSize={24}
+            layout="horizontal"
+            formatter={LegendFormatter}
+          />
         </PieChart>
       </ResponsiveContainer>
     </Box>
@@ -59,18 +84,18 @@ const chartContainerStyle = {
   textAlign: "center",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
+  justifyContent: "center"
 };
 
 const titleStyle = {
-  marginBottom: "8px",
+  marginBottom: "8px"
 };
 
 const tooltipStyle = {
   padding: "8px",
   backgroundColor: "#fff",
   borderRadius: "5px",
-  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)"
 };
 
 export default SpendingByFolderChart;
