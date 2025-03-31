@@ -45,7 +45,14 @@ export default function Page() {
   const handleSaveReceipt = async (newReceipt: Receipt, file: File | null) => {
     try {
       const receiptData = {
-        ...newReceipt
+        ...newReceipt,
+        total_amount: Number(newReceipt.total_amount.toFixed(2)),
+        tax: newReceipt.tax ? Number(newReceipt.tax.toFixed(2)) : 0,
+        tip: newReceipt.tip ? Number(newReceipt.tip.toFixed(2)) : 0,
+        items: newReceipt.items.map(item => ({
+          ...item,
+          price: Number(item.price.toFixed(2))
+        }))
       };
 
       const receiptResponse = await fetchWithAuth(receiptsApi, {
@@ -111,19 +118,20 @@ export default function Page() {
         .split("T")[0];
 
       // Calculate total from items and tax
-      const itemsSubtotal = updatedReceipt.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+      const itemsSubtotal = Number(updatedReceipt.items.reduce(
+        (sum, item) => sum + Number((item.price * item.quantity).toFixed(2)),
         0
-      );
-      const taxAmount = updatedReceipt.tax || 0;
-      const total = itemsSubtotal + taxAmount + (updatedReceipt.tip || 0);
+      ).toFixed(2));
+      const taxAmount = Number((updatedReceipt.tax || 0).toFixed(2));
+      const tipAmount = Number((updatedReceipt.tip || 0).toFixed(2));
+      const total = Number((itemsSubtotal + taxAmount + tipAmount).toFixed(2));
 
       const updatedData = {
         ...updatedReceipt,
         date: formattedDate,
         total_amount: total,
         tax: taxAmount,
-        tip: updatedReceipt.tip || 0
+        tip: tipAmount
       };
 
       // Remove tax_rate as it's not in the backend model

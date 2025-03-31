@@ -142,7 +142,7 @@ export default function ItemsTable(props: IItemsTableProps) {
   );
   const taxAmount = (itemsSubtotal * taxRate) / 100;
   const tipAmount = (itemsSubtotal * tipRate) / 100;
-  const total = itemsSubtotal + taxAmount + tipAmount;
+  const total = Number((itemsSubtotal + taxAmount + tipAmount).toFixed(2));
 
   return (
     <Box>

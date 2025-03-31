@@ -5,7 +5,7 @@ export interface Receipt {
   currency: Currency;
   payment_method: PaymentMethod;
   items: ReceiptItem[];
-  total: number;
+  total_amount: number;
   tax?: number;
   tip?: number;
   tax_rate?: number;

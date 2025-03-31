@@ -54,7 +54,7 @@ export default function ReceiptCard(props: IReceiptCardProps) {
         </Stack>
 
         <Typography sx={darkTextStyle}>
-          Total: {receipt.currency} ${Number(receipt.total).toFixed(2)}
+          Total: {receipt.currency} ${Number(receipt.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
