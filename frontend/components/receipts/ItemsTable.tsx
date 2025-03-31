@@ -34,7 +34,14 @@ function priceRow(qty: number, unit: number) {
 }
 
 export default function ItemsTable(props: IItemsTableProps) {
-  const { items, onItemsChange, onTaxChange, onTipChange, initialTax, initialTip } = props;
+  const {
+    items,
+    onItemsChange,
+    onTaxChange,
+    onTipChange,
+    initialTax,
+    initialTip
+  } = props;
   const [taxRate, setTaxRate] = React.useState(() => {
     const itemsSubtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,

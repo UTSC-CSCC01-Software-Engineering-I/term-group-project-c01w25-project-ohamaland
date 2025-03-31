@@ -25,8 +25,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
-import ItemsTable from "./ItemsTable";
 import FilePondUpload from "./FileUpload";
+import ItemsTable from "./ItemsTable";
 
 interface IAddReceiptProps {
   open: boolean;
@@ -77,7 +77,8 @@ export default function AddReceipt(props: IAddReceiptProps) {
 
   const handleOcrDataExtracted = (ocrData: OcrData) => {
     if (ocrData.merchant) handleChange("merchant", ocrData.merchant);
-    if (ocrData.total_amount) handleChange("total_amount", ocrData.total_amount);
+    if (ocrData.total_amount)
+      handleChange("total_amount", ocrData.total_amount);
     if (ocrData.currency) handleChange("currency", ocrData.currency);
     if (ocrData.date) {
       // Ensure the date is properly formatted
@@ -86,7 +87,8 @@ export default function AddReceipt(props: IAddReceiptProps) {
         handleChange("date", date.toISOString());
       }
     }
-    if (ocrData.payment_method) handleChange("payment_method", ocrData.payment_method);
+    if (ocrData.payment_method)
+      handleChange("payment_method", ocrData.payment_method);
     if (ocrData.items) handleChange("items", ocrData.items);
   };
 
@@ -96,7 +98,7 @@ export default function AddReceipt(props: IAddReceiptProps) {
       // Format the date as YYYY-MM-DD before saving
       const formattedReceipt = {
         ...newReceipt,
-        date: dayjs(newReceipt.date).format('YYYY-MM-DD')
+        date: dayjs(newReceipt.date).format("YYYY-MM-DD")
       };
       await onSave(formattedReceipt, file);
       setNewReceipt({

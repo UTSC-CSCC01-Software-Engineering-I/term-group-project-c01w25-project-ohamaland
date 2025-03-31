@@ -49,7 +49,7 @@ export default function Page() {
         total_amount: Number(newReceipt.total_amount.toFixed(2)),
         tax: newReceipt.tax ? Number(newReceipt.tax.toFixed(2)) : 0,
         tip: newReceipt.tip ? Number(newReceipt.tip.toFixed(2)) : 0,
-        items: newReceipt.items.map(item => ({
+        items: newReceipt.items.map((item) => ({
           ...item,
           price: Number(item.price.toFixed(2))
         }))
@@ -118,10 +118,15 @@ export default function Page() {
         .split("T")[0];
 
       // Calculate total from items and tax
-      const itemsSubtotal = Number(updatedReceipt.items.reduce(
-        (sum, item) => sum + Number((item.price * item.quantity).toFixed(2)),
-        0
-      ).toFixed(2));
+      const itemsSubtotal = Number(
+        updatedReceipt.items
+          .reduce(
+            (sum, item) =>
+              sum + Number((item.price * item.quantity).toFixed(2)),
+            0
+          )
+          .toFixed(2)
+      );
       const taxAmount = Number((updatedReceipt.tax || 0).toFixed(2));
       const tipAmount = Number((updatedReceipt.tip || 0).toFixed(2));
       const total = Number((itemsSubtotal + taxAmount + tipAmount).toFixed(2));

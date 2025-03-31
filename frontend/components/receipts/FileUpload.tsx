@@ -1,8 +1,8 @@
 import { fetchWithAuth, receiptsUploadApi } from "@/utils/api";
+import { Box, CircularProgress } from "@mui/material";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
-import { Box, CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 
@@ -73,7 +73,14 @@ export default function FilePondUpload({
       />
 
       {isProcessing ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginTop: "8px"
+          }}
+        >
           <CircularProgress size={20} />
           <span>Processing receipt...</span>
         </div>
