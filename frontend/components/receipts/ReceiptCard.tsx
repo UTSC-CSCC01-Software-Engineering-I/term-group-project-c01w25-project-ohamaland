@@ -65,8 +65,8 @@ export default function ReceiptCard(props: IReceiptCardProps) {
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} x{item.quantity} @{" "}
-            {receipt.currency} {Number(item.price).toFixed(2)}
+            • {item.name} x{item.quantity} @ {receipt.currency}{" "}
+            {Number(item.price).toFixed(2)}
           </Typography>
         ))}
 

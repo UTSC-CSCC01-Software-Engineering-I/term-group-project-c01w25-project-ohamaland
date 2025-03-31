@@ -2,7 +2,15 @@
 from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from api.models import Folder, Receipt, Item, Group, GroupMembers, Subscription, Insights
+from api.models import (
+    Folder,
+    Receipt,
+    Item,
+    Group,
+    GroupMembers,
+    Subscription,
+    Insights,
+)
 from api.serializers import (
     UserSerializer,
     ReceiptSerializer,
@@ -17,6 +25,7 @@ from datetime import date
 
 User = get_user_model()
 
+
 class UserSerializerTests(TestCase):
     def test_valid_user_creation(self):
         data = {
@@ -25,7 +34,7 @@ class UserSerializerTests(TestCase):
             "first_name": "Test",
             "last_name": "User",
             "phone_number": "+1 234-567-8900",
-            "password": "SecurePass123!"
+            "password": "SecurePass123!",
         }
         serializer = UserSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -44,7 +53,7 @@ class UserSerializerTests(TestCase):
             "first_name": "John",
             "last_name": "Doe",
             "phone_number": "+1 234-567-8900",
-            "password": "123"
+            "password": "123",
         }
         serializer = UserSerializer(data=data)
         self.assertFalse(serializer.is_valid())
@@ -53,7 +62,9 @@ class UserSerializerTests(TestCase):
 
 class ReceiptSerializerTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="SecurePass123!")
+        self.user = User.objects.create_user(
+            username="testuser", password="SecurePass123!"
+        )
 
     def test_invalid_receipt_no_date(self):
         data = {
@@ -71,11 +82,15 @@ class ReceiptSerializerTests(TestCase):
 
 class FolderSerializerTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="SecurePass123!")
+        self.user = User.objects.create_user(
+            username="testuser", password="SecurePass123!"
+        )
 
     def test_create_folder(self):
         data = {"name": "myfolder", "color": "#123456"}
-        serializer = FolderSerializer(data=data, context={"request": self.mock_request(self.user)})
+        serializer = FolderSerializer(
+            data=data, context={"request": self.mock_request(self.user)}
+        )
         self.assertTrue(serializer.is_valid(), serializer.errors)
         folder = serializer.save()
 
@@ -87,12 +102,15 @@ class FolderSerializerTests(TestCase):
         class MockRequest:
             def __init__(self, user):
                 self.user = user
+
         return MockRequest(user)
 
 
 class GroupSerializerTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="SecurePass123!")
+        self.user = User.objects.create_user(
+            username="testuser", password="SecurePass123!"
+        )
 
     def test_create_group(self):
         data = {"name": "testgroup", "creator": self.user.id}
@@ -106,7 +124,9 @@ class GroupSerializerTests(TestCase):
 
 class SubscriptionSerializerTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="SecurePass123!")
+        self.user = User.objects.create_user(
+            username="testuser", password="SecurePass123!"
+        )
         self.group = Group.objects.create(name="Test Group", creator=self.user)
 
     def test_valid_subscription(self):
@@ -152,7 +172,9 @@ class SubscriptionSerializerTests(TestCase):
 
 class ItemSerializerTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="SecurePass123!")
+        self.user = User.objects.create_user(
+            username="testuser", password="SecurePass123!"
+        )
         self.group = Group.objects.create(name="Test Group", creator=self.user)
         self.receipt = Receipt.objects.create(
             date=date(2025, 3, 25),
@@ -163,11 +185,7 @@ class ItemSerializerTests(TestCase):
         )
 
     def test_valid_item(self):
-        data = {
-            "name": "Milk",
-            "price": Decimal("2.99"),
-            "quantity": 3
-        }
+        data = {"name": "Milk", "price": Decimal("2.99"), "quantity": 3}
         serializer = ItemSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
         item = serializer.save(receipt=self.receipt)

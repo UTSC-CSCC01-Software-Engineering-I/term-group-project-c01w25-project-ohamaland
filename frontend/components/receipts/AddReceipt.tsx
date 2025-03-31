@@ -67,7 +67,7 @@ export default function AddReceipt(props: IAddReceiptProps) {
         id: item.id,
         name: item.name,
         price: item.price,
-        quantity: item.quantity,
+        quantity: item.quantity
       }));
       setItems(parsedItems);
     }
@@ -170,7 +170,9 @@ export default function AddReceipt(props: IAddReceiptProps) {
                   <TextField
                     label="Name"
                     value={item.name}
-                    onChange={(e) => handleItemChange(idx, "name", e.target.value)}
+                    onChange={(e) =>
+                      handleItemChange(idx, "name", e.target.value)
+                    }
                   />
                   <TextField
                     label="Price"
@@ -185,7 +187,11 @@ export default function AddReceipt(props: IAddReceiptProps) {
                     type="number"
                     value={item.quantity}
                     onChange={(e) =>
-                      handleItemChange(idx, "quantity", parseInt(e.target.value, 10))
+                      handleItemChange(
+                        idx,
+                        "quantity",
+                        parseInt(e.target.value, 10)
+                      )
                     }
                   />
                 </Stack>

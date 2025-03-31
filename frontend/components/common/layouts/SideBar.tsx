@@ -77,14 +77,15 @@ export default function SideBar(props: ISideBarProps) {
   const [open, setOpen] = useState(false);
   const sections = props.loggedIn ? loggedInSections : loggedOutSections;
   const pathname = usePathname();
-  
+
   // Get the first segment of the path (e.g., 'receipts' from '/receipts/123')
-  const currentSection = pathname?.split('/')[1] || '';
-  
+  const currentSection = pathname?.split("/")[1] || "";
+
   // Convert the current section to the sidebar section name
-  const activeSection = Object.entries(routeMap).find(
-    ([, route]) => route === currentSection
-  )?.[0] || '';
+  const activeSection =
+    Object.entries(routeMap).find(
+      ([, route]) => route === currentSection
+    )?.[0] || "";
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -98,8 +99,7 @@ export default function SideBar(props: ISideBarProps) {
     try {
       const refreshToken = getRefreshToken();
 
-      const response = await fetchWithAuth(
-        userLogoutApi, {
+      const response = await fetchWithAuth(userLogoutApi, {
         method: "POST",
         body: JSON.stringify({
           refresh: refreshToken

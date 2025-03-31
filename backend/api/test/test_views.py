@@ -4,7 +4,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from api.models import Receipt, Item, Group
-from api.views import ReceiptOverview, ReceiptDetail  # not strictly required, but can be imported
+from api.views import (
+    ReceiptOverview,
+    ReceiptDetail,
+)  # not strictly required, but can be imported
 import datetime
 
 User = get_user_model()
@@ -97,7 +100,7 @@ class ItemTests(APITestCase):
 class AuthTests(APITestCase):
     def setUp(self):
         self.register_url = reverse("user-register")  # e.g. /api/user/register/
-        self.login_url = reverse("user-login")        # e.g. /api/user/login/
+        self.login_url = reverse("user-login")  # e.g. /api/user/login/
 
     def test_register_success(self):
         data = {
@@ -118,7 +121,9 @@ class AuthTests(APITestCase):
         self.assertIn("Invalid credentials", str(response.data))
 
     def test_login_success(self):
-        User.objects.create_user(username="loginuser", email="login@example.com", password="loginpass")
+        User.objects.create_user(
+            username="loginuser", email="login@example.com", password="loginpass"
+        )
         data = {"identifier": "login@example.com", "password": "loginpass"}
         response = self.client.post(self.login_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -134,9 +139,7 @@ class GroupTests(APITestCase):
 
     def test_create_group_success(self):
         """POST /api/groups/ to create a group."""
-        data = {"name": "My Test Group",
-                "creator": self.user.id
-                }
+        data = {"name": "My Test Group", "creator": self.user.id}
         response = self.client.post(self.group_list_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Group.objects.exists())

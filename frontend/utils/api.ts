@@ -46,8 +46,10 @@ export const userLogoutApi = API_BASE_URL + "/user/logout/";
 export const userRegisterApi = API_BASE_URL + "/user/register/";
 export const userMeApi = API_BASE_URL + "/user/me/";
 export const subscriptionsApi = API_BASE_URL + "/subscriptions/";
-export const subscriptionsDetailApi = (id: number) => API_BASE_URL + `/subscriptions/${id}/`;
+export const subscriptionsDetailApi = (id: number) =>
+  API_BASE_URL + `/subscriptions/${id}/`;
 export const insightsApi = API_BASE_URL + "/analytics/insights/";
-export const insightsDetailApi = (period: string) => API_BASE_URL + `/analytics/insights/${period}/`;
+export const insightsDetailApi = (period: string) =>
+  API_BASE_URL + `/analytics/insights/${period}/`;
 export const notificationsWS = (token: string) => `ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`;
 export const notificationsDetailApi = (id: number) => API_BASE_URL + `/notifications/${id}/`;

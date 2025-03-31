@@ -35,7 +35,7 @@ export default function ReceiptFilter(props: ISubscriptionFilterProps) {
       <DropDownSelector
         value={props.renewalTime}
         inputId="timeperiod-select-label"
-        label="Renewal Time <Within>"
+        label="Renewal Within"
         onChange={props.handleTimePeriodChange}
         options={timePeriods}
         formControlStyle={formControlStyle}

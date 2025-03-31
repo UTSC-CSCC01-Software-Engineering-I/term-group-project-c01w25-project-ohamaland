@@ -1,11 +1,18 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import Log from "@/components/common/Log";
 import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
+import SubscriptionLogItem from "@/components/subscriptions/SubscriptionLogItem";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
-import { fetchWithAuth, subscriptionsApi, subscriptionsDetailApi, userMeApi } from "@/utils/api";
+import {
+  fetchWithAuth,
+  subscriptionsApi,
+  subscriptionsDetailApi,
+  userMeApi
+} from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -66,11 +73,10 @@ export default function Page() {
     setBillingPeriod(event.target.value as BillingPeriod);
   };
 
-  // to handle adding a new subscription (temporary, hardcoded for now)
   const handleSaveSubscription = async (newSubscription: Subscription) => {
     try {
       const meResponse = await fetchWithAuth(userMeApi, {
-        method: "GET",
+        method: "GET"
       });
       if (meResponse && meResponse.ok) {
         const { id: userId } = await meResponse.json();
@@ -79,15 +85,13 @@ export default function Page() {
           user: userId
         };
 
-        const subscriptionResponse = await fetchWithAuth(subscriptionsApi,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(subscriptionData)
-          }
-        );
+        const subscriptionResponse = await fetchWithAuth(subscriptionsApi, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(subscriptionData)
+        });
 
         if (subscriptionResponse && subscriptionResponse.ok) {
           const savedSubscription = await subscriptionResponse.json();
@@ -183,33 +187,49 @@ export default function Page() {
 
   return (
     <PageWrapper>
-      <Box sx={filterContainerStyle}>
-        <SubscriptionFilter
-          renewalTime={renewalTime}
-          billingPeriod={billingPeriod}
-          filterTerm={filterTerm}
-          setFilterTerm={setFilterTerm}
-          handleTimePeriodChange={handleTimePeriodChange}
-          handleBillingPeriodChange={handleBillingPeriodChange}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setIsModalOpen(true)}
-          sx={buttonStyle}
-        >
-          Add Subscription
-        </Button>
+      <Box sx={pageLayoutStyle}>
+        <Box sx={filterContainerStyle}>
+          <SubscriptionFilter
+            renewalTime={renewalTime}
+            billingPeriod={billingPeriod}
+            filterTerm={filterTerm}
+            setFilterTerm={setFilterTerm}
+            handleTimePeriodChange={handleTimePeriodChange}
+            handleBillingPeriodChange={handleBillingPeriodChange}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setIsModalOpen(true)}
+            sx={buttonStyle}
+          >
+            Add Subscription
+          </Button>
+        </Box>
+
+        <Box sx={contentLayoutStyle}>
+          <Box sx={leftContainerStyle}>
+            <SubscriptionGrid
+              subscriptions={subscriptions}
+              filterTerm={filterTerm}
+              renewalTime={renewalTime}
+              renewalTimeOffset={renewalTimeOffset}
+              billingPeriod={billingPeriod}
+              onOpenDialog={handleOpenDialog}
+              onDeleteSubscription={handleDeleteSubscription}
+            />
+          </Box>
+
+          <Box sx={rightContainerStyle}>
+            <Log
+              data={getUpcomingRenewals(subscriptions)}
+              Component={SubscriptionLogItem}
+              onOpenDialog={handleOpenDialog}
+              title="Upcoming Renewals"
+            />
+          </Box>
+        </Box>
       </Box>
-      <SubscriptionGrid
-        subscriptions={subscriptions}
-        filterTerm={filterTerm}
-        renewalTime={renewalTime}
-        renewalTimeOffset={renewalTimeOffset}
-        billingPeriod={billingPeriod}
-        onOpenDialog={handleOpenDialog}
-        onDeleteSubscription={handleDeleteSubscription}
-      />
 
       <SubscriptionDialog
         title="Add Subscription"
@@ -231,12 +251,47 @@ export default function Page() {
   );
 }
 
+function getUpcomingRenewals(subscriptions: Subscription[]) {
+  const currentDate = new Date();
+  const sortedSubscriptions = subscriptions
+    .filter((s) => new Date(s.renewal_date) >= currentDate)
+    .sort(
+      (a, b) =>
+        new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime()
+    );
+  return sortedSubscriptions.slice(0, renewalsToShow);
+}
+
+const renewalsToShow = 5;
+
+const pageLayoutStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px"
+};
+
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
   gap: "16px",
-  marginBottom: "16px",
   width: "100%"
+};
+
+const contentLayoutStyle = {
+  display: "flex",
+  gap: "32px"
+};
+
+const leftContainerStyle = {
+  flex: 1,
+  marginRight: "320px"
+};
+
+const rightContainerStyle = {
+  position: "fixed",
+  right: "0px",
+  width: "304px",
+  flexShrink: 0
 };
 
 const buttonStyle = {

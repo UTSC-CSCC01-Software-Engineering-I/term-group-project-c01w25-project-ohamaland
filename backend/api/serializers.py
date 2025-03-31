@@ -67,17 +67,23 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         identifier = data.get("identifier")
 
         if not identifier:
-            raise serializers.ValidationError("Either 'email' or 'username' must be provided.")
+            raise serializers.ValidationError(
+                "Either 'email' or 'username' must be provided."
+            )
 
-        user = User.objects.filter(email=identifier).first() or User.objects.filter(username=identifier).first()
+        user = (
+            User.objects.filter(email=identifier).first()
+            or User.objects.filter(username=identifier).first()
+        )
 
         if not user:
             raise serializers.ValidationError("User not found.")
 
-        data['user'] = user  # Add user to validated data
+        data["user"] = user  # Add user to validated data
         del data["identifier"]
 
         return data
+
 
 class GroupReceiptSplitSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -205,7 +211,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
         try:
             with transaction.atomic():
                 if "folder" not in validated_data:
-                    validated_data["folder"], _ = Folder.objects.get_or_create(user=self.context["request"].user, name="All")
+                    validated_data["folder"], _ = Folder.objects.get_or_create(
+                        user=self.context["request"].user, name="All"
+                    )
 
                 receipt = Receipt.objects.create(**validated_data)
 
@@ -372,12 +380,13 @@ class InsightsSerializer(serializers.ModelSerializer):
 
         return data
 
+
 class FolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Folder
-        fields = ['id', 'name', 'color', 'created_at']
+        fields = ["id", "name", "color", "created_at"]
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        validated_data['user'] = user
-        return super().create(validated_data) 
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)

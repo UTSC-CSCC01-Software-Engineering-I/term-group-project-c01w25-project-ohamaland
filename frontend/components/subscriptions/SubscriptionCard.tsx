@@ -1,13 +1,16 @@
-import { textGrey } from "@/styles/colors";
+import { defaultText, renewalBarColors, textLightGrey } from "@/styles/colors";
 import { Subscription } from "@/types/subscriptions";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
-  Button,
-  Card,
-  CardContent,
+  Box,
   Divider,
+  Grid,
+  IconButton,
   Stack,
   Typography
 } from "@mui/material";
+import LinearProgress from "@mui/material/LinearProgress";
+import { useEffect, useState } from "react";
 
 interface ISubscriptionCardProps {
   subscription: Subscription;
@@ -17,72 +20,129 @@ interface ISubscriptionCardProps {
 
 export default function SubscriptionCard(props: ISubscriptionCardProps) {
   const { subscription, onClick, onDeleteSubscription } = props;
-  const formattedDate = subscription.renewal_date.split("T")[0]; // Ensures YYYY-MM-DD
+  const formattedDate = subscription.renewal_date.split("T")[0];
+  const [progress, setProgress] = useState(0);
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDeleteSubscription(subscription.id);
-  };
+  useEffect(() => {
+    const updateProgress = () => {
+      const billingPeriod = subscription.billing_period;
+      const currentDate = new Date();
+      const renewalDate = new Date(subscription.renewal_date);
+      const startDate = new Date(renewalDate);
+
+      switch (billingPeriod) {
+        case "Daily":
+          startDate.setDate(startDate.getDate() - 1);
+          break;
+        case "Weekly":
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case "Monthly":
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+        case "Yearly":
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          break;
+        default:
+          return;
+      }
+      if (currentDate < startDate) setProgress(0);
+      else if (currentDate >= renewalDate) setProgress(100);
+      else {
+        const percentage =
+          ((currentDate.getTime() - startDate.getTime()) /
+            (renewalDate.getTime() - startDate.getTime())) *
+          100;
+        setProgress(percentage);
+      }
+    };
+    updateProgress();
+
+    // Updates every hour
+    const intervalId = setInterval(updateProgress, 3600000);
+    return () => clearInterval(intervalId);
+  }, [subscription]);
 
   return (
-    <Card sx={cardStyle} onClick={onClick}>
-      <CardContent>
-        {/* Merchant Name */}
-        <Typography sx={merchantTextStyle}>{subscription.merchant}</Typography>
-
-        {/* Renewal Date */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={1}
-        >
-          <Typography sx={textStyle}>{formattedDate}</Typography>
+    <Grid container spacing={0} sx={cardStyle} onClick={onClick}>
+      <Grid xs={16} sx={cardContentStyle}>
+        <Stack direction="column" justifyContent="space-between">
+          <Box sx={headerBoxStyle}>
+            <Typography sx={merchantTextStyle}>
+              {subscription.merchant}
+            </Typography>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteSubscription(subscription.id);
+              }}
+              size="small"
+              sx={deleteIconStyle}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
         </Stack>
 
-        {/* Billing Period */}
-        <Typography sx={totalTextStyle}>
+        <Typography sx={darkTextStyle}>
           Billing Period: {subscription.billing_period}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
 
-        {/* Total Amount */}
-        <Typography sx={totalTextStyle}>
-          Total: {subscription.currency}{" "}
+        <Typography sx={darkTextStyle}>
+          Bill: {subscription.currency} $
           {Number(subscription.total_amount).toFixed(2)}
         </Typography>
 
-        <Divider sx={{ my: 1 }} />
+        <Box sx={barStyle}>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={renewalBar(progress)}
+          />
+        </Box>
 
-        {/* View Details Button */}
-        <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
-          View Details
-        </Button>
-        <Button
-          variant="outlined"
-          sx={deleteButtonStyle}
-          onClick={handleDelete}
-        >
-          Delete Subscription
-        </Button>
-      </CardContent>
-    </Card>
+        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>
+          {"Renewal By: "}
+          {formattedDate}
+        </Typography>
+      </Grid>
+    </Grid>
   );
 }
 
-const cardStyle = {
-  maxWidth: 400,
-  margin: "8px",
-  cursor: "pointer"
+const getRenewalBarColor = (progress: number) => {
+  if (progress <= 25) return renewalBarColors.green;
+  if (progress >= 75) return renewalBarColors.red;
+  return renewalBarColors.yellow;
 };
 
-const mediaStyle = {
-  objectFit: "contain"
+const renewalBar = (progress: number) => ({
+  backgroundColor: renewalBarColors.grey,
+  "& .MuiLinearProgress-bar": {
+    backgroundColor: getRenewalBarColor(progress)
+  }
+});
+
+const barStyle = {
+  width: "100%"
+};
+
+const cardStyle = {
+  maxWidth: 320,
+  margin: "8px",
+  cursor: "pointer",
+  borderRadius: "8px",
+  boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.1)"
+};
+
+const cardContentStyle = {
+  padding: "8px"
 };
 
 const merchantTextStyle = {
-  fontWeight: 500,
+  fontWeight: 600,
   fontSize: "18px",
   color: "black",
   whiteSpace: "nowrap",
@@ -90,42 +150,24 @@ const merchantTextStyle = {
   textOverflow: "ellipsis"
 };
 
-const textStyle = {
+const lightTextStyle = {
   fontSize: "14px",
-  color: textGrey
+  color: textLightGrey,
+  fontWeight: 700
 };
 
-const totalTextStyle = {
-  fontSize: "16px",
-  fontWeight: 600
-};
-
-const itemsTitleStyle = {
+const darkTextStyle = {
   fontSize: "14px",
-  fontWeight: 500,
-  marginBottom: "8px"
+  color: defaultText,
+  fontWeight: 700
 };
 
-const itemTextStyle = {
-  fontSize: "12px",
-  marginLeft: "8px",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis"
+const headerBoxStyle = {
+  display: "flex",
+  justifyContent: "space-between"
 };
 
-const moreItemsStyle = {
-  fontSize: "12px",
-  color: textGrey,
-  fontStyle: "italic"
-};
-
-const buttonStyle = {
-  marginTop: "8px"
-};
-
-const deleteButtonStyle = {
-  marginTop: "8px",
-  BorderColor: "red",
-  color: "red"
+const deleteIconStyle = {
+  color: textLightGrey,
+  padding: 0
 };

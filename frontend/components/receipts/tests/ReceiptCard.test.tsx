@@ -1,8 +1,7 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
 import { Receipt } from "@/types/receipts";
 import "@testing-library/jest-dom";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 describe("ReceiptCard", () => {
   const mockOnClick = jest.fn();
@@ -21,19 +20,19 @@ describe("ReceiptCard", () => {
         id: 1,
         name: "Milk",
         price: 3.5,
-        quantity: 2,
+        quantity: 2
       },
       {
         id: 2,
         name: "Bread",
         price: 2.0,
-        quantity: 1,
+        quantity: 1
       },
       {
         id: 3,
         name: "Eggs",
         price: 4.2,
-        quantity: 1,
+        quantity: 1
       }
     ]
   };

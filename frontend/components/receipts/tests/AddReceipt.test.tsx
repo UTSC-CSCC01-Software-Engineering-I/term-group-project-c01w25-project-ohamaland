@@ -1,16 +1,17 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AddReceipt from "@/components/receipts/AddReceipt";
-import userEvent from "@testing-library/user-event";
 import { Receipt } from "@/types/receipts";
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 describe("AddReceipt component", () => {
   const mockOnClose = jest.fn();
   const mockOnSave = jest.fn();
 
   const setup = () => {
-    render(<AddReceipt open={true} onClose={mockOnClose} onSave={mockOnSave} />);
+    render(
+      <AddReceipt open={true} onClose={mockOnClose} onSave={mockOnSave} />
+    );
   };
 
   beforeEach(() => {
@@ -76,8 +77,8 @@ describe("AddReceipt component", () => {
       payment_method: "Debit Card",
       items: [
         { id: 1, name: "Coffee", price: 2.5, quantity: 2 },
-        { id: 2, name: "Donut", price: 3.99, quantity: 1 },
-      ],
+        { id: 2, name: "Donut", price: 3.99, quantity: 1 }
+      ]
     };
 
     // Simulate OCR callback

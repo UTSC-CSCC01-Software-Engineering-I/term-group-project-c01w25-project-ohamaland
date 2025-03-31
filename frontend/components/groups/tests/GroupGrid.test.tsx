@@ -1,9 +1,8 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
-import dayjs from "dayjs";
 import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
+import dayjs from "dayjs";
 
 // Mock the GroupCard component to isolate GroupGrid testing
 jest.mock("@/components/groups/GroupCard", () => {
