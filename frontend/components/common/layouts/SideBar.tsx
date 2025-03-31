@@ -13,12 +13,12 @@ import { fetchWithAuth, userLogoutApi } from "@/utils/api";
 import { getRefreshToken, logout } from "@/utils/auth";
 import {
   BrokenImage,
-  Group,
+  Groups3,
   Insights,
   Logout,
-  Receipt,
+  ReceiptLong,
   Settings,
-  Subscriptions,
+  CurrencyExchange,
   SvgIconComponent
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -54,9 +54,9 @@ const routeMap: { [key: string]: string } = {
 };
 
 const iconMap: { [key: string]: SvgIconComponent } = {
-  Groups: Group,
-  Receipts: Receipt,
-  Subscriptions: Subscriptions,
+  Groups: Groups3,
+  Receipts: ReceiptLong,
+  Subscriptions: CurrencyExchange,
   Insights: Insights,
   Settings: Settings,
   Logout: Logout
