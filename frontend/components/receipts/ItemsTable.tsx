@@ -20,7 +20,9 @@ interface IItemsTableProps {
   items: ReceiptItem[];
   onItemsChange: (items: ReceiptItem[]) => void;
   onTaxChange?: (tax: number) => void;
+  onTipChange?: (tip: number) => void;
   initialTax?: number;
+  initialTip?: number;
 }
 
 function ccyFormat(num: number) {
@@ -32,7 +34,7 @@ function priceRow(qty: number, unit: number) {
 }
 
 export default function ItemsTable(props: IItemsTableProps) {
-  const { items, onItemsChange, onTaxChange, initialTax } = props;
+  const { items, onItemsChange, onTaxChange, onTipChange, initialTax, initialTip } = props;
   const [taxRate, setTaxRate] = React.useState(() => {
     const itemsSubtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -40,6 +42,17 @@ export default function ItemsTable(props: IItemsTableProps) {
     );
     if (itemsSubtotal > 0 && initialTax) {
       return (initialTax / itemsSubtotal) * 100;
+    }
+    return 0;
+  });
+
+  const [tipRate, setTipRate] = React.useState(() => {
+    const itemsSubtotal = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    if (itemsSubtotal > 0 && initialTip) {
+      return (initialTip / itemsSubtotal) * 100;
     }
     return 0;
   });
@@ -97,12 +110,39 @@ export default function ItemsTable(props: IItemsTableProps) {
     }
   };
 
+  const handleTipRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value === "" ? 0 : Number(event.target.value);
+    setTipRate(value);
+    if (onTipChange) {
+      const itemsSubtotal = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+      const tipAmount = (itemsSubtotal * value) / 100;
+      onTipChange(tipAmount);
+    }
+  };
+
+  const handleTipAmountChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value === "" ? 0 : Number(event.target.value);
+    if (itemsSubtotal > 0) {
+      const newTipRate = (value / itemsSubtotal) * 100;
+      setTipRate(newTipRate);
+      if (onTipChange) {
+        onTipChange(value);
+      }
+    }
+  };
+
   const itemsSubtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const taxAmount = (itemsSubtotal * taxRate) / 100;
-  const total = itemsSubtotal + taxAmount;
+  const tipAmount = (itemsSubtotal * tipRate) / 100;
+  const total = itemsSubtotal + taxAmount + tipAmount;
 
   return (
     <Box>
@@ -250,10 +290,53 @@ export default function ItemsTable(props: IItemsTableProps) {
               <TableCell></TableCell>
             </TableRow>
             <TableRow>
+              <TableCell>Tip</TableCell>
+              <TableCell></TableCell>
+              <TableCell align="right">
+                <TextField
+                  value={tipRate}
+                  onChange={handleTipRateChange}
+                  size="small"
+                  sx={{ width: "100px" }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    )
+                  }}
+                />
+              </TableCell>
+              <TableCell align="right">
+                <TextField
+                  value={tipAmount}
+                  onChange={handleTipAmountChange}
+                  size="small"
+                  sx={{ width: "100px" }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    )
+                  }}
+                />
+              </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+            <TableRow>
               <TableCell colSpan={3} align="right">
                 Total
               </TableCell>
-              <TableCell align="right">${ccyFormat(total)}</TableCell>
+              <TableCell align="right">
+                <TextField
+                  value={ccyFormat(total)}
+                  size="small"
+                  sx={{ width: "100px" }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    )
+                  }}
+                  disabled
+                />
+              </TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableBody>

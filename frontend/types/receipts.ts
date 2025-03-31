@@ -1,17 +1,18 @@
-export type Receipt = {
+export interface Receipt {
   id: number;
-  user_id?: number;
   merchant: string;
-  total_amount: number;
+  date: string;
   currency: Currency;
-  date: string; // this is a string but is in ISO date format
-  items: ReceiptItem[];
   payment_method: PaymentMethod;
-  receipt_image_url: string | null;
+  items: ReceiptItem[];
+  total: number;
   tax?: number;
   tip?: number;
   tax_rate?: number;
-};
+  tip_rate?: number;
+  category?: Category;
+  file?: string;
+}
 
 export type Currency = "USD" | "CAD" | "";
 

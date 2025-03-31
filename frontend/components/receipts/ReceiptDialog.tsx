@@ -107,7 +107,9 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
           items={editedReceipt.items}
           onItemsChange={(items) => handleChange("items", items)}
           onTaxChange={(tax) => handleChange("tax", tax)}
+          onTipChange={(tip) => handleChange("tip", tip)}
           initialTax={editedReceipt.tax}
+          initialTip={editedReceipt.tip}
         />
         <Button
           onClick={() => onSave(editedReceipt)}
