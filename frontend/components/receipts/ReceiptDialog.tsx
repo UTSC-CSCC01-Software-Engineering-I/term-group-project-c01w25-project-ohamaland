@@ -1,3 +1,5 @@
+"use client";
+
 import DropDownSelector from "@/components/common/DropDownSelector"; // Ensure this component exists
 import { defaultText } from "@/styles/colors";
 import {
@@ -9,6 +11,8 @@ import {
   currencies,
   paymentMethods
 } from "@/types/receipts";
+import { IFolder } from "@/types/folders";
+import { folderService } from "@/utils/folderService";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   Button,
@@ -17,13 +21,14 @@ import {
   DialogTitle,
   IconButton,
   TextField,
-  Typography
+  Typography,
+  Box
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ItemsTable from "./ItemsTable";
 
 interface IReceiptDialogProps {
@@ -36,16 +41,61 @@ interface IReceiptDialogProps {
 export default function ReceiptDialog(props: IReceiptDialogProps) {
   const { receipt, open, onClose, onSave } = props;
   const [editedReceipt, setEditedReceipt] = useState(receipt);
+  const [folders, setFolders] = useState<IFolder[]>([]);
+  const [selectedFolderName, setSelectedFolderName] = useState<string | null>(receipt.folder || null);
+
+  useEffect(() => {
+    async function fetchFolders() {
+      try {
+        const foldersData = await folderService.getAllFolders();
+        setFolders(foldersData);
+      } catch (error) {
+        console.error("Error fetching folders:", error);
+      }
+    }
+    if (open) {
+      fetchFolders();
+    }
+  }, [open]);
 
   const handleChange = (
     field: keyof Receipt,
-    value: string | number | Category | Currency | ReceiptItem[]
+    value: string | number | Category | Currency | ReceiptItem[] | null
   ) => {
     setEditedReceipt((prev) => ({
       ...prev,
       [field]: value
     }));
   };
+
+  const handleFolderChange = async (folderName: string | null) => {
+    setSelectedFolderName(folderName);
+    if (folderName) {
+      try {
+        const selectedFolder = folders.find(folder => folder.name === folderName);
+        if (selectedFolder) {
+          await folderService.addReceiptToFolder(selectedFolder.id, editedReceipt.id);
+          handleChange("folder", folderName);
+          handleChange("color", selectedFolder.color);
+        }
+      } catch (error) {
+        console.error("Error adding receipt to folder:", error);
+      }
+    } else if (editedReceipt.folder) {
+      try {
+        const currentFolder = folders.find(folder => folder.name === editedReceipt.folder);
+        if (currentFolder) {
+          await folderService.removeReceiptFromFolder(currentFolder.id, editedReceipt.id);
+          handleChange("folder", null);
+          handleChange("color", "#000000"); // Reset to default color
+        }
+      } catch (error) {
+        console.error("Error removing receipt from folder:", error);
+      }
+    }
+  };
+
+  const selectedFolder = folders.find(folder => folder.name === selectedFolderName);
 
   return (
     <Dialog
@@ -78,6 +128,36 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
             }
           />
         </LocalizationProvider>
+
+        <Typography marginTop={"8px"} marginBottom={"4px"}>
+          Folder
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {selectedFolder && (
+            <Box
+              sx={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px',
+                backgroundColor: selectedFolder.color
+              }}
+            />
+          )}
+          <DropDownSelector
+            value={selectedFolderName || ""}
+            inputId="folder-select-label"
+            label="Folder"
+            onChange={(e) => handleFolderChange(e.target.value || null)}
+            options={[
+              ...folders.map((folder) => ({
+                value: folder.name,
+                label: folder.name
+              }))
+            ]}
+            formControlStyle={formControlStyle}
+          />
+        </Box>
+
         <Typography marginTop={"8px"} marginBottom={"4px"}>
           Currency
         </Typography>

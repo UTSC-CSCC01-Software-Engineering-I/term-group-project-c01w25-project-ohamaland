@@ -60,10 +60,11 @@ export default function AddReceipt(props: IAddReceiptProps) {
     items: [],
     total_amount: 0,
     tax: 0,
-    tip: 0
+    tip: 0,
+    color: "#000000",
+    folder_id: 0
   });
   const [file, setFile] = useState<File | null>(null);
-  const [receiptImageUrl, setReceiptImageUrl] = useState<string>("");
 
   const handleChange = (
     field: keyof Receipt,
@@ -127,10 +128,11 @@ export default function AddReceipt(props: IAddReceiptProps) {
         items: [],
         total_amount: 0,
         tax: 0,
-        tip: 0
+        tip: 0,
+        color: "#000000",
+        folder_id: 0
       });
       setFile(null);
-      setReceiptImageUrl("");
     } finally {
       setIsLoading(false);
     }
@@ -198,7 +200,6 @@ export default function AddReceipt(props: IAddReceiptProps) {
         </Typography>
         <FilePondUpload
           setFile={setFile}
-          setImageUrl={setReceiptImageUrl}
           onOcrDataExtracted={handleOcrDataExtracted}
         />
 

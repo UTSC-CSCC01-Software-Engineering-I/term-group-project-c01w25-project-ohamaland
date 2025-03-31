@@ -10,12 +10,17 @@ import {
 } from "@mui/material";
 import InputBase from "@mui/material/InputBase";
 
+interface Option {
+  value: string;
+  label: string;
+}
+
 interface IDropDownSelectorProps {
   value: string;
   inputId: string;
   label: string;
   onChange: (event: SelectChangeEvent) => void;
-  options: string[];
+  options: string[] | Option[];
   formControlStyle: SxProps<Theme> | undefined;
 }
 
@@ -47,8 +52,8 @@ export default function DropDownSelector(props: IDropDownSelectorProps) {
         input={<StyledInput />}
       >
         {props.options.map((option, index) => (
-          <MenuItem key={index} value={option}>
-            <Typography>{option}</Typography>
+          <MenuItem key={index} value={typeof option === "string" ? option : option.value}>
+            <Typography>{typeof option === "string" ? option : option.label}</Typography>
           </MenuItem>
         ))}
       </Select>

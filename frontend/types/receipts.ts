@@ -11,8 +11,10 @@ export interface Receipt {
   tax_rate?: number;
   tip_rate?: number;
   category?: Category;
-  color?: string;
+  color: string;
   file?: string;
+  folder_id: number;
+  folder: string;
 }
 
 export type Currency = "USD" | "CAD" | "";

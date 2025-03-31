@@ -9,13 +9,11 @@ import { FilePond, registerPlugin } from "react-filepond";
 registerPlugin(FilePondPluginFileValidateType);
 
 interface FilePondUploadProps {
-  setImageUrl: (url: string) => void;
   setFile: (file: File) => void;
   onOcrDataExtracted: (ocrData: any) => void;
 }
 
 export default function FilePondUpload({
-  setImageUrl,
   setFile,
   onOcrDataExtracted
 }: FilePondUploadProps) {
@@ -44,7 +42,6 @@ export default function FilePondUpload({
 
       const data = await response.json();
 
-      setImageUrl(data.receipt_image_url);
       setFileUrl(data.receipt_image_url);
       onOcrDataExtracted(data);
     } catch (err) {
