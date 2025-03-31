@@ -11,7 +11,6 @@ import {
 } from "@/types/receipts";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Box,
   Button,
   Dialog,
   DialogContent,
@@ -104,9 +103,6 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
           options={paymentMethods}
           formControlStyle={formControlStyle}
         />
-        <Typography marginTop={"8px"} marginBottom={"4px"}>
-          Items
-        </Typography>
         <ItemsTable 
           items={editedReceipt.items} 
           onItemsChange={(items) => handleChange("items", items)}
