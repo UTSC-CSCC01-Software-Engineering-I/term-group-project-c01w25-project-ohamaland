@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Grid, IconButton, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import FolderCard from "./FolderCard";
+import { Box, Grid, IconButton } from "@mui/material";
+import { useState } from "react";
 import AddFolderDialog from "./AddFolderDialog";
+import FolderCard from "./FolderCard";
 
 interface IFolder {
   id: number;
@@ -46,9 +46,9 @@ export default function FolderGrid(props: IFolderGridProps) {
           <Box
             sx={{
               maxWidth: 304,
-              height: 100,
               margin: "8px",
               borderRadius: "8px",
+              height: "64px",
               border: "2px dashed #ccc",
               display: "flex",
               alignItems: "center",
@@ -73,4 +73,4 @@ export default function FolderGrid(props: IFolderGridProps) {
       />
     </Box>
   );
-} 
+}

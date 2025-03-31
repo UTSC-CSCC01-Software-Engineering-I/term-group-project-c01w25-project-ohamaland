@@ -3,4 +3,4 @@ export interface IFolder {
   name: string;
   color: string;
   created_at: string;
-} 
+}

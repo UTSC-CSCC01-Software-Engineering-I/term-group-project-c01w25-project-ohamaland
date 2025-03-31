@@ -1,13 +1,14 @@
-import { useState } from "react";
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   TextField,
-  Box
+  Typography
 } from "@mui/material";
+import { useState } from "react";
 import { ChromePicker } from "react-color";
 
 interface IAddFolderDialogProps {
@@ -20,7 +21,6 @@ export default function AddFolderDialog(props: IAddFolderDialogProps) {
   const { open, onClose, onSubmit } = props;
   const [name, setName] = useState("");
   const [color, setColor] = useState("#000000");
-  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const handleSubmit = () => {
     onSubmit(name, color);
@@ -30,7 +30,17 @@ export default function AddFolderDialog(props: IAddFolderDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xl"
+      fullWidth
+      PaperProps={{
+        sx: {
+          minHeight: "600px"
+        }
+      }}
+    >
       <DialogTitle>Add New Folder</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
@@ -41,60 +51,41 @@ export default function AddFolderDialog(props: IAddFolderDialogProps) {
             fullWidth
             required
           />
-          <Box sx={{ position: "relative" }}>
-            <Button
-              variant="outlined"
-              onClick={() => setShowColorPicker(!showColorPicker)}
-              sx={{
-                width: "100%",
-                height: "40px",
-                backgroundColor: color,
-                color: "white",
-                "&:hover": {
-                  backgroundColor: color
-                }
-              }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: "100%"
+            }}
+          >
+            <Typography>Folder Color</Typography>
+            <Box
+              sx={{ width: "100%", display: "flex", justifyContent: "center" }}
             >
-              Choose Color
-            </Button>
-            {showColorPicker && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  zIndex: 2,
-                  mt: 1
+              <ChromePicker
+                color={color}
+                onChange={(color) => setColor(color.hex)}
+                disableAlpha
+                styles={{
+                  default: {
+                    picker: {
+                      width: "100%",
+                      maxWidth: "800px"
+                    }
+                  }
                 }}
-              >
-                <Box
-                  sx={{
-                    position: "fixed",
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0
-                  }}
-                  onClick={() => setShowColorPicker(false)}
-                />
-                <ChromePicker
-                  color={color}
-                  onChange={(color) => setColor(color.hex)}
-                  disableAlpha
-                />
-              </Box>
-            )}
+              />
+            </Box>
           </Box>
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!name}
-        >
+        <Button onClick={handleSubmit} variant="contained" disabled={!name}>
           Create Folder
         </Button>
       </DialogActions>
     </Dialog>
   );
-} 
+}

@@ -27,7 +27,11 @@ export const folderService = {
     return response.json();
   },
 
-  updateFolder: async (id: number, name: string, color: string): Promise<IFolder> => {
+  updateFolder: async (
+    id: number,
+    name: string,
+    color: string
+  ): Promise<IFolder> => {
     const response = await fetchWithAuth(`${API_BASE_URL}/folders/${id}/`, {
       method: "PUT",
       headers: {
@@ -46,7 +50,10 @@ export const folderService = {
     if (!response) throw new Error("Failed to delete folder");
   },
 
-  addReceiptToFolder: async (folderId: number, receiptId: number): Promise<void> => {
+  addReceiptToFolder: async (
+    folderId: number,
+    receiptId: number
+  ): Promise<void> => {
     const response = await fetchWithAuth(
       `${API_BASE_URL}/folders/${folderId}/receipts/${receiptId}/`,
       {
@@ -56,7 +63,10 @@ export const folderService = {
     if (!response) throw new Error("Failed to add receipt to folder");
   },
 
-  removeReceiptFromFolder: async (folderId: number, receiptId: number): Promise<void> => {
+  removeReceiptFromFolder: async (
+    folderId: number,
+    receiptId: number
+  ): Promise<void> => {
     const response = await fetchWithAuth(
       `${API_BASE_URL}/folders/${folderId}/receipts/${receiptId}/remove/`,
       {
@@ -67,9 +77,11 @@ export const folderService = {
   },
 
   getFolderReceipts: async (folderId: number): Promise<number[]> => {
-    const response = await fetchWithAuth(`${API_BASE_URL}/folders/${folderId}/receipts/`);
+    const response = await fetchWithAuth(
+      `${API_BASE_URL}/folders/${folderId}/receipts/`
+    );
     if (!response) throw new Error("Failed to fetch folder receipts");
     const data = await response.json();
     return data.map((receipt: Receipt) => receipt.id);
   }
-}; 
+};

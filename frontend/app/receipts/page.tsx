@@ -1,13 +1,13 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import FolderGrid from "@/components/folders/FolderGrid";
 import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
-import FolderGrid from "@/components/folders/FolderGrid";
-import { Category, Receipt } from "@/types/receipts";
 import { IFolder } from "@/types/folders";
+import { Category, Receipt } from "@/types/receipts";
 import { fetchWithAuth, receiptsApi, receiptsDetailApi } from "@/utils/api";
 import { folderService } from "@/utils/folderService";
 import { Box, Button, SelectChangeEvent, Typography } from "@mui/material";
@@ -79,7 +79,8 @@ export default function Page() {
       const fullReceipts = await Promise.all(
         receiptIds.map(async (receiptId) => {
           const response = await fetchWithAuth(receiptsDetailApi(receiptId));
-          if (!response || !response.ok) throw new Error("Failed to fetch receipt");
+          if (!response || !response.ok)
+            throw new Error("Failed to fetch receipt");
           return response.json();
         })
       );
@@ -238,9 +239,6 @@ export default function Page() {
         </Button>
       </Box>
 
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Folders
-      </Typography>
       <FolderGrid
         folders={folders}
         onAddFolder={handleAddFolder}

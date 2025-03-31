@@ -2,6 +2,7 @@
 
 import DropDownSelector from "@/components/common/DropDownSelector"; // Ensure this component exists
 import { defaultText } from "@/styles/colors";
+import { IFolder } from "@/types/folders";
 import {
   Category,
   Currency,
@@ -11,18 +12,17 @@ import {
   currencies,
   paymentMethods
 } from "@/types/receipts";
-import { IFolder } from "@/types/folders";
 import { folderService } from "@/utils/folderService";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
   TextField,
-  Typography,
-  Box
+  Typography
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -42,7 +42,9 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
   const { receipt, open, onClose, onSave } = props;
   const [editedReceipt, setEditedReceipt] = useState(receipt);
   const [folders, setFolders] = useState<IFolder[]>([]);
-  const [selectedFolderName, setSelectedFolderName] = useState<string | null>(receipt.folder || null);
+  const [selectedFolderName, setSelectedFolderName] = useState<string | null>(
+    receipt.folder || null
+  );
 
   useEffect(() => {
     async function fetchFolders() {
@@ -72,9 +74,14 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
     setSelectedFolderName(folderName);
     if (folderName) {
       try {
-        const selectedFolder = folders.find(folder => folder.name === folderName);
+        const selectedFolder = folders.find(
+          (folder) => folder.name === folderName
+        );
         if (selectedFolder) {
-          await folderService.addReceiptToFolder(selectedFolder.id, editedReceipt.id);
+          await folderService.addReceiptToFolder(
+            selectedFolder.id,
+            editedReceipt.id
+          );
           handleChange("folder", folderName);
           handleChange("color", selectedFolder.color);
         }
@@ -83,9 +90,14 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
       }
     } else if (editedReceipt.folder) {
       try {
-        const currentFolder = folders.find(folder => folder.name === editedReceipt.folder);
+        const currentFolder = folders.find(
+          (folder) => folder.name === editedReceipt.folder
+        );
         if (currentFolder) {
-          await folderService.removeReceiptFromFolder(currentFolder.id, editedReceipt.id);
+          await folderService.removeReceiptFromFolder(
+            currentFolder.id,
+            editedReceipt.id
+          );
           handleChange("folder", null);
           handleChange("color", "#000000"); // Reset to default color
         }
@@ -95,7 +107,9 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
     }
   };
 
-  const selectedFolder = folders.find(folder => folder.name === selectedFolderName);
+  const selectedFolder = folders.find(
+    (folder) => folder.name === selectedFolderName
+  );
 
   return (
     <Dialog
@@ -132,13 +146,13 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
         <Typography marginTop={"8px"} marginBottom={"4px"}>
           Folder
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {selectedFolder && (
             <Box
               sx={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '4px',
+                width: "16px",
+                height: "16px",
+                borderRadius: "4px",
                 backgroundColor: selectedFolder.color
               }}
             />

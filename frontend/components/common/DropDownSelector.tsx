@@ -52,8 +52,13 @@ export default function DropDownSelector(props: IDropDownSelectorProps) {
         input={<StyledInput />}
       >
         {props.options.map((option, index) => (
-          <MenuItem key={index} value={typeof option === "string" ? option : option.value}>
-            <Typography>{typeof option === "string" ? option : option.label}</Typography>
+          <MenuItem
+            key={index}
+            value={typeof option === "string" ? option : option.value}
+          >
+            <Typography>
+              {typeof option === "string" ? option : option.label}
+            </Typography>
           </MenuItem>
         ))}
       </Select>

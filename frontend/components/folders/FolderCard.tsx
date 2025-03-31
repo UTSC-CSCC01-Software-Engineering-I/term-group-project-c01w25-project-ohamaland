@@ -1,12 +1,6 @@
 import { textLightGrey } from "@/styles/colors";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import {
-  Box,
-  Grid,
-  IconButton,
-  Stack,
-  Typography
-} from "@mui/material";
+import { Box, Grid, IconButton, Stack, Typography } from "@mui/material";
 
 interface IFolderCardProps {
   id: number;
@@ -47,7 +41,7 @@ export default function FolderCard(props: IFolderCardProps) {
               size="small"
               sx={deleteIconStyle}
             >
-              <DeleteOutlineIcon />
+              {color !== "#A9A9A9" && <DeleteOutlineIcon />}
             </IconButton>
           </Box>
           <Typography sx={lightTextStyle}>{formattedDate}</Typography>
@@ -92,4 +86,4 @@ const headerBoxStyle = {
 const deleteIconStyle = {
   color: textLightGrey,
   padding: 0
-}; 
+};
