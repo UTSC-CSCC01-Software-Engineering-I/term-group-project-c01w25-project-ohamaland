@@ -267,7 +267,7 @@ def update_insights(user, request):
 
         payment_method_spending[period] = calculate_payment_method_spending(user, start_date, currency)
 
-        merchant_spending[period] = calculate_currency_distribution(user, start_date)
+        currency_distribution[period] = calculate_currency_distribution(user, start_date)
 
         # Calculate total spending in this period
         total_spent = sum(total_spending[period].values())

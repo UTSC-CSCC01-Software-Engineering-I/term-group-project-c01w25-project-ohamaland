@@ -44,6 +44,7 @@ export default CurrencyDistributionChart;
 // Styles
 const containerStyle = {
   flex: 1,
+  height: "100%",
   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
   padding: "16px",
   borderRadius: "8px",
@@ -87,7 +88,7 @@ const currencyLabelStyle = {
 };
 
 const progressBarStyle = {
-  height: 10,
+  height: "8px",
   borderRadius: 5,
   backgroundColor: "#000000",
   "& .MuiLinearProgress-bar": {

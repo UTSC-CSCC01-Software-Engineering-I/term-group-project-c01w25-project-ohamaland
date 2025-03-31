@@ -18,7 +18,7 @@ const SpendingByFolderChart = ({ folderSpending, currency }: ISpendingByFolderCh
   return (
     <Box sx={chartContainerStyle}>
       <h3>Spending by Folder ({currency})</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={360}>
         <PieChart>
           <Pie data={folderData} dataKey="amount" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
             {folderData.map((entry, idx) => (
@@ -26,7 +26,7 @@ const SpendingByFolderChart = ({ folderSpending, currency }: ISpendingByFolderCh
             ))}
           </Pie>
           <Tooltip content={CustomTooltip} />
-          <Legend verticalAlign="bottom" align="center" iconSize={20} layout="horizontal" formatter={LegendFormatter} />
+          <Legend verticalAlign="bottom" align="center" iconSize={24} layout="horizontal" formatter={LegendFormatter} />
         </PieChart>
       </ResponsiveContainer>
     </Box>
@@ -52,7 +52,7 @@ const LegendFormatter = (value: string, entry: any) => {
 
 const chartContainerStyle = {
   flex: 1,
-  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   padding: "16px",
   borderRadius: "8px",
   fontFamily: "Arial, Helvetica, sans-serif",
@@ -67,7 +67,7 @@ const titleStyle = {
 };
 
 const tooltipStyle = {
-  padding: "10px",
+  padding: "8px",
   backgroundColor: "#fff",
   borderRadius: "5px",
   boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",

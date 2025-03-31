@@ -12,7 +12,7 @@ const SpendingOverTimeChart = ({ spendingData, currency }: ISpendingOverTimeChar
   return (
     <Box sx={chartContainerStyle}>
       <h3>Spending Over Time ({currency})</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={360}>
         <LineChart data={sortedSpendingData}>
           <CartesianGrid
             strokeWidth={2} 
@@ -32,7 +32,7 @@ const SpendingOverTimeChart = ({ spendingData, currency }: ISpendingOverTimeChar
 
 const chartContainerStyle = {
   flex: 1,
-  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   padding: "16px",
   borderRadius: "8px",
   fontFamily: "Arial, Helvetica, sans-serif",

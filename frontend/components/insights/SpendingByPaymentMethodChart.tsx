@@ -18,7 +18,7 @@ const SpendingByPaymentMethodChart = ({ paymentMethodSpending, currency }: ISpen
   return (
     <Box sx={chartContainerStyle}>
       <h3>Spending by Payment Method ({currency})</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={360}>
         <PieChart>
           <Pie
             data={paymentMethodData}
@@ -40,7 +40,7 @@ const SpendingByPaymentMethodChart = ({ paymentMethodSpending, currency }: ISpen
           <Legend
             verticalAlign="bottom"
             align="center"
-            iconSize={20}
+            iconSize={24}
             layout="horizontal"
             formatter={(value, entry) => <span style={{ color: entry.color }}>{value}</span>}
           />
@@ -65,7 +65,7 @@ const customTooltip = ({ active, payload }: any) => {
 
 const chartContainerStyle = {
   flex: 3,
-  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   padding: "16px",
   borderRadius: "8px",
   fontFamily: "Arial, Helvetica, sans-serif",
@@ -77,7 +77,7 @@ const chartContainerStyle = {
 };
 
 const tooltipStyle = {
-  padding: "10px",
+  padding: "8px",
   backgroundColor: "#fff",
   borderRadius: "5px",
 };

@@ -18,7 +18,7 @@ const SpendingByMerchantChart = ({ merchantSpending, currency }: ISpendingByMerc
   return (
     <Box sx={chartContainerStyle}>
       <h3>Spending by Merchant ({currency})</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={360}>
         <BarChart data={merchantData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
@@ -50,7 +50,7 @@ const customTooltip = ({ active, payload }: any) => {
 
 const chartContainerStyle = {
   flex: 1,
-  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   padding: "16px",
   borderRadius: "8px",
   fontFamily: "Arial, Helvetica, sans-serif",
@@ -61,7 +61,7 @@ const chartContainerStyle = {
 };
 
 const tooltipStyle = {
-  padding: "10px",
+  padding: "8px",
   backgroundColor: "#fff",
   borderRadius: "5px",
 };

@@ -45,7 +45,7 @@ const filterContainerStyle = {
   padding: "16px",
   borderRadius: "12px",
   backgroundColor: "white",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+  boxShadow: "0 8px 8px rgba(0, 0, 0, 0.2)",
   flexWrap: "wrap" as const
 };
 
