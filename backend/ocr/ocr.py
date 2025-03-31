@@ -15,6 +15,7 @@ if not AZURE_ENDPOINT or not AZURE_KEY:
         "Azure credentials are missing. Set AZURE_ENDPOINT and AZURE_KEY as environment variables."
     )
 
+
 def extract_text_azure(image_path):
     """
     Extracts text from an image using Azure Form Recognizer.

@@ -1,20 +1,23 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import GroupCard from "@/components/groups/GroupCard";
 import { Group } from "@/types/groups";
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 // Mock fetchWithAuth for deletion and user fetch
 jest.mock("@/utils/api", () => ({
   ...jest.requireActual("@/utils/api"),
   fetchWithAuth: jest.fn((url: string, options?: any) => {
     if (url.includes("me")) {
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 1 }) });
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ id: 1 })
+      });
     }
     return Promise.resolve({ ok: true });
   }),
   groupsDeleteApi: (groupId: number) => `delete-group-${groupId}`,
-  groupsMembersLeaveApi: (groupId: number, userId: number) => `leave-group-${groupId}-user-${userId}`,
+  groupsMembersLeaveApi: (groupId: number, userId: number) =>
+    `leave-group-${groupId}-user-${userId}`,
   userMeApi: "user-me"
 }));
 
@@ -42,8 +45,12 @@ describe("GroupCard component", () => {
 
     expect(await screen.findByText("Test Group")).toBeInTheDocument();
     expect(screen.getByText(/Creator/)).toHaveTextContent("Creator: 1");
-    expect(screen.getByText(/Created At/)).toHaveTextContent("Created At: 2024-03-25T12:00:00Z");
-    expect(await screen.findByRole("button", { name: /delete group/i })).toBeInTheDocument();
+    expect(screen.getByText(/Created At/)).toHaveTextContent(
+      "Created At: 2024-03-25T12:00:00Z"
+    );
+    expect(
+      await screen.findByRole("button", { name: /delete group/i })
+    ).toBeInTheDocument();
   });
 
   it("opens confirmation dialog and deletes the group", async () => {
@@ -51,7 +58,9 @@ describe("GroupCard component", () => {
 
     fireEvent.click(await screen.findByText("Delete Group"));
 
-    const confirmButton = await screen.findByRole("button", { name: /confirm/i });
+    const confirmButton = await screen.findByRole("button", {
+      name: /confirm/i
+    });
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -61,7 +70,9 @@ describe("GroupCard component", () => {
 
   it("shows leave group button if not creator", async () => {
     const otherUserGroup = { ...mockGroup, creator: 2 };
-    render(<GroupCard group={otherUserGroup} onGroupDeleted={onGroupDeleted} />);
+    render(
+      <GroupCard group={otherUserGroup} onGroupDeleted={onGroupDeleted} />
+    );
 
     expect(await screen.findByText("Leave Group")).toBeInTheDocument();
   });

@@ -4,6 +4,7 @@ from datetime import date, timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from api.signals import get_spending_periods, get_all_dates_in_period
 
+
 class SpendingPeriodTests(TestCase):
     @patch("django.utils.timezone.now")
     def test_get_spending_periods(self, mock_now):
@@ -15,7 +16,9 @@ class SpendingPeriodTests(TestCase):
 
         expected_weekly_start = today - timedelta(days=7)
         expected_monthly_start = today - relativedelta(months=1)
-        expected_quarterly_start = today.replace(month=((today.month - 1) // 3) * 3 + 1, day=1)
+        expected_quarterly_start = today.replace(
+            month=((today.month - 1) // 3) * 3 + 1, day=1
+        )
         expected_yearly_start = today - relativedelta(years=1)
 
         self.assertEqual(periods["Weekly"], expected_weekly_start)

@@ -54,13 +54,13 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
   };
 
   const handleDeleteClick = (subscription: Subscription) => {
-    console.log("Delete clicked for subscription:", subscription); // Debugging log
+    console.log("Delete clicked for subscription:", subscription);
     setSubscriptionToDelete(subscription);
 
     if (!dontRemindMe) {
       setOpenConfirmationDialog(true);
     } else {
-      props.onDeleteSubscription(subscription.id); // Auto-delete if "Don't remind me" is checked
+      props.onDeleteSubscription(subscription.id);
     }
   };
 
@@ -99,7 +99,7 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
 }
 
 const gridStyle = {
-  maxHeight: "60vh", // TODO: change this in the future using vh is not good should take max possible
+  maxHeight: "60vh",
   overflowY: "auto",
   marginTop: "24px"
 };

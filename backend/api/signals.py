@@ -18,7 +18,7 @@ def get_spending_periods():
     today = django.utils.timezone.now().date()
     return {
         "Weekly": today - timedelta(days=7),
-        "Monthly": today - relativedelta(months=1),  
+        "Monthly": today - relativedelta(months=1),
         "Quarterly": today.replace(month=((today.month - 1) // 3) * 3 + 1, day=1),
         "Yearly": today - relativedelta(years=1),
     }

@@ -1,10 +1,9 @@
+import { fetchWithAuth, receiptsUploadApi } from "@/utils/api";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
-import { fetchWithAuth } from "@/utils/api";
-import { receiptsUploadApi } from "@/utils/api";
 
 registerPlugin(FilePondPluginFileValidateType);
 

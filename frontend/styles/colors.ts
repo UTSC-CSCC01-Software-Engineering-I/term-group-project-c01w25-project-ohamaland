@@ -44,6 +44,14 @@ export const chart = {
   line: "#82ca9d"
 };
 
+// Renewal Bar Colors
+export const renewalBarColors = {
+  grey: "#757575",
+  green: "#82f056",
+  yellow: "#f0db56",
+  red: "#f05656"
+};
+
 export const lightGrey = "#5d615e";
 
 export const hoverColor = lightGrey;
@@ -52,6 +60,6 @@ export const defaultText = "black";
 
 export const darkGrey = "#2e302e";
 
-export const textLightGrey = "#D4D8DF";
+export const textLightGrey = "#a3a3a3";
 
 export const textGrey = "#00000099";

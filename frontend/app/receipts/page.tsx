@@ -6,12 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import {
-  fetchWithAuth,
-  receiptsApi,
-  receiptsDetailApi,
-  receiptsUploadApi
-} from "@/utils/api";
+import { fetchWithAuth, receiptsApi, receiptsDetailApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -52,7 +47,7 @@ export default function Page() {
       const receiptData = {
         ...newReceipt
       };
-  
+
       const receiptResponse = await fetchWithAuth(receiptsApi, {
         method: "POST",
         headers: {
@@ -60,13 +55,13 @@ export default function Page() {
         },
         body: JSON.stringify(receiptData)
       });
-  
+
       if (!receiptResponse || !receiptResponse.ok) {
         const errorData = await receiptResponse?.json();
         console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
-  
+
       const savedReceipt = await receiptResponse.json();
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
@@ -74,7 +69,7 @@ export default function Page() {
       console.error("Error saving receipt:", error);
       throw error;
     }
-  };  
+  };
 
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
