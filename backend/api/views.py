@@ -16,10 +16,13 @@ from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
 
 from .signals import (
+    calculate_currency_distribution,
     calculate_folder_spending,
     calculate_merchant_spending,
+    calculate_payment_method_spending,
     calculate_total_spending,
     get_spending_periods,
+    get_user_country_and_currency,
 )
 
 from .models import (
@@ -671,17 +674,29 @@ class InsightsView(generics.ListAPIView):
         user = self.request.user
         return Insights.objects.filter(user=user).order_by("-date")
 
+    def get_user_currency(self, user):
+        """Retrieve the user's currency from their profile or a geolocation API."""
+        _, currency = get_user_country_and_currency(None)  
+        return currency or "USD"
+
     def get_insights(self, user, period, start_date):
-        folder_spending = calculate_folder_spending(user, start_date)
-        total_spending = calculate_total_spending(user, start_date)
-        merchant_spending = calculate_merchant_spending(user, start_date)
+        user_currency = self.get_user_currency(user)
+
+        folder_spending = calculate_folder_spending(user, start_date, user_currency)
+        total_spending = calculate_total_spending(user, start_date, user_currency)
+        merchant_spending = calculate_merchant_spending(user, start_date, user_currency)
+        payment_method_spending = calculate_payment_method_spending(user, start_date, user_currency)
+        currency_distribution = calculate_currency_distribution(user, start_date)
 
         return {
             "folder_spending": folder_spending,
             "total_spending": total_spending,
             "merchant_spending": merchant_spending,
+            "payment_method_spending": payment_method_spending,
+            "currency_distribution": currency_distribution,
             "period": period,
             "date": start_date,
+            "currency": user_currency,
         }
 
     def get(self, request, period):

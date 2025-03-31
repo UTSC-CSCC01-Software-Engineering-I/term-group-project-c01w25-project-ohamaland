@@ -1,0 +1,102 @@
+import { Box, LinearProgress } from "@mui/material";
+import { background, chart } from "@/styles/colors";
+
+interface ICurrencyDistributionChartProps {
+  currencyDistribution: { currency: string; percentage: number }[];
+}
+
+const currencyFlagMapping: Record<string, string> = {
+  CAD: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Canada.svg/2560px-Flag_of_Canada.svg.png",
+  USD: "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+  EUR: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Europe.svg/1280px-Flag_of_Europe.svg.png",
+  GBP: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_United_Kingdom.svg",
+};
+
+const CurrencyDistributionChart = ({ currencyDistribution }: ICurrencyDistributionChartProps) => {
+  return (
+    <div
+      style={{
+        flex: 1,
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+        padding: "16px",
+        borderRadius: "8px",
+        fontFamily: "Arial, Helvetica, sans-serif",
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+      }}
+    >
+      <h3>Currency Distribution</h3>
+      {currencyDistribution.map(({ currency: currencyCode, percentage }) => {
+        const flagUrl = currencyFlagMapping[currencyCode] || "";
+        return (
+          <Box key={currencyCode} sx={{ marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center", // Align flag and div horizontally
+                marginBottom: "8px", // Space between the row and progress bar section
+              }}
+            >
+              {/* Flag */}
+              {flagUrl && (
+                <div
+                  style={{
+                    width: "40px", // Set width
+                    height: "40px", // Set height equal to width for a circle
+                    borderRadius: "50%", // Make the flag a circle
+                    overflow: "hidden", // Hide overflow content
+                    marginRight: "8px", // Space between flag and div
+                  }}
+                >
+                  <img
+                    src={flagUrl}
+                    alt={`${currencyCode} flag`}
+                    style={{
+                      width: "100%", // Make image take full width
+                      height: "100%", // Make image take full height
+                      objectFit: "cover", // Maintain aspect ratio, fill the circle
+                    }}
+                  />
+                </div>
+              )}
+              {/* Div with currency and percentage on top, progress bar on bottom */}
+              <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                {/* Currency and percentage on top */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "8px", // Space between currency/percentage and progress bar
+                  }}
+                >
+                  <span>{currencyCode}</span>
+                  <span>{percentage !== undefined ? percentage.toFixed(2) : "N/A"}%</span>
+                </div>
+                {/* Progress bar on bottom */}
+                <div style={{ flex: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={percentage || 0}
+                    sx={{
+                      height: 10,
+                      borderRadius: 5,
+                      backgroundColor: "#000000",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 5,
+                        backgroundColor: chart.line,
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </Box>
+        );
+      })}
+    </div>
+  );
+};
+
+export default CurrencyDistributionChart;

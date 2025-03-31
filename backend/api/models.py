@@ -266,6 +266,8 @@ class Insights(models.Model):
     folder_spending = models.JSONField(default=dict)
     total_spent = models.DecimalField(max_digits=10, decimal_places=2)
     merchant_spending = models.JSONField(default=dict)
+    payment_method_spending = models.JSONField(default=dict)
+    currency_distribution = models.JSONField(default=dict)
     period = models.TextField(max_length=20, choices=TIME_CHOICES)
     date = models.DateField(default=now)
 

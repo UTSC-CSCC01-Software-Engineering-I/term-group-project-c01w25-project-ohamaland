@@ -1,10 +1,16 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import CurrencyDistributionChart from "@/components/insights/CurrencyDistributionChart";
+import SpendingByFolderChart from "@/components/insights/SpendingByFolderChart";
+import SpendingByMerchantChart from "@/components/insights/SpendingByMerchantChart";
+import SpendingByPaymentMethodChart from "@/components/insights/SpendingByPaymentMethodChart";
 import SpendingChart from "@/components/insights/SpendingChart";
 import SpendingFilter from "@/components/insights/SpendingFilter";
+import SpendingOverTimeChart from "@/components/insights/SpendingOverTimeChart";
+import { background } from "@/styles/colors";
 import { fetchWithAuth, insightsDetailApi } from "@/utils/api";
-import { Box, Button, SelectChangeEvent } from "@mui/material";
+import { Box, LinearProgress, SelectChangeEvent, Typography } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,6 +24,16 @@ interface MerchantSpending {
   amount: number;
 }
 
+interface PaymentMethodSpending {
+  payment_method: string;
+  amount: number;
+}
+
+interface CurrencyDistribution {
+  currency: string;
+  percentage: number;
+}
+
 interface SpendingData {
   date: string;
   amount: number;
@@ -28,22 +44,30 @@ interface BackendSpendingResponse {
   total_spending: number;
   folder_spending: FolderSpending;
   merchant_spending: { [merchant: string]: number };
+  payment_method_spending: { [payment_method: string]: number };
+  currency_distribution: { [currency: string]: number };
   period: string;
   date: string;
+  currency: string;
 }
 
 export default function Page() {
   const [folderSpending, setFolderSpending] = useState<FolderSpending>({});
   const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>([]);
   const [spendingData, setSpendingData] = useState<SpendingData[]>([]);
+  const [paymentMethodSpending, setPaymentMethodSpending] = useState<PaymentMethodSpending[]>([]);
+  const [currencyDistribution, setCurrencyDistribution] = useState<CurrencyDistribution[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("Monthly");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currency, setCurrency] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
     async function fetchInsightsData() {
+      setLoading(true);
       try {
         const response = await fetchWithAuth(
           insightsDetailApi(selectedPeriod),
@@ -71,17 +95,31 @@ export default function Page() {
             amount
           })
         );
+        setCurrency(fetchedData.currency);
         setSpendingData(spendingOverTime);
         setFolderSpending(fetchedData.folder_spending);
+        setPaymentMethodSpending(
+          Object.entries(fetchedData.payment_method_spending).map(([payment_method, amount]) => ({
+            payment_method,
+            amount
+          }))
+        );
         setMerchantSpending(
           Object.entries(fetchedData.merchant_spending).map(([merchant, amount]) => ({
             merchant,
             amount
           }))
         );
-        console.log("Fetched merchantSpending:", fetchedData.merchant_spending);
+        setCurrencyDistribution(
+          Object.entries(fetchedData.currency_distribution).map(([currency, percentage]) => ({
+            currency,
+            percentage
+          }))
+        );
       } catch (error) {
         console.error("Error fetching spending data:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchInsightsData();
@@ -93,7 +131,8 @@ export default function Page() {
 
   return (
     <PageWrapper>
-      <Box sx={filterContainerStyle}>
+      <Box sx={headerContainerStyle}>
+        <Typography variant="h4" fontWeight="bold">Insights</Typography>
         <SpendingFilter
           startDate={startDate}
           endDate={endDate}
@@ -104,37 +143,47 @@ export default function Page() {
           setFilterTerm={setFilterTerm}
           handlePeriodChange={handlePeriodChange}
         />
-        <Button variant="contained" color="primary" sx={buttonStyle}>
-          View Insights
-        </Button>
       </Box>
-      <Box sx={chartContainerStyle}>
-        <SpendingChart spendingData={spendingData} folderSpending={folderSpending} merchantSpending={merchantSpending}/>
-      </Box>
+
+      {loading && <LinearProgress sx={loadingBarStyle} />}
+
+      {!loading && (
+        <Box sx={chartContainerStyle}>
+          <Box sx={{ gridColumn: "span 2" }}>
+            <SpendingOverTimeChart spendingData={spendingData} currency={currency} />
+          </Box>
+          <CurrencyDistributionChart currencyDistribution={currencyDistribution} />
+          <SpendingByMerchantChart merchantSpending={merchantSpending} currency={currency} />
+          <SpendingByFolderChart folderSpending={folderSpending} currency={currency} />
+          <SpendingByPaymentMethodChart paymentMethodSpending={paymentMethodSpending} currency={currency} />
+        </Box>
+      )}
     </PageWrapper>
   );
 }
 
-const filterContainerStyle = {
+const headerContainerStyle = {
   display: "flex",
-  flexDirection: "row",
+  justifyContent: "space-between",
   alignItems: "center",
-  justifyContent: "left",
-  gap: "16px",
-  width: "90vw",
-  marginBottom: "16px",
+  padding: "16px 20px",
+  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+  borderRadius: "12px",
+  borderBottom: "1px solid #ddd",
 };
 
-const buttonStyle = {
-  marginLeft: "8px",
-  color: "white"
-};
-
-// Full width chart container
 const chartContainerStyle = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "center", // Ensures charts are spaced evenly
-  alignItems: "center", // Ensures charts stretch to fill the height
-  padding: "0 20px", // Optional padding to ensure some spacing
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gridTemplateRows: "repeat(2, auto)",
+  gap: "24px",
+  padding: "24px",
+  width: "100%",
+  alignItems: "stretch",
+};
+
+const loadingBarStyle = {
+  width: "100%",
+  height: "4px",
+  marginBottom: "12px",
 };
