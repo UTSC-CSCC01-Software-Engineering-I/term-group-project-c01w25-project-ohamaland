@@ -1,7 +1,7 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import AddReceipt from "@/components/receipts/AddReceipt";
+import AddReceipt from "@/components/common/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
@@ -20,7 +20,8 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  
   // Fetch receipts from API
   useEffect(() => {
     async function fetchReceipts() {

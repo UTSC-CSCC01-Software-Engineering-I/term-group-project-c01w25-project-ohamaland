@@ -1,4 +1,4 @@
-import AddReceipt from "@/components/receipts/AddReceipt";
+import AddReceipt from "@/components/common/AddReceipt";
 import { Receipt } from "@/types/receipts";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";

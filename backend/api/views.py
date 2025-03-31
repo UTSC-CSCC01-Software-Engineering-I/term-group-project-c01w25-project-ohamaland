@@ -14,6 +14,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
+from django.db import models
+from django.db.models import Q
 
 from .signals import (
     calculate_currency_distribution,
@@ -83,8 +85,16 @@ class ReceiptOverview(APIView):
 class ReceiptDetail(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get_receipt(self, request, pk):
+        return Receipt.objects.filter(
+            Q(id=pk) & (
+                Q(user=request.user) |
+                Q(group__in=Group.objects.filter(members__user=request.user))
+            )
+        ).first()
+
     def patch(self, request, pk):
-        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
+        receipt = self.get_receipt(request, pk)
         if receipt is None:
             return Response(
                 {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
@@ -97,8 +107,8 @@ class ReceiptDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
-        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
-        if receipt is None:
+        receipt = self.get_receipt(request, pk)
+        if not receipt:
             return Response(
                 {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -109,9 +119,10 @@ class ReceiptDetail(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     def delete(self, request, pk):
-        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
-        if receipt is None:
+        receipt = self.get_receipt(request, pk)
+        if not receipt:
             return Response(
                 {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -119,12 +130,11 @@ class ReceiptDetail(APIView):
         receipt.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
     def get(self, request, pk):
-        receipt = Receipt.objects.filter(user=request.user, id=pk).first()
-        if receipt is None:
-            return Response(
-                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+        receipt = self.get_receipt(request, pk)
+        if not receipt:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ReceiptSerializer(receipt)
         return Response(serializer.data, status=status.HTTP_200_OK)

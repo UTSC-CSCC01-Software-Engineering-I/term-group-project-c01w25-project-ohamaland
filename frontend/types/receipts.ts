@@ -1,6 +1,7 @@
 export type Receipt = {
   id: number;
   user_id?: number;
+  group?: number;
   merchant: string;
   total_amount: number;
   currency: Currency;

@@ -16,12 +16,13 @@ import {
   Typography
 } from "@mui/material";
 import { useState } from "react";
-import FilePondUpload from "./FileUpload";
+import FilePondUpload from "../receipts/FileUpload";
 
 interface IAddReceiptProps {
   open: boolean;
   onClose: () => void;
   onSave: (newReceipt: Receipt, file: File | null) => void;
+  groupId?: number;
 }
 
 export default function AddReceipt(props: IAddReceiptProps) {
@@ -83,7 +84,8 @@ export default function AddReceipt(props: IAddReceiptProps) {
       date,
       payment_method: paymentMethod,
       items,
-      receipt_image_url: receiptImageUrl || ""
+      receipt_image_url: receiptImageUrl || "",
+      group: props.groupId
     };
     onSave(newReceipt, file);
     onClose();

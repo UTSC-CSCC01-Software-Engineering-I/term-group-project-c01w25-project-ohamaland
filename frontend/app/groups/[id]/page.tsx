@@ -1,21 +1,13 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
-import ReceiptCard from "@/components/receipts/ReceiptCard";
+import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
+import Log from "@/components/common/Log";
 import { textLightGrey } from "@/styles/colors";
-import { GroupMember } from "@/types/groupMembers";
-import { Group } from "@/types/groups";
-import { Receipt } from "@/types/receipts";
-import {
-  fetchWithAuth,
-  groupsDetailApi,
-  groupsMembersApi,
-  groupsMembersDetailApi,
-  receiptsDetailApi
-} from "@/utils/api";
-import { getAccessToken } from "@/utils/auth";
-import DeleteIcon from "@mui/icons-material/Delete";
+import GroupLogItem from "@/components/groups/GroupLogItem";
+import AddReceipt from "@/components/common/AddReceipt";
+import { receiptsApi } from "@/utils/api";
 import {
   Box,
   Button,
@@ -27,13 +19,26 @@ import {
   ListItem,
   ListItemText,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Typography
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
+import { Receipt } from "@/types/receipts";
+import { GroupMember } from "@/types/groupMembers";
+import { Group } from "@/types/groups";
+
+import {
+  fetchWithAuth,
+  groupsDetailApi,
+  groupsMembersApi,
+  groupsMembersDetailApi,
+  receiptsDetailApi
+} from "@/utils/api";
+import { getAccessToken } from "@/utils/auth";
 
 export default function GroupDetailPage() {
   const params = useParams();
@@ -41,11 +46,13 @@ export default function GroupDetailPage() {
 
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
-  const [newUserId, setNewUserId] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState(0);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [newUserId, setNewUserId] = useState<number>(0);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // Fetch group details
   useEffect(() => {
     async function fetchGroup() {
       try {
@@ -67,6 +74,7 @@ export default function GroupDetailPage() {
     fetchGroup();
   }, [groupId]);
 
+  // Fetch members
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -88,6 +96,7 @@ export default function GroupDetailPage() {
     fetchMembers();
   }, [groupId]);
 
+  // Add member
   const handleAddMember = async () => {
     if (!newUserId) return;
     try {
@@ -110,7 +119,7 @@ export default function GroupDetailPage() {
       console.error(error);
     }
   };
-
+  // Remove member
   const handleRemoveMember = async (memberId: number) => {
     try {
       const token = getAccessToken();
@@ -132,10 +141,25 @@ export default function GroupDetailPage() {
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  // Open and close dialog
+  const handleOpenDialog = (receipt: Receipt) => {
+    setSelectedReceipt(receipt);
+    setIsCreating(false);
+    setDialogOpen(true);
+  };  
 
+  const handleCloseDialog = () => {
+    setSelectedReceipt(null);
+    setDialogOpen(false);
+  };
+  const handleOpenNewReceipt = () => {
+    setSelectedReceipt(null);
+    setIsCreating(true);
+    setDialogOpen(true);
+  };
+  
+
+  // Save receipt update
   const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
     try {
       const formattedDate = new Date(updatedReceipt.date)
@@ -148,6 +172,9 @@ export default function GroupDetailPage() {
         receiptsDetailApi(updatedReceipt.id),
         {
           method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(updatedData)
         }
       );
@@ -174,16 +201,40 @@ export default function GroupDetailPage() {
     }
   };
 
-  const handleOpenDialog = (receipt: Receipt) => {
-    setSelectedReceipt(receipt);
-    setDialogOpen(true);
-  };
+  const handleSaveGroupReceipt = async (newReceipt: Receipt, file: File | null) => {
+    try {
+      const receiptWithGroup = {
+        ...newReceipt,
+        group: groupId
+      };
+  
+      const response = await fetchWithAuth(receiptsApi, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(receiptWithGroup)
+      });
+  
+      if (!response || !response.ok) {
+        console.error("Failed to save group receipt");
+        return;
+      }
+  
+      const savedReceipt = await response.json();
+      setGroup((prevGroup) => {
+        if (!prevGroup) return null;
+        return {
+          ...prevGroup,
+          receipts: [...(prevGroup.receipts || []), savedReceipt]
+        };
+      });
+  
+      setIsCreating(false);
+    } catch (error) {
+      console.error("Error saving group receipt:", error);
+    }
+  };  
 
-  const handleCloseDialog = () => {
-    setSelectedReceipt(null);
-    setDialogOpen(false);
-  };
-
+  // Delete receipt
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
       const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
@@ -211,131 +262,109 @@ export default function GroupDetailPage() {
     }
   };
 
-  return (
-    <PageWrapper>
-      <Box sx={containerStyle}>
-        <Typography sx={titleStyle}>Group Details</Typography>
+// ✅ Placeholder log (replace with real data if available)
+const logData = [
+  { user: "Someone", action: "joined the group", date: "2025-03-31" },
+  { user: "Admin", action: "added a receipt", date: "2025-03-30" }
+];
 
-        {/* GROUP INFO CARD */}
-        <Card variant="outlined" sx={cardStyle}>
-          <CardHeader title="Group Information" />
+return (
+  <PageWrapper>
+    <Stack direction="row" spacing={3} sx={{ p: 4 }}>
+      {/* Left: Receipts */}
+      <Box sx={{ flex: 1 }}>
+        <Typography sx={{ fontSize: "24px", fontWeight: 700, mb: 2 }}>
+          {group?.name || "Group"}
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenNewReceipt}
+          sx={{ mb: 2 }}
+        >
+          Add Group Receipt
+        </Button>
+
+        <ReceiptGrid
+          receipts={group?.receipts || []}
+          startDate={null}
+          endDate={null}
+          filterTerm=""
+          category="All"
+          onOpenDialog={handleOpenDialog}
+          onDeleteReceipt={handleDeleteReceipt}
+        />
+      </Box>
+
+      {/* Right: Log + Members */}
+      <Box sx={{ width: 300 }}>
+        <Log
+          title="Recent Activity"
+          data={logData}
+          Component={GroupLogItem}
+          onOpenDialog={() => {}}
+        />
+
+        <Card variant="outlined" sx={{ mt: 3 }}>
+          <CardHeader title="Members" />
           <CardContent>
-            {group ? (
-              <Stack spacing={1}>
-                <Typography sx={subtitleStyle}>{group.name}</Typography>
-                <Typography sx={textStyle}>
-                  <strong>Creator:</strong> {group.creator}
-                </Typography>
-                <Typography sx={textStyle}>
-                  <strong>Created At:</strong> {group.created_at}
-                </Typography>
-              </Stack>
-            ) : (
-              <Typography sx={loadingTextStyle}>Loading group...</Typography>
-            )}
+            <List>
+              {members.map((member) => (
+                <ListItem
+                  key={member.id}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleRemoveMember(member.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={`User ID: ${member.user_id}`}
+                    secondary={`Joined: ${member.joined_at}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+
+            <Stack direction="row" spacing={2} mt={2}>
+              <TextField
+                label="User ID"
+                value={newUserId || ""}
+                type="number"
+                onChange={(e) => setNewUserId(Number(e.target.value))}
+              />
+              <Button variant="contained" onClick={handleAddMember}>
+                Add
+              </Button>
+            </Stack>
           </CardContent>
         </Card>
-
-        {/* TABS for MEMBERS vs RECEIPTS */}
-        <Tabs value={activeTab} onChange={handleTabChange} sx={tabsStyle}>
-          <Tab label="Members" />
-          <Tab label="Receipts" />
-        </Tabs>
-
-        {/* TAB PANEL: MEMBERS */}
-        {activeTab === 0 && (
-          <Box>
-            <Card variant="outlined" sx={cardStyle}>
-              <CardHeader title="Members" />
-              <CardContent>
-                {members.length === 0 ? (
-                  <Typography sx={noMembersTextStyle}>
-                    No members found.
-                  </Typography>
-                ) : (
-                  <List sx={listStyle}>
-                    {members.map((member) => (
-                      <ListItem
-                        key={member.id}
-                        secondaryAction={
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            color="error"
-                            onClick={() => handleRemoveMember(member.id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText
-                          primary={`User ID: ${member.user_id}`}
-                          secondary={`Joined: ${member.joined_at}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-
-                {/* Add New Member Form */}
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <TextField
-                    label="New Member (User ID)"
-                    type="number"
-                    variant="outlined"
-                    value={newUserId || ""}
-                    onChange={(e) => setNewUserId(Number(e.target.value))}
-                    sx={textFieldStyle}
-                  />
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={handleAddMember}
-                  >
-                    Add Member
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Box>
-        )}
-
-        {/* TAB PANEL: RECEIPTS */}
-        {activeTab === 1 && (
-          <Box>
-            <Card variant="outlined" sx={cardStyle}>
-              <CardHeader title="Group Receipts" />
-              <CardContent>
-                {!group?.receipts || group.receipts.length === 0 ? (
-                  <Typography>No receipts found for this group.</Typography>
-                ) : (
-                  <Stack spacing={2}>
-                    {group.receipts.map((receipt) => (
-                      <ReceiptCard
-                        key={receipt.id}
-                        receipt={receipt}
-                        onClick={() => handleOpenDialog(receipt)}
-                        onDeleteReceipt={handleDeleteReceipt}
-                      />
-                    ))}
-                  </Stack>
-                )}
-              </CardContent>
-            </Card>
-          </Box>
-        )}
-
-        {selectedReceipt && (
-          <ReceiptDialog
-            receipt={selectedReceipt}
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            onSave={handleSaveReceiptUpdate}
-          />
-        )}
       </Box>
-    </PageWrapper>
-  );
+    </Stack>
+
+    {/* Receipt Modal */}
+    {selectedReceipt && (
+      <ReceiptDialog
+        receipt={selectedReceipt}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSave={handleSaveReceiptUpdate}
+      />
+    )}
+
+    <AddReceipt
+      open={isCreating}
+      onClose={() => setIsCreating(false)}
+      onSave={handleSaveGroupReceipt}
+      groupId={groupId}
+    />
+  </PageWrapper>
+);
 }
 
 const containerStyle = {
