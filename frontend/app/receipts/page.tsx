@@ -11,8 +11,8 @@ import { IFolder } from "@/types/folders";
 import { Category, Receipt } from "@/types/receipts";
 import { fetchWithAuth, receiptsApi, receiptsDetailApi } from "@/utils/api";
 import { folderService } from "@/utils/folderService";
-import { Box, IconButton, SelectChangeEvent, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { Box, IconButton, SelectChangeEvent, Typography } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -76,17 +76,27 @@ export default function Page() {
 
   const handleFolderClick = async (folderId: number) => {
     try {
-      const receiptIds = await folderService.getFolderReceipts(folderId);
-      // Fetch the full receipt details for each receipt in the folder
-      const fullReceipts = await Promise.all(
-        receiptIds.map(async (receiptId) => {
-          const response = await fetchWithAuth(receiptsDetailApi(receiptId));
-          if (!response || !response.ok)
-            throw new Error("Failed to fetch receipt");
-          return response.json();
-        })
-      );
-      setReceipts(fullReceipts);
+      if (folderId === 1) {
+        // 0 is the "All" folder ID
+        // Fetch all receipts
+        const response = await fetchWithAuth(receiptsApi);
+        if (!response || !response.ok)
+          throw new Error("Failed to fetch receipts");
+        const data = await response.json();
+        setReceipts(data.receipts);
+      } else {
+        const receiptIds = await folderService.getFolderReceipts(folderId);
+        // Fetch the full receipt details for each receipt in the folder
+        const fullReceipts = await Promise.all(
+          receiptIds.map(async (receiptId) => {
+            const response = await fetchWithAuth(receiptsDetailApi(receiptId));
+            if (!response || !response.ok)
+              throw new Error("Failed to fetch receipt");
+            return response.json();
+          })
+        );
+        setReceipts(fullReceipts);
+      }
     } catch (error) {
       console.error("Error fetching folder receipts:", error);
     }
@@ -262,7 +272,9 @@ export default function Page() {
         onFolderClick={handleFolderClick}
       />
 
-      <Typography sx={{...subsectionTitleStyle, marginTop: "16px"}}>Receipts</Typography>
+      <Typography sx={{ ...subsectionTitleStyle, marginTop: "16px" }}>
+        Receipts
+      </Typography>
       <ReceiptGrid
         receipts={receipts}
         startDate={startDate}
