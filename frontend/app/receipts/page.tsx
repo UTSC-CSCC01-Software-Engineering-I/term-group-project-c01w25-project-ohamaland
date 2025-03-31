@@ -6,11 +6,13 @@ import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
+import { defaultText } from "@/styles/colors";
 import { IFolder } from "@/types/folders";
 import { Category, Receipt } from "@/types/receipts";
 import { fetchWithAuth, receiptsApi, receiptsDetailApi } from "@/utils/api";
 import { folderService } from "@/utils/folderService";
-import { Box, Button, SelectChangeEvent, Typography } from "@mui/material";
+import { Box, IconButton, SelectChangeEvent, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -229,16 +231,30 @@ export default function Page() {
           setEndDate={setEndDate}
           handleCategoryChange={handleCategoryChange}
         />
-        <Button
-          variant="contained"
-          color="primary"
+        <Box
+          sx={{
+            maxWidth: 304,
+            margin: "8px",
+            borderRadius: "8px",
+            height: "64px",
+            border: "2px dashed #ccc",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            "&:hover": {
+              borderColor: "#999"
+            }
+          }}
           onClick={() => setIsModalOpen(true)}
-          sx={buttonStyle}
         >
-          Add Receipt
-        </Button>
+          <IconButton size="large">
+            <AddIcon sx={{ fontSize: 40, color: "#666" }} />
+          </IconButton>
+        </Box>
       </Box>
 
+      <Typography sx={subsectionTitleStyle}>Folders</Typography>
       <FolderGrid
         folders={folders}
         onAddFolder={handleAddFolder}
@@ -246,9 +262,7 @@ export default function Page() {
         onFolderClick={handleFolderClick}
       />
 
-      <Typography variant="h6" sx={{ mb: 2, mt: 4 }}>
-        Receipts
-      </Typography>
+      <Typography sx={{...subsectionTitleStyle, marginTop: "16px"}}>Receipts</Typography>
       <ReceiptGrid
         receipts={receipts}
         startDate={startDate}
@@ -285,7 +299,8 @@ const filterContainerStyle = {
   width: "100%"
 };
 
-const buttonStyle = {
-  marginLeft: "8px",
-  color: "white"
+const subsectionTitleStyle = {
+  fontWeight: 700,
+  fontSize: "24px",
+  color: defaultText
 };

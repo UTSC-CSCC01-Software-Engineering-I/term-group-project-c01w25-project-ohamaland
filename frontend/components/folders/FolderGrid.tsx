@@ -28,7 +28,7 @@ export default function FolderGrid(props: IFolderGridProps) {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box>
       <Grid container spacing={2}>
         {folders.map((folder) => (
           <Grid item key={folder.id}>

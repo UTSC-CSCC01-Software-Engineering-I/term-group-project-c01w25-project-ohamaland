@@ -94,5 +94,4 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
 const gridStyle = {
   maxHeight: "60vh",
   overflowY: "auto",
-  marginTop: "24px"
 };
