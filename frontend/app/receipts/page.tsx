@@ -296,7 +296,10 @@ const filterContainerStyle = {
   alignItems: "center",
   gap: "16px",
   marginBottom: "16px",
-  width: "100%"
+  width: "100%",
+  "& > *:first-of-type": {
+    flex: 1
+  }
 };
 
 const subsectionTitleStyle = {

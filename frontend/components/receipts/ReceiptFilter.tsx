@@ -56,16 +56,6 @@ export default function ReceiptFilter(props: IReceiptFilterProps) {
           }}
         />
       </LocalizationProvider>
-
-      {/* Category Selector */}
-      <DropDownSelector
-        value={props.category}
-        inputId="category-select-label"
-        label="Category"
-        onChange={props.handleCategoryChange}
-        options={categories}
-        formControlStyle={formControlStyle}
-      />
     </Box>
   );
 }
