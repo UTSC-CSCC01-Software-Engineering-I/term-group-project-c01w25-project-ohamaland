@@ -1,14 +1,14 @@
-import { textGrey } from "@/styles/colors";
+import { defaultText, textLightGrey } from "@/styles/colors";
 import { Receipt } from "@/types/receipts";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import {
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
   Divider,
   Stack,
-  Typography
+  Typography,
+  Grid,
+  Box,
+  IconButton,
 } from "@mui/material";
 
 interface IReceiptCardProps {
@@ -19,91 +19,85 @@ interface IReceiptCardProps {
 
 export default function ReceiptCard(props: IReceiptCardProps) {
   const { receipt, onClick, onDeleteReceipt } = props;
-  const formattedDate = receipt.date.split("T")[0]; // Ensures YYYY-MM-DD
+  const formattedDate = receipt.date.split("T")[0];
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDeleteReceipt(receipt.id);
-  };
+  function getColorStripStyle(color: string) {
+    return {
+      backgroundColor: color,
+      height: '100%',
+      width: '16px',
+      borderRadius: '8px 0 0 8px'
+    }
+  }
 
   return (
-    <Card sx={cardStyle} onClick={onClick}>
-      {receipt.receipt_image_url && (
-        <CardMedia
-          component="img"
-          height="200"
-          image={receipt.receipt_image_url}
-          alt={`Receipt from ${receipt.merchant}`}
-          sx={mediaStyle}
-        />
-      )}
-
-      <CardContent>
-        {/* Merchant Name */}
-        <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
-
-        {/* Date & Payment Method */}
+    <Grid container spacing={0} sx={cardStyle} onClick={onClick}>
+      <Grid xs={1}>
+        <Box style={getColorStripStyle("#c6fc03")} />
+      </Grid>
+      <Grid xs={11} sx={cardContentStyle}>
         <Stack
-          direction="row"
+          direction="column"
           justifyContent="space-between"
-          alignItems="center"
           mb={1}
         >
-          <Typography sx={textStyle}>{formattedDate}</Typography>
-          <Typography sx={textStyle}>{receipt.payment_method}</Typography>
+          <Box sx={headerBoxStyle}>
+            <Typography sx={merchantTextStyle}>{receipt.merchant}</Typography>
+            <IconButton 
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteReceipt(receipt.id);
+              }}
+              size="small"
+              sx={deleteIconStyle}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
+          <Typography sx={lightTextStyle}>{formattedDate}</Typography>
         </Stack>
 
-        {/* Total Amount */}
-        <Typography sx={totalTextStyle}>
-          Total: {receipt.currency} {Number(receipt.total_amount).toFixed(2)}
+        <Typography sx={darkTextStyle}>
+          Total: {receipt.currency} ${Number(receipt.total_amount).toFixed(2)}
         </Typography>
 
         <Divider sx={{ my: 1 }} />
 
-        {/* Items */}
-        <Typography sx={itemsTitleStyle}>Items:</Typography>
+        <Typography sx={darkTextStyle}>Items:</Typography>
 
         {receipt.items.slice(0, 2).map((item, index) => (
           <Typography key={`${item.id}-${index}`} sx={itemTextStyle}>
-            • {item.name} x{item.quantity} @ {receipt.currency}{" "}
-            {Number(item.price).toFixed(2)}
+            • {item.name} x{item.quantity} @{" "}
+            ${Number(item.price).toFixed(2)} {receipt.currency}
           </Typography>
         ))}
 
         {receipt.items.length > 2 && (
-          <Typography sx={moreItemsStyle}>
+          <Typography sx={{... darkTextStyle, marginLeft: "8px"}}>
             + {receipt.items.length - 2} more...
           </Typography>
         )}
 
-        {/* View Details Button */}
-        <Button variant="outlined" sx={buttonStyle} onClick={onClick}>
-          View Details
-        </Button>
-        <Button
-          variant="outlined"
-          sx={deleteButtonStyle}
-          onClick={handleDelete}
-        >
-          Delete Receipt
-        </Button>
-      </CardContent>
-    </Card>
+        <Typography sx={{ ...darkTextStyle, textAlign: "right" }}>{receipt.payment_method}</Typography>
+      </Grid>
+    </Grid>
   );
 }
 
 const cardStyle = {
-  maxWidth: 400,
+  maxWidth: 304,
   margin: "8px",
-  cursor: "pointer"
+  cursor: "pointer",
+  borderRadius: "8px",
+  boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.1)"
 };
 
-const mediaStyle = {
-  objectFit: "contain"
-};
+const cardContentStyle = {
+  padding: "8px"
+}
 
 const merchantTextStyle = {
-  fontWeight: 500,
+  fontWeight: 600,
   fontSize: "18px",
   color: "black",
   whiteSpace: "nowrap",
@@ -111,42 +105,34 @@ const merchantTextStyle = {
   textOverflow: "ellipsis"
 };
 
-const textStyle = {
+const lightTextStyle = {
   fontSize: "14px",
-  color: textGrey
-};
-
-const totalTextStyle = {
-  fontSize: "16px",
-  fontWeight: 600
-};
-
-const itemsTitleStyle = {
-  fontSize: "14px",
-  fontWeight: 500,
-  marginBottom: "8px"
+  color: textLightGrey,
+  fontWeight: 700
 };
 
 const itemTextStyle = {
-  fontSize: "12px",
+  fontSize: "14px",
   marginLeft: "8px",
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textOverflow: "ellipsis"
+  textOverflow: "ellipsis",
+  color: defaultText,
+  fontWeight: 700
 };
 
-const moreItemsStyle = {
-  fontSize: "12px",
-  color: textGrey,
-  fontStyle: "italic"
+const darkTextStyle = {
+  fontSize: "14px",
+  color: defaultText,
+  fontWeight: 700
 };
 
-const buttonStyle = {
-  marginTop: "8px"
-};
+const headerBoxStyle = {
+  display: "flex",
+  justifyContent: "space-between"
+}
 
-const deleteButtonStyle = {
-  marginTop: "8px",
-  BorderColor: "red",
-  color: "red"
-};
+const deleteIconStyle = {
+  color: textLightGrey,
+  padding: 0
+}

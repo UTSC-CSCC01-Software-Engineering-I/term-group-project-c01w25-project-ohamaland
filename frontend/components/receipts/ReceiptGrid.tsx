@@ -1,5 +1,4 @@
 import { Category, Receipt } from "@/types/receipts";
-import { fetchWithAuth, receiptsDetailApi } from "@/utils/api";
 import { filterReceipts } from "@/utils/filters";
 import { Alert, Grid2, Snackbar } from "@mui/material";
 import { Dayjs } from "dayjs";
@@ -24,7 +23,6 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   const [dontRemindMe, setDontRemindMe] = useState(false);
 
   useEffect(() => {
-    // Only access localStorage on the client side
     const dontRemind =
       localStorage.getItem("dont_remind_delete_receipt") === "true";
     setDontRemindMe(dontRemind);
@@ -56,24 +54,8 @@ export default function ReceiptGrid(props: IReceiptGridProps) {
   };
 
   const handleDeleteClick = async (receipt: Receipt) => {
-    console.log("Delete clicked for receipt:", receipt);
     setReceiptToDelete(receipt);
-
-    if (!dontRemindMe) {
-      setOpenConfirmationDialog(true);
-    } else {
-      try {
-        const response = await fetchWithAuth(receiptsDetailApi(receipt.id), {
-          method: "DELETE"
-        });
-
-        if (response && response.ok) {
-          props.onDeleteReceipt(receipt.id);
-        }
-      } catch (error) {
-        console.error("Error deleting receipt:", error);
-      }
-    }
+    props.onDeleteReceipt(receipt.id);
   };
 
   return (
