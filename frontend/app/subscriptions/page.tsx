@@ -4,11 +4,12 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
-import UpcomingRenewals from "@/components/subscriptions/UpcomingRenewals";
+import SubscriptionLogItem from "@/components/subscriptions/SubscriptionLogItem";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import { fetchWithAuth, subscriptionsApi, subscriptionsDetailApi, userMeApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
+import Log from "@/components/common/Log";
 
 export default function Page() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -217,8 +218,9 @@ export default function Page() {
           </Box>
 
           <Box sx={rightContainerStyle}>
-            <UpcomingRenewals
-              subscriptions={subscriptions}
+            <Log
+              data={getUpcomingRenewals(subscriptions)}
+              Component={SubscriptionLogItem}
               onOpenDialog={handleOpenDialog}
               title="Upcoming Renewals"
             />
@@ -245,6 +247,16 @@ export default function Page() {
     </PageWrapper>
   );
 }
+
+function getUpcomingRenewals(subscriptions: Subscription[]) {
+  const currentDate = new Date();
+  const sortedSubscriptions = subscriptions
+      .filter(s => new Date(s.renewal_date) >= currentDate)
+      .sort((a, b) => new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime());
+  return sortedSubscriptions.slice(0, renewalsToShow);
+}
+
+const renewalsToShow = 5;
 
 const pageLayoutStyle = {
   display: "flex",
