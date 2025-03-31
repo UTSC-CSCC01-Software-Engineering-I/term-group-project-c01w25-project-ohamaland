@@ -66,7 +66,7 @@ class GroupMembers(models.Model):
             }
             ReceiptSerializer()._create_or_update_splits(receipt, custom_splits)
 
-            
+
 class Folder(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -75,12 +75,12 @@ class Folder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'name')
+        unique_together = ("user", "name")
 
     def __str__(self):
         return self.name
 
-      
+
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("Debit", "Debit Card"),
@@ -108,9 +108,15 @@ class Receipt(models.Model):
     receipt_image_url = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     folder = models.ForeignKey(
-        Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name="receipts", default="All"
+        Folder,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="receipts",
+        default="All",
     )
     color = models.CharField(max_length=7, default="#A9A9A9")
+
     class Meta:
         db_table = "receipt"
 

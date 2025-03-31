@@ -50,7 +50,7 @@ export const renewalBarColors = {
   green: "#82f056",
   yellow: "#f0db56",
   red: "#f05656"
-}
+};
 
 export const lightGrey = "#5d615e";
 

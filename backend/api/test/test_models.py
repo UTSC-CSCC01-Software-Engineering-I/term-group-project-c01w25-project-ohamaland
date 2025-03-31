@@ -47,7 +47,9 @@ class GroupModelTest(TestCase):
 
 class ReceiptModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="receiptuser", password="Pass123!")
+        self.user = User.objects.create_user(
+            username="receiptuser", password="Pass123!"
+        )
         self.receipt = Receipt.objects.create(
             user=self.user,
             merchant="Test Merchant",
@@ -62,7 +64,6 @@ class ReceiptModelTest(TestCase):
         self.assertEqual(self.receipt.merchant, "Test Merchant")
         self.assertEqual(self.receipt.total_amount, Decimal("100.00"))
         self.assertEqual(self.receipt.currency, "USD")
-
 
 
 class ItemModelTest(TestCase):
@@ -122,7 +123,9 @@ class SubscriptionModelTest(TestCase):
 
 class InsightsModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="insightsuser", password="Pass123!")
+        self.user = User.objects.create_user(
+            username="insightsuser", password="Pass123!"
+        )
         self.insights = Insights.objects.create(
             user=self.user,
             category_spending={"Food": "50.00", "Transport": "20.00"},
@@ -134,6 +137,8 @@ class InsightsModelTest(TestCase):
     def test_insights_creation(self):
         """Test that the insights record is created properly."""
         self.assertEqual(self.insights.user, self.user)
-        self.assertEqual(self.insights.category_spending, {"Food": "50.00", "Transport": "20.00"})
+        self.assertEqual(
+            self.insights.category_spending, {"Food": "50.00", "Transport": "20.00"}
+        )
         self.assertEqual(self.insights.total_spent, Decimal("70.00"))
         self.assertEqual(self.insights.period, "Monthly")

@@ -6,12 +6,7 @@ import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import ReceiptFilter from "@/components/receipts/ReceiptFilter";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Category, Receipt } from "@/types/receipts";
-import {
-  fetchWithAuth,
-  receiptsApi,
-  receiptsDetailApi,
-  receiptsUploadApi
-} from "@/utils/api";
+import { fetchWithAuth, receiptsApi, receiptsDetailApi } from "@/utils/api";
 import { Box, Button, SelectChangeEvent } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";

@@ -1,15 +1,15 @@
-import { defaultText, lightGrey, textGrey, textLightGrey, renewalBarColors } from "@/styles/colors";
+import { defaultText, renewalBarColors, textLightGrey } from "@/styles/colors";
 import { Subscription } from "@/types/subscriptions";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import LinearProgress from '@mui/material/LinearProgress';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
-  Divider,
-  Stack,
-  Typography,
-  Grid,
   Box,
+  Divider,
+  Grid,
   IconButton,
+  Stack,
+  Typography
 } from "@mui/material";
+import LinearProgress from "@mui/material/LinearProgress";
 import { useEffect, useState } from "react";
 
 interface ISubscriptionCardProps {
@@ -49,8 +49,10 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
       if (currentDate < startDate) setProgress(0);
       else if (currentDate >= renewalDate) setProgress(100);
       else {
-        const percentage = ((currentDate.getTime() - startDate.getTime()) /
-          (renewalDate.getTime() - startDate.getTime())) * 100;
+        const percentage =
+          ((currentDate.getTime() - startDate.getTime()) /
+            (renewalDate.getTime() - startDate.getTime())) *
+          100;
         setProgress(percentage);
       }
     };
@@ -61,16 +63,14 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
     return () => clearInterval(intervalId);
   }, [subscription]);
 
-
   return (
     <Grid container spacing={0} sx={cardStyle} onClick={onClick}>
       <Grid xs={16} sx={cardContentStyle}>
-        <Stack
-          direction="column"
-          justifyContent="space-between"
-        >
+        <Stack direction="column" justifyContent="space-between">
           <Box sx={headerBoxStyle}>
-            <Typography sx={merchantTextStyle}>{subscription.merchant}</Typography>
+            <Typography sx={merchantTextStyle}>
+              {subscription.merchant}
+            </Typography>
             <IconButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -82,7 +82,6 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
               <DeleteOutlineIcon />
             </IconButton>
           </Box>
-
         </Stack>
 
         <Typography sx={darkTextStyle}>
@@ -92,7 +91,8 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
         <Divider sx={{ my: 1 }} />
 
         <Typography sx={darkTextStyle}>
-          Bill: {subscription.currency} ${Number(subscription.total_amount).toFixed(2)}
+          Bill: {subscription.currency} $
+          {Number(subscription.total_amount).toFixed(2)}
         </Typography>
 
         <Box sx={barStyle}>
@@ -103,7 +103,10 @@ export default function SubscriptionCard(props: ISubscriptionCardProps) {
           />
         </Box>
 
-        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>{"Renewal By: "}{formattedDate}</Typography>
+        <Typography sx={{ ...lightTextStyle, textAlign: "right" }}>
+          {"Renewal By: "}
+          {formattedDate}
+        </Typography>
       </Grid>
     </Grid>
   );
@@ -118,13 +121,13 @@ const getRenewalBarColor = (progress: number) => {
 const renewalBar = (progress: number) => ({
   backgroundColor: renewalBarColors.grey,
   "& .MuiLinearProgress-bar": {
-    backgroundColor: getRenewalBarColor(progress),
-  },
+    backgroundColor: getRenewalBarColor(progress)
+  }
 });
 
 const barStyle = {
-  width: "100%",
-}
+  width: "100%"
+};
 
 const cardStyle = {
   maxWidth: 320,
@@ -138,7 +141,7 @@ const cardStyle = {
 
 const cardContentStyle = {
   padding: "8px"
-}
+};
 
 const merchantTextStyle = {
   fontWeight: 600,
@@ -164,9 +167,9 @@ const darkTextStyle = {
 const headerBoxStyle = {
   display: "flex",
   justifyContent: "space-between"
-}
+};
 
 const deleteIconStyle = {
   color: textLightGrey,
   padding: 0
-}
+};

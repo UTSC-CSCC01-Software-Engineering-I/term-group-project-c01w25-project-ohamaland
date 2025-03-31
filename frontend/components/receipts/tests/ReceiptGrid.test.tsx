@@ -1,8 +1,7 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ReceiptGrid from "@/components/receipts/ReceiptGrid";
 import { Receipt } from "@/types/receipts";
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 jest.mock("@/components/receipts/ReceiptCard", () => (props: any) => (
   <div data-testid="receipt-card" onClick={props.onClick}>
@@ -11,13 +10,15 @@ jest.mock("@/components/receipts/ReceiptCard", () => (props: any) => (
   </div>
 ));
 
-jest.mock("@/components/receipts/DeleteConfirmationDialog", () => (props: any) =>
-  props.open ? (
-    <div data-testid="delete-dialog">
-      <button onClick={props.onConfirmDelete}>Confirm</button>
-      <button onClick={props.onClose}>Cancel</button>
-    </div>
-  ) : null
+jest.mock(
+  "@/components/receipts/DeleteConfirmationDialog",
+  () => (props: any) =>
+    props.open ? (
+      <div data-testid="delete-dialog">
+        <button onClick={props.onConfirmDelete}>Confirm</button>
+        <button onClick={props.onClose}>Cancel</button>
+      </div>
+    ) : null
 );
 
 const mockReceipts: Receipt[] = [
@@ -29,7 +30,7 @@ const mockReceipts: Receipt[] = [
     date: "2024-03-25",
     payment_method: "Credit",
     items: [],
-    receipt_image_url: null,
+    receipt_image_url: null
   },
   {
     id: 2,
@@ -39,8 +40,8 @@ const mockReceipts: Receipt[] = [
     date: "2024-03-20",
     payment_method: "Debit",
     items: [],
-    receipt_image_url: null,
-  },
+    receipt_image_url: null
+  }
 ];
 
 describe("ReceiptGrid", () => {

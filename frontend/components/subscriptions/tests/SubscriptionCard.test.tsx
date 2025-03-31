@@ -1,8 +1,7 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
 import SubscriptionCard from "@/components/subscriptions/SubscriptionCard";
 import { Subscription } from "@/types/subscriptions";
 import "@testing-library/jest-dom";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 describe("SubscriptionCard component", () => {
   const mockSubscription: Subscription = {
