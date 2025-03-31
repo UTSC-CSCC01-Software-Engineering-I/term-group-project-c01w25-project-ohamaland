@@ -16,9 +16,13 @@ from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
 
 from .signals import (
-    calculate_category_spending,
+    calculate_currency_distribution,
+    calculate_folder_spending,
+    calculate_merchant_spending,
+    calculate_payment_method_spending,
     calculate_total_spending,
     get_spending_periods,
+    get_user_country_and_currency,
 )
 
 from .models import (
@@ -55,6 +59,9 @@ class ReceiptOverview(APIView):
         # If the group is not given, assume it's a personal receipt
         if not request.data.get("group"):
             request.data["user"] = request.user.id
+
+        if not request.data.get("folder"):
+            request.data["folder"], _ = Folder.objects.get_or_create(user=request.user, name="All")
 
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -668,15 +675,29 @@ class InsightsView(generics.ListAPIView):
         user = self.request.user
         return Insights.objects.filter(user=user).order_by("-date")
 
+    def get_user_currency(self, user):
+        """Retrieve the user's currency from their profile or a geolocation API."""
+        _, currency = get_user_country_and_currency(None)  
+        return currency or "USD"
+
     def get_insights(self, user, period, start_date):
-        category_spending = calculate_category_spending(user, start_date)
-        total_spending = calculate_total_spending(user, start_date)
+        user_currency = self.get_user_currency(user)
+
+        folder_spending = calculate_folder_spending(user, start_date, user_currency)
+        total_spending = calculate_total_spending(user, start_date, user_currency)
+        merchant_spending = calculate_merchant_spending(user, start_date, user_currency)
+        payment_method_spending = calculate_payment_method_spending(user, start_date, user_currency)
+        currency_distribution = calculate_currency_distribution(user, start_date)
 
         return {
-            "category_spending": category_spending,
+            "folder_spending": folder_spending,
             "total_spending": total_spending,
+            "merchant_spending": merchant_spending,
+            "payment_method_spending": payment_method_spending,
+            "currency_distribution": currency_distribution,
             "period": period,
             "date": start_date,
+            "currency": user_currency,
         }
 
     def get(self, request, period):

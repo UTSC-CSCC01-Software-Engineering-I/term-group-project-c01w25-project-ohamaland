@@ -17,7 +17,6 @@ from .models import (
     Insights,
     Notification,
 )
-from .signals import update_insights
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -110,6 +109,7 @@ class GroupReceiptSplitSerializer(serializers.ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
     splits = GroupReceiptSplitSerializer(many=True, read_only=True)
+    folder = serializers.StringRelatedField()
 
     class Meta:
         model = Receipt
@@ -130,6 +130,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "receipt_image_url",
             "items",
             "splits",
+            "folder",
+            "color"
         ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):
@@ -223,9 +225,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
                 # Create splits
                 self._create_or_update_splits(receipt, custom_splits)
 
-                if receipt.user:
-                    update_insights(receipt.user.id)
-
                 return receipt
         except (ValueError, TypeError) as e:
             raise serializers.ValidationError(f"Invalid data format: {str(e)}")
@@ -251,9 +250,6 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
                 # Update splits
                 self._create_or_update_splits(instance, custom_splits)
-
-                if instance.user:
-                    update_insights(instance.user.id)
 
                 return instance
         except Exception as e:
@@ -336,17 +332,41 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class InsightsSerializer(serializers.ModelSerializer):
-    category_spending = serializers.SerializerMethodField()
+    folder_spending = serializers.SerializerMethodField()
+    merchant_spending = serializers.SerializerMethodField()
+    payment_method_spending = serializers.SerializerMethodField()
+    currency_distribution = serializers.SerializerMethodField()
 
     class Meta:
         model = Insights
-        fields = ["user", "total_spent", "category_spending", "period", "date"]
+        fields = ["user", "total_spent", "folder_spending", "merchant_spending", "get_payment_method_spending", "get_currency_distribution", "period", "date"]
 
-    def get_category_spending(self, obj):
-        """Convert category_spending JSON field to list for frontend processing."""
+    def get_folder_spending(self, obj):
+        """Convert folder_spending JSON field to list for frontend processing."""
         return [
-            {"category": key, "amount": float(value)}
-            for key, value in obj.category_spending.items()
+            {"folder": key, "amount": float(value)}
+                for key, value in obj.folder_spending.items()
+        ]
+
+    def get_merchant_spending(self, obj):
+        """Convert merchant_spending JSON field to list for frontend processing."""
+        return [
+            {"merchant": key, "amount": float(value)}
+                for key, value in obj.merchant_spending.items()
+        ]
+    
+    def get_payment_method_spending(self, obj):
+        """Convert payment_method_spending JSON field to list for frontend processing."""
+        return [
+            {"payment_method": key, "amount": float(value)}
+                for key, value in obj.payment_method_spending.items()
+        ]
+    
+    def get_currency_distribution(self, obj):
+        """Convert currency_distribution JSON field to list for frontend processing."""
+        return [
+            {"currency": key, "percentage": float(value.get("percentage", 0)),}
+            for key, value in obj.currency_distribution.items()
         ]
 
     def to_representation(self, instance):

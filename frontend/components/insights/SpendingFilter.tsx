@@ -1,4 +1,4 @@
-import { defaultText, textLightGrey } from "@/styles/colors";
+import { defaultText } from "@/styles/colors";
 import {
   Box,
   FormControl,
@@ -7,17 +7,11 @@ import {
   Select,
   SelectChangeEvent
 } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 
 interface ISpendingFilterProps {
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
   filterTerm: string;
   selectedPeriod: string;
-  setFilterTerm: (value: string) => void;
-  setStartDate: (value: Dayjs | null) => void;
   setEndDate: (value: Dayjs | null) => void;
   handlePeriodChange: (event: SelectChangeEvent) => void;
 }
@@ -25,32 +19,6 @@ interface ISpendingFilterProps {
 export default function SpendingFilter(props: ISpendingFilterProps) {
   return (
     <Box sx={filterContainerStyle}>
-      {/* Start date filter */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={props.startDate}
-          onChange={(newDate) => props.setStartDate(newDate)}
-          slotProps={{
-            textField: {
-              placeholder: "Choose a Start Date"
-            }
-          }}
-        />
-      </LocalizationProvider>
-
-      {/* End date filter */}
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={props.endDate}
-          onChange={(newDate) => props.setEndDate(newDate)}
-          slotProps={{
-            textField: {
-              placeholder: "Choose an End Date"
-            }
-          }}
-        />
-      </LocalizationProvider>
-
       {/* Period Selector */}
       <FormControl sx={formControlStyle}>
         <InputLabel id="period-label">Period</InputLabel>
@@ -77,25 +45,10 @@ const filterContainerStyle = {
   padding: "16px",
   borderRadius: "12px",
   backgroundColor: "white",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+  boxShadow: "0 8px 8px rgba(0, 0, 0, 0.2)",
   flexWrap: "wrap" as const
 };
 
-const iconStyle = {
-  color: textLightGrey
-};
-
-const inputStyle = {
-  fontSize: "14px",
-  fontWeight: 400,
-  flexGrow: 1,
-  color: defaultText,
-  "& ::placeholder": {
-    color: textLightGrey,
-    fontSize: "14px",
-    fontWeight: 400
-  }
-};
 
 const formControlStyle = {
   width: "160px",
