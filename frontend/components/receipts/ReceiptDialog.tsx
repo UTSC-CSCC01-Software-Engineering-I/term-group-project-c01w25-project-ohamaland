@@ -5,6 +5,7 @@ import {
   Currency,
   PaymentMethod,
   Receipt,
+  ReceiptItem,
   currencies,
   paymentMethods
 } from "@/types/receipts";
@@ -23,6 +24,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
+import ItemsTable from "./ItemsTable";
 
 interface IReceiptDialogProps {
   receipt: Receipt;
@@ -31,17 +33,13 @@ interface IReceiptDialogProps {
   onSave: (updatedReceipt: Receipt) => void;
 }
 
-export default function ReceiptDialog({
-  receipt,
-  open,
-  onClose,
-  onSave
-}: IReceiptDialogProps) {
+export default function ReceiptDialog(props: IReceiptDialogProps) {
+  const { receipt, open, onClose, onSave } = props;
   const [editedReceipt, setEditedReceipt] = useState(receipt);
 
   const handleChange = (
     field: keyof Receipt,
-    value: string | number | Category | Currency
+    value: string | number | Category | Currency | ReceiptItem[]
   ) => {
     setEditedReceipt((prev) => ({
       ...prev,
@@ -50,7 +48,13 @@ export default function ReceiptDialog({
   };
 
   return (
-    <Dialog open={open} fullWidth onClose={onClose}>
+    <Dialog 
+      open={open} 
+      fullWidth 
+      maxWidth="xl"
+      onClose={onClose} 
+      sx={dialogStyle}
+    >
       <DialogTitle sx={dialogTitleStyle}>
         <Typography sx={dialogTitleTextStyle}>Edit Receipt</Typography>
         <IconButton onClick={onClose}>
@@ -74,14 +78,6 @@ export default function ReceiptDialog({
             }
           />
         </LocalizationProvider>
-        <Typography marginTop={"8px"}>Total Amount</Typography>
-        <TextField
-          fullWidth
-          type="string"
-          value={editedReceipt.total_amount}
-          onChange={(e) => handleChange("total_amount", Number(e.target.value))}
-        />
-
         <Typography marginTop={"8px"} marginBottom={"4px"}>
           Currency
         </Typography>
@@ -108,6 +104,10 @@ export default function ReceiptDialog({
           formControlStyle={formControlStyle}
         />
 
+        <ItemsTable 
+          items={editedReceipt.items} 
+          onItemsChange={(items) => handleChange("items", items)} 
+        />
         <Button
           onClick={() => onSave(editedReceipt)}
           variant="contained"
@@ -149,3 +149,9 @@ const formControlStyle = {
     }
   }
 };
+
+const dialogStyle = {
+  "& .MuiDialog-paper": {
+    width: "90vw",
+  }
+}
