@@ -6,9 +6,8 @@ import {
   groupsMembersLeaveApi,
   userMeApi
 } from "@/utils/api";
-import { Card, CardContent, Typography, IconButton, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, IconButton, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -119,13 +118,11 @@ export default function GroupCard(props: IGroupCardProps) {
     window.location.href = `/groups/${props.group.id}`;
   };
 
-  const RedDeleteIconButton = styled(IconButton)(({ theme }) => ({
+  const RedDeleteIconButton = styled(IconButton)(() => ({
     '&:hover': {
       color: 'red',
     },
   }));
-
-  const formattedDate = new Date(props.group.created_at).toLocaleDateString();
 
   return (
     <Card sx={cardStyle}>
@@ -199,10 +196,6 @@ const textStyle = {
   fontSize: "16px"
 };
 
-const buttonStyle = {
-  marginTop: "8px"
-};
-
 const iconButtonStyle = {
   position: "absolute",
   bottom: "8px",
@@ -218,8 +211,8 @@ const greyStripStyle = {
 };
 
 const textCenteringStyle = {
-  flexGrow: 1, 
-  display: "flex", 
-  alignItems: "center", 
+  flexGrow: 1,
+  display: "flex",
+  alignItems: "center",
   height: "100%"
 };

@@ -16,7 +16,6 @@ import {
   groupsMembersApi,
   groupsMembersDetailApi,
   receiptsApi,
-  receiptsDetailApi
 } from "@/utils/api";
 import { Add, ChevronRight, Delete, Edit } from "@mui/icons-material";
 import {
@@ -666,19 +665,19 @@ function getRecentMembers(members: GroupMember[] | null = null) {
 }
 
 // TODO: Add To logs
-function getRecentReceipts(receipts: Receipt[] | null = null) {
-  if (receipts == null) return [];
-  const currentDate = new Date();
-  const yesterday = new Date(currentDate);
-  yesterday.setDate(currentDate.getDate() - 1);
-  const sortedReceipts = receipts
-    .filter((r) => new Date(r.created_at) >= yesterday)
-    .sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-  return sortedReceipts.slice(0, Math.floor(logsToShow / 2))
-}
+// function getRecentReceipts(receipts: Receipt[] | null = null) {
+//   if (receipts == null) return [];
+//   const currentDate = new Date();
+//   const yesterday = new Date(currentDate);
+//   yesterday.setDate(currentDate.getDate() - 1);
+//   const sortedReceipts = receipts
+//     .filter((r) => new Date(r.created_at) >= yesterday)
+//     .sort(
+//       (a, b) =>
+//         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+//     );
+//   return sortedReceipts.slice(0, Math.floor(logsToShow / 2))
+// }
 
 const logsToShow = 10;
 
