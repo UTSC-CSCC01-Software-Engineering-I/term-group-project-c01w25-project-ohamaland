@@ -128,10 +128,10 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "send_mail",
             "created_at",
             "receipt_image_url",
+            "folder",
+            "color",
             "items",
             "splits",
-            "folder",
-            "color"
         ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):
@@ -157,12 +157,19 @@ class ReceiptSerializer(serializers.ModelSerializer):
             remaining_amount / regular_members if regular_members > 0 else 0
         )
 
+        # Preserve existing splits
+        existing_splits = {
+            split.group_member.user.id: split
+            for split in GroupReceiptSplit.objects.filter(receipt=receipt)
+        }
+
         # Delete existing splits
         GroupReceiptSplit.objects.filter(receipt=receipt).delete()
 
         # Create new splits
         splits_to_create = []
         for member in group_members:
+            existing_split = existing_splits.get(member.user.id)
             if member.user.id in custom_splits:
                 amount = custom_splits[member.user.id]
                 percentage = (amount / receipt.total_amount) * 100
@@ -172,8 +179,11 @@ class ReceiptSerializer(serializers.ModelSerializer):
                         group_member=member,
                         amount_owed=amount,
                         percentage_owed=percentage,
-                        amount_paid=0,
+                        amount_paid=existing_split.amount_paid if existing_split else 0,
                         is_custom_split=True,
+                        status=existing_split.status if existing_split else "Pending",
+                        notes=existing_split.notes if existing_split else "",
+                        created_at=existing_split.created_at if existing_split else None
                     )
                 )
             else:
@@ -184,8 +194,11 @@ class ReceiptSerializer(serializers.ModelSerializer):
                         group_member=member,
                         amount_owed=even_split_amount,
                         percentage_owed=percentage,
-                        amount_paid=0,
+                        amount_paid=existing_split.amount_paid if existing_split else 0,
                         is_custom_split=False,
+                        status=existing_split.status if existing_split else "Pending",
+                        notes=existing_split.notes if existing_split else "",
+                        created_at=existing_split.created_at if existing_split else None
                     )
                 )
 

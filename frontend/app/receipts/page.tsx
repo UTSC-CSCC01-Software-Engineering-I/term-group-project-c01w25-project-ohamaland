@@ -199,8 +199,6 @@ export default function Page() {
         tip: tipAmount
       };
 
-      // Remove tax_rate as it's not in the backend model
-      delete updatedData.tax_rate;
 
       const response = await fetchWithAuth(
         receiptsDetailApi(updatedReceipt.id),

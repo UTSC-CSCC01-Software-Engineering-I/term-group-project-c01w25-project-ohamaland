@@ -1,20 +1,25 @@
+import { GroupReceiptSplit } from "@/types/groupReceiptSplits";
+
+
 export interface Receipt {
   id: number;
+  user?: number;
+  group?: number;
   merchant: string;
-  date: string;
-  currency: Currency;
-  payment_method: PaymentMethod;
-  items: ReceiptItem[];
   total_amount: number;
+  currency: Currency;
+  date: string;
+  payment_method: PaymentMethod;
   tax?: number;
   tip?: number;
-  tax_rate?: number;
-  tip_rate?: number;
-  category?: Category;
+  tax_last: boolean;
+  send_mail: boolean;
+  created_at: string;
+  receipt_image_url: string;
   color: string;
-  file?: string;
-  folder_id: number;
   folder: string;
+  items: ReceiptItem[];
+  splits: GroupReceiptSplit[];
 }
 
 export type Currency = "USD" | "CAD" | "";
@@ -55,7 +60,7 @@ export type PaymentMethod = "Debit" | "Credit" | "Cash" | "";
 export const paymentMethods = ["Debit", "Credit", "Cash"];
 
 export type ReceiptItem = {
-  id?: number; // Make id optional for new items
+  id?: number;
   name: string;
   price: number;
   quantity: number;
