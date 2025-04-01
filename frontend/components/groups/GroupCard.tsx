@@ -1,4 +1,4 @@
-import { textGrey } from "@/styles/colors";
+import { textGrey, textLightGrey } from "@/styles/colors";
 import { Group } from "@/types/groups";
 import {
   fetchWithAuth,
@@ -6,10 +6,13 @@ import {
   groupsMembersLeaveApi,
   userMeApi
 } from "@/utils/api";
-import { Button, Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Typography, IconButton, Button, Box } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 interface IGroupCardProps {
   group: Group;
@@ -51,7 +54,8 @@ export default function GroupCard(props: IGroupCardProps) {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setOpenDialog(false);
   };
 
@@ -111,41 +115,60 @@ export default function GroupCard(props: IGroupCardProps) {
     }
   }
 
+  const handleCardClick = () => {
+    window.location.href = `/groups/${props.group.id}`;
+  };
+
+  const RedDeleteIconButton = styled(IconButton)(({ theme }) => ({
+    '&:hover': {
+      color: 'red',
+    },
+  }));
+
+  const formattedDate = new Date(props.group.created_at).toLocaleDateString();
+
   return (
     <Card sx={cardStyle}>
-      <CardContent>
-        <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
-        <Typography sx={textStyle}>Creator: {props.group.creator}</Typography>
-        <Typography sx={textStyle}>
-          Created At: {props.group.created_at}
-        </Typography>
-        <Link href={`/groups/${props.group.id}`}>
-          <Button variant="outlined" sx={buttonStyle}>
-            View Details
-          </Button>
-        </Link>
-        {props.group.creator === currentUserId ? (
-          <Button
-            variant="contained"
-            color="error"
-            sx={buttonStyle}
-            onClick={() => handleOpenDialog("delete")}
-            disabled={isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Delete Group"}
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="warning"
-            sx={buttonStyle}
-            onClick={() => handleOpenDialog("leave")}
-            disabled={isLeaving}
-          >
-            {isLeaving ? "Leaving..." : "Leave Group"}
-          </Button>
-        )}
-      </CardContent>
+      <Box sx={{ display: "flex" }} onClick={handleCardClick}>
+        <Box sx={greyStripStyle} />
+        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={textCenteringStyle}>
+          <CardContent>
+            {props.group.creator === currentUserId && (
+              <RedDeleteIconButton
+                aria-label="delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenDialog("delete");
+                }}
+                sx={iconButtonStyle}
+              >
+                <DeleteOutlineIcon />
+              </RedDeleteIconButton>
+            )}
+            <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
+            <Typography sx={textStyle}>
+              Members: {props.group.members.length}
+            </Typography>
+            <Typography sx={textStyle}>
+              Receipts: {props.group.receipts.length}
+            </Typography>
+            {props.group.creator !== currentUserId && (
+              <RedDeleteIconButton
+              aria-label="delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenDialog("leave");
+              }}
+              sx={iconButtonStyle}
+            >
+              <ExitToAppIcon />
+            </RedDeleteIconButton>
+            )}
+          </CardContent>
+        </Box>
+        </Box>
+      </Box>
       <DeleteLeaveConfirmationDialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -157,21 +180,46 @@ export default function GroupCard(props: IGroupCardProps) {
 }
 
 const cardStyle = {
-  maxWidth: "400px",
-  margin: "8px"
+  minWidth: "320px",
+  margin: "8px",
+  cursor: "pointer",
+  position: "relative",
+  borderRadius: "16px",
+  height: "160px",
 };
 
 const groupnameTextStyle = {
   color: "black",
-  fontWeight: 500,
-  fontSize: "16px"
+  fontWeight: "bold",
+  fontSize: "24px"
 };
 
 const textStyle = {
-  color: textGrey,
+  color: textLightGrey,
   fontSize: "16px"
 };
 
 const buttonStyle = {
   marginTop: "8px"
+};
+
+const iconButtonStyle = {
+  position: "absolute",
+  bottom: "8px",
+  right: "8px"
+};
+
+const greyStripStyle = {
+  width: "64px",
+  backgroundColor: textGrey,
+  borderTopLeftRadius: "16px",
+  borderBottomLeftRadius: "16px",
+  height: "160px",
+};
+
+const textCenteringStyle = {
+  flexGrow: 1, 
+  display: "flex", 
+  alignItems: "center", 
+  height: "100%"
 };
