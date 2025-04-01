@@ -6,6 +6,7 @@ import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import SubscriptionLogItem from "@/components/subscriptions/SubscriptionLogItem";
+import AddIcon from "@mui/icons-material/Add";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import {
   fetchWithAuth,
@@ -13,7 +14,7 @@ import {
   subscriptionsDetailApi,
   userMeApi
 } from "@/utils/api";
-import { Box, Button, SelectChangeEvent } from "@mui/material";
+import { Box, Button, SelectChangeEvent, IconButton, } from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -198,14 +199,14 @@ export default function Page() {
             handleTimePeriodChange={handleTimePeriodChange}
             handleBillingPeriodChange={handleBillingPeriodChange}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setIsModalOpen(true)}
-            sx={buttonStyle}
-          >
-            Add Subscription
-          </Button>
+        <Box
+           sx={buttonStyle}
+           onClick={() => setIsModalOpen(true)}
+         >
+           <IconButton size="large">
+             <AddIcon sx={{ fontSize: 40, color: "#666" }} />
+           </IconButton>
+         </Box>
         </Box>
 
         <Box sx={contentLayoutStyle}>
@@ -253,9 +254,10 @@ export default function Page() {
 }
 
 function getUpcomingRenewals(subscriptions: Subscription[]) {
-  const currentDate = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   const sortedSubscriptions = subscriptions
-    .filter((s) => new Date(s.renewal_date) >= currentDate)
+    .filter((s) => new Date(s.renewal_date) >= yesterday)
     .sort(
       (a, b) =>
         new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime()
@@ -264,6 +266,21 @@ function getUpcomingRenewals(subscriptions: Subscription[]) {
 }
 
 const renewalsToShow = 5;
+
+const buttonStyle = {
+  maxWidth: 304,
+  margin: "8px",
+  borderRadius: "8px",
+  height: "64px",
+  border: "2px dashed #ccc",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  "&:hover": {
+    borderColor: "#999"
+  }
+}
 
 const pageLayoutStyle = {
   display: "flex",
@@ -275,7 +292,11 @@ const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
   gap: "16px",
-  width: "100%"
+  marginBottom: "16px",
+  width: "100%",
+  "& > *:first-of-type": {
+    flex: 1
+  }
 };
 
 const contentLayoutStyle = {
@@ -290,12 +311,13 @@ const leftContainerStyle = {
 
 const rightContainerStyle = {
   position: "fixed",
-  right: "0px",
+  right: "32px",
   width: "304px",
-  flexShrink: 0
-};
-
-const buttonStyle = {
-  marginLeft: "8px",
-  color: "white"
+  flexShrink: 0,
+  display: "flex",
+  flexDirection: "column",
+  padding: "16px",
+  borderRadius: "12px",
+  backgroundColor: "white",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
 };
