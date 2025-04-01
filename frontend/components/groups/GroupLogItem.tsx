@@ -15,8 +15,6 @@ export default function GroupLogItem(props: IGroupLogItemProps) {
   );
 }
 
-const upcomingRenewalsBoxStyle = {};
-
 const lightTextStyle = {
   fontSize: "14px",
   color: textLightGrey,
