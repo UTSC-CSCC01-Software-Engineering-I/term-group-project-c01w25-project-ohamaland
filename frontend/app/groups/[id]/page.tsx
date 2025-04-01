@@ -426,7 +426,7 @@ export default function GroupDetailPage() {
                 {!group?.receipts || group.receipts.length === 0 ? (
                   <Typography>No receipts found for this group.</Typography>
                 ) : (
-                  <Stack spacing={2}>
+                  <Box sx={receiptListStyle}>
                     {group.receipts.map((receipt) => (
                       <ReceiptCard
                         key={receipt.id}
@@ -435,7 +435,7 @@ export default function GroupDetailPage() {
                         onDeleteReceipt={handleDeleteGroupReceipt}
                       />
                     ))}
-                  </Stack>
+                  </Box>
                 )}
                 <Box
                   sx={{
@@ -659,3 +659,10 @@ const textFieldStyle = {
   width: "240px",
   minWidth: "150px"
 };
+
+const receiptListStyle = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "16px",
+  justifyContent: "flex-start"
+}
