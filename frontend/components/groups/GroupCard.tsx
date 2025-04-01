@@ -34,8 +34,6 @@ async function getUserIdFromBackend() {
 }
 
 export default function GroupCard(props: IGroupCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [actionType, setActionType] = useState<"delete" | "leave">("delete");
@@ -68,7 +66,6 @@ export default function GroupCard(props: IGroupCardProps) {
   };
 
   const handleDeleteGroup = async () => {
-    setIsDeleting(true);
 
     try {
       const response = await fetchWithAuth(groupsDeleteApi(props.group.id), {
@@ -83,15 +80,11 @@ export default function GroupCard(props: IGroupCardProps) {
       props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error deleting group:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
   async function handleLeaveGroup() {
     if (!currentUserId) return;
-
-    setIsLeaving(true);
 
     try {
       const response = await fetchWithAuth(
@@ -109,8 +102,6 @@ export default function GroupCard(props: IGroupCardProps) {
       props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error leaving group:", error);
-    } finally {
-      setIsLeaving(false);
     }
   }
 
