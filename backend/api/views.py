@@ -157,6 +157,35 @@ class GroupDelete(generics.DestroyAPIView):
         )
 
 
+class GroupReceiptDelete(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, group_pk, receipt_pk):
+        group = Group.objects.filter(id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        receipt = Receipt.objects.filter(id=receipt_pk, group=group).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if not GroupMembers.objects.filter(group=group, user=request.user).exists():
+            return Response(
+                {"error": "You are not a member of this group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        receipt.delete()
+        return Response(
+            {"message": "Receipt deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+
 class GroupMembersLeave(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = GroupMembersSerializer
