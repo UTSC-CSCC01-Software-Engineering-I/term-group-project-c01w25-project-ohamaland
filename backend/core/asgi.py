@@ -14,13 +14,11 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from api.routing import websocket_urlpatterns
 from api.middleware import TokenAuthMiddlewareStack
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": TokenAuthMiddlewareStack(
-        URLRouter(
-            websocket_urlpatterns
-        )
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": TokenAuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
+    }
+)

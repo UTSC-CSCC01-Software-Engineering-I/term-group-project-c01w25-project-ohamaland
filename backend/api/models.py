@@ -23,13 +23,16 @@ class Notification(models.Model):
         ("receipt_added", "Receipt Added"),
         ("group_invitation", "Group Invitation"),
         ("system", "System Notification"),
+        ("subscription_renewal", "Subscription Renewal"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=255)
     message = models.TextField()
-    data = models.JSONField(null=True, blank=True) # Store additional data as JSON
+    data = models.JSONField(null=True, blank=True)  # Store additional data as JSON
     is_read = models.BooleanField(default=False)
     is_dismissed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -37,8 +40,8 @@ class Notification(models.Model):
     class Meta:
         db_table = "notification"
         ordering = ["-created_at"]
-    
-    def __str__(self):  
+
+    def __str__(self):
         return f"Notification for {self.user}: {self.title}"
 
 
@@ -103,7 +106,7 @@ class Folder(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -143,7 +146,6 @@ class Receipt(models.Model):
 
     class Meta:
         db_table = "receipt"
-
 
     def clean(self):
         if self.user and self.group:
@@ -238,6 +240,7 @@ class Subscription(models.Model):
     renewal_date = models.DateField()
     billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
+    notification_sent = models.BooleanField(default=False)
 
     class Meta:
         db_table = "subscription"

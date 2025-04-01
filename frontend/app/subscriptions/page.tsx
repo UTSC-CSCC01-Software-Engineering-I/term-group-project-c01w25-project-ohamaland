@@ -128,7 +128,8 @@ export default function Page() {
 
       const updatedData = {
         ...updatedSubscription,
-        renewal_date: formattedDate
+        renewal_date: formattedDate,
+        notification_sent: false
       };
 
       const response = await fetchWithAuth(

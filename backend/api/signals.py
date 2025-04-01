@@ -21,35 +21,38 @@ EXCHANGE_RATE_API_KEY = settings.EXCHANGE_RATE_API_KEY
 
 def get_client_ip(request):
     """Get the IP address of the client."""
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        ip = x_forwarded_for.split(",")[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get("REMOTE_ADDR")
     return ip
+
 
 def get_user_country_and_currency(ip_address=None):
     """Fetch the user's country and currency using RestCountries API."""
     if ip_address is None:
-        ip_address = requests.get('https://api.ipify.org').text  # Get the user's public IP address if not passed
-    
+        ip_address = requests.get(
+            "https://api.ipify.org"
+        ).text  # Get the user's public IP address if not passed
+
     # Use the IP address to get the country code from an IP geolocation service
     ip_info_url = f"http://ip-api.com/json/{ip_address}?fields=countryCode"
     try:
         response = requests.get(ip_info_url)
         data = response.json()
 
-        if response.status_code == 200 and 'countryCode' in data:
-            country_code = data['countryCode']
-            
+        if response.status_code == 200 and "countryCode" in data:
+            country_code = data["countryCode"]
+
             # Now use the RestCountries API to get the currency for this country
             country_info_url = f"https://restcountries.com/v3.1/alpha/{country_code}"
             country_response = requests.get(country_info_url)
-            
+
             if country_response.status_code == 200:
                 country_data = country_response.json()
                 # Assuming the country data contains a currency field in the format of: {'USD'}
-                currencies = country_data[0].get('currencies', {})
+                currencies = country_data[0].get("currencies", {})
                 currency_code = list(currencies.keys())[0] if currencies else None
                 return country_code, currency_code
             else:
@@ -62,16 +65,19 @@ def get_user_country_and_currency(ip_address=None):
         print(f"Error retrieving geolocation: {e}")
         return None, None
 
-def get_exchange_rate(from_currency, to_currency='USD'):
+
+def get_exchange_rate(from_currency, to_currency="USD"):
     """Fetch the exchange rate from one currency to another."""
     url = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/latest/{from_currency}"
     try:
         response = requests.get(url)
         data = response.json()
-        
-        if response.status_code == 200 and 'conversion_rates' in data:
-            rates = data['conversion_rates']
-            return round(rates.get(to_currency, 1), 2)  # Return exchange rate or default to 1
+
+        if response.status_code == 200 and "conversion_rates" in data:
+            rates = data["conversion_rates"]
+            return round(
+                rates.get(to_currency, 1), 2
+            )  # Return exchange rate or default to 1
         else:
             print(f"Failed to fetch exchange rates: {data}")
             return 1
@@ -80,12 +86,13 @@ def get_exchange_rate(from_currency, to_currency='USD'):
         return 1
 
 
-def convert_currency(amount, from_currency, to_currency='USD'):
+def convert_currency(amount, from_currency, to_currency="USD"):
     """Convert the amount from one currency to another."""
     if from_currency == to_currency:
         return amount
     exchange_rate = get_exchange_rate(from_currency, to_currency)
     return amount * exchange_rate
+
 
 def get_spending_periods():
     today = django.utils.timezone.now().date()
@@ -160,14 +167,14 @@ def calculate_currency_distribution(user, start_date):
         return {}
 
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
-    total_receipts = receipts.count() 
+    total_receipts = receipts.count()
 
     if total_receipts == 0:
         return {}
 
     currency_counts = defaultdict(int)
     for receipt in receipts:
-        currency_counts[receipt.currency] += 1  
+        currency_counts[receipt.currency] += 1
 
     currency_distribution = {
         currency: round((count / total_receipts) * 100, 2)
@@ -176,11 +183,12 @@ def calculate_currency_distribution(user, start_date):
 
     return currency_distribution
 
+
 def calculate_payment_method_spending(user, start_date, user_currency):
     """Calculate payment type spending for the user."""
     if not user:
         return {}
-    
+
     payment_method_spending = {}
     receipts = Receipt.objects.filter(user=user, date__gte=start_date)
     for receipt in receipts:
@@ -192,9 +200,12 @@ def calculate_payment_method_spending(user, start_date, user_currency):
         if payment_name not in payment_method_spending:
             payment_method_spending[payment_name] = 0.0
         payment_method_spending[payment_name] += amount
-    payment_method_spending = {key: round(float(value), 2) for key, value in payment_method_spending.items()}
+    payment_method_spending = {
+        key: round(float(value), 2) for key, value in payment_method_spending.items()
+    }
 
     return payment_method_spending
+
 
 def calculate_merchant_spending(user, start_date, user_currency):
     """Calculate merchant spending for the user."""
@@ -213,7 +224,9 @@ def calculate_merchant_spending(user, start_date, user_currency):
             merchant_spending[merchant_name] = 0.0
         merchant_spending[merchant_name] += amount
 
-    merchant_spending = {key: round(float(value), 2) for key, value in merchant_spending.items()}
+    merchant_spending = {
+        key: round(float(value), 2) for key, value in merchant_spending.items()
+    }
     return merchant_spending
 
 
@@ -237,7 +250,10 @@ def calculate_folder_spending(user, start_date, user_currency):
             folder_spending[folder_name] = [0.0, folder_color]
         folder_spending[folder_name][0] += amount
 
-    folder_spending = {key: [round(float(value[0]), 2), value[1]] for key, value in folder_spending.items()}
+    folder_spending = {
+        key: [round(float(value[0]), 2), value[1]]
+        for key, value in folder_spending.items()
+    }
     return folder_spending
 
 
@@ -264,7 +280,7 @@ def calculate_total_spending(user, start_date, user_currency):
             amount = convert_currency(amount, receipt_currency, user_currency)
         total_spending_per_date[receipt_date_str] = total_spending_per_date.get(
             receipt_date_str, Decimal("0.0")
-        ) + round(Decimal(amount),2)
+        ) + round(Decimal(amount), 2)
 
     # Ensure the amounts are floats
     for date in all_dates:
@@ -291,7 +307,7 @@ def update_insights(user, request):
         user_ip = get_client_ip(request)
         _, currency = get_user_country_and_currency(user_ip)
     else:
-        currency = 'USD'
+        currency = "USD"
 
     today = now().date()
     periods = get_spending_periods()
@@ -310,42 +326,42 @@ def update_insights(user, request):
         # Calculate total spending for this period
         total_spending[period] = calculate_total_spending(user, start_date, currency)
 
-        merchant_spending[period] = calculate_merchant_spending(user, start_date, currency)
+        merchant_spending[period] = calculate_merchant_spending(
+            user, start_date, currency
+        )
 
-        payment_method_spending[period] = calculate_payment_method_spending(user, start_date, currency)
+        payment_method_spending[period] = calculate_payment_method_spending(
+            user, start_date, currency
+        )
 
-        currency_distribution[period] = calculate_currency_distribution(user, start_date)
+        currency_distribution[period] = calculate_currency_distribution(
+            user, start_date
+        )
 
         # Calculate total spending in this period
         total_spent = sum(total_spending[period].values())
 
         folder_spending_str = {
             key: (
-                float(value[0]) if isinstance(value, list) else (
-                    value.isoformat() if isinstance(value, date) else float(value)
-                )
+                float(value[0])
+                if isinstance(value, list)
+                else (value.isoformat() if isinstance(value, date) else float(value))
             )
             for key, value in folder_spending[period].items()
         }
 
         merchant_spending_str = {
-            key: (
-                value.isoformat() if isinstance(value, date) else float(value)
-            )
+            key: (value.isoformat() if isinstance(value, date) else float(value))
             for key, value in merchant_spending[period].items()
         }
 
         payment_method_spending_str = {
-            key: (
-                value.isoformat() if isinstance(value, date) else float(value)
-            )
+            key: (value.isoformat() if isinstance(value, date) else float(value))
             for key, value in merchant_spending[period].items()
         }
 
         currency_distribution_str = {
-            key: (
-                value.isoformat() if isinstance(value, date) else float(value)
-            )
+            key: (value.isoformat() if isinstance(value, date) else float(value))
             for key, value in currency_distribution[period].items()
         }
 

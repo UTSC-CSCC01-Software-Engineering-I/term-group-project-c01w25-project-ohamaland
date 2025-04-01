@@ -45,8 +45,16 @@ class UserSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['id', 'notification_type', 'title', 'message', 'data', 
-                 'is_read', 'is_dismissed', 'created_at']
+        fields = [
+            "id",
+            "notification_type",
+            "title",
+            "message",
+            "data",
+            "is_read",
+            "is_dismissed",
+            "created_at",
+        ]
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -352,33 +360,45 @@ class InsightsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Insights
-        fields = ["user", "total_spent", "folder_spending", "merchant_spending", "get_payment_method_spending", "get_currency_distribution", "period", "date"]
+        fields = [
+            "user",
+            "total_spent",
+            "folder_spending",
+            "merchant_spending",
+            "get_payment_method_spending",
+            "get_currency_distribution",
+            "period",
+            "date",
+        ]
 
     def get_folder_spending(self, obj):
         """Convert folder_spending JSON field to list for frontend processing."""
         return [
             {"folder": key, "amount": float(value)}
-                for key, value in obj.folder_spending.items()
+            for key, value in obj.folder_spending.items()
         ]
 
     def get_merchant_spending(self, obj):
         """Convert merchant_spending JSON field to list for frontend processing."""
         return [
             {"merchant": key, "amount": float(value)}
-                for key, value in obj.merchant_spending.items()
+            for key, value in obj.merchant_spending.items()
         ]
-    
+
     def get_payment_method_spending(self, obj):
         """Convert payment_method_spending JSON field to list for frontend processing."""
         return [
             {"payment_method": key, "amount": float(value)}
-                for key, value in obj.payment_method_spending.items()
+            for key, value in obj.payment_method_spending.items()
         ]
-    
+
     def get_currency_distribution(self, obj):
         """Convert currency_distribution JSON field to list for frontend processing."""
         return [
-            {"currency": key, "percentage": float(value.get("percentage", 0)),}
+            {
+                "currency": key,
+                "percentage": float(value.get("percentage", 0)),
+            }
             for key, value in obj.currency_distribution.items()
         ]
 
