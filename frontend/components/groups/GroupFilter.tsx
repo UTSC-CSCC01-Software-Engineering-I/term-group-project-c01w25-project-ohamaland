@@ -36,8 +36,7 @@ export default function GroupFilter(props: IGroupFilterProps) {
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a start date",
-              sx: { ...datePickerStyle }
+              placeholder: "Choose a Start date",
             }
           }}
         />
@@ -48,8 +47,7 @@ export default function GroupFilter(props: IGroupFilterProps) {
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an end date",
-              sx: { ...datePickerStyle }
+              placeholder: "Choose an End date",
             }
           }}
         />
@@ -61,17 +59,12 @@ export default function GroupFilter(props: IGroupFilterProps) {
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
   gap: "16px",
-  padding: "8px 16px",
-  borderRadius: "24px",
+  padding: "16px",
+  borderRadius: "12px",
   backgroundColor: "white",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  width: "720px",
-  maxWidth: "800px",
-  height: "48px",
-  flexWrap: "nowrap",
-  margin: "0 auto"
+  flexWrap: "wrap" as const
 };
 
 const iconStyle = {
@@ -90,19 +83,3 @@ const inputStyle = {
   }
 };
 
-const datePickerStyle = {
-  "& .MuiOutlinedInput-root": {
-    border: "none",
-    boxShadow: "none"
-  },
-  "& fieldset": {
-    border: "none"
-  },
-  "& .MuiInputBase-input": {
-    padding: "8px 8px"
-  },
-  "& input:-webkit-autofill": {
-    WebkitBoxShadow: "0 0 0px 1000px white inset !important",
-    transition: "background-color 5000s ease-in-out 0s"
-  }
-};
