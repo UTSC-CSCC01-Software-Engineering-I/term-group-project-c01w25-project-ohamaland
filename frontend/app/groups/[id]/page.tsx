@@ -636,8 +636,8 @@ function getRecentMembers(members: GroupMember[] | null = null) {
 function getRecentReceipts(receipts: Receipt[] | null = null) {
   if (receipts == null) return [];
   const currentDate = new Date();
-  const yesteday = new Date(currentDate);
-  yesteday.setDate(currentDate.getDate() - 1);
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
   const sortedReceipts = receipts
     .filter((r) => new Date(r.created_at) >= yesteday)
     .sort(
