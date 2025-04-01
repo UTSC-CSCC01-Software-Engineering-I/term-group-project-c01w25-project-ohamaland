@@ -385,7 +385,7 @@ export default function GroupDetailPage() {
         {activeTab === 0 && (
           <Box>
             <Card variant="outlined" sx={cardStyle}>
-              <CardHeader title="Members" />
+              <CardHeader title="Members" sx={{ fontWeight: "bold" }} />
               <CardContent>
                 {members.length === 0 ? (
                   <Typography sx={noMembersTextStyle}>
@@ -412,15 +412,15 @@ export default function GroupDetailPage() {
                         <ListItemText
                           primary={
                             <>
-                              <Typography variant="body1">
+                              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                                 Username: {member.user.username}
                               </Typography>
-                              <Typography variant="body1">
+                              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                                 Email: {member.user.email}
                               </Typography>
                             </>
                           }
-                          secondary={`Joined: ${formatDate(member.joined_at)}`}
+                          secondary={`Joined: ${member.joined_at}`}
                         />
                       </ListItem>
                     ))}
@@ -441,6 +441,7 @@ export default function GroupDetailPage() {
                     variant="contained"
                     size="large"
                     onClick={handleAddMember}
+                    sx={{ bgcolor: "black", color: "white", fontWeight: "bold", borderRadius: "8px" }}
                   >
                     Add Member
                   </Button>
@@ -506,7 +507,7 @@ export default function GroupDetailPage() {
             onClose={handleCloseDialog}
             fullWidth
             maxWidth="md"
-            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' }}}
+            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' } }}
           >
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Cost Splits</DialogTitle>
             <DialogContent>
@@ -549,7 +550,7 @@ export default function GroupDetailPage() {
                               color="primary"
                               onClick={() => handleEditSplit(split)}
                             >
-                              <Edit sx={{color: "grey"}}/>
+                              <Edit sx={{ color: "grey" }} />
                             </IconButton>
                           </TableCell>
                         </TableRow>
@@ -560,9 +561,9 @@ export default function GroupDetailPage() {
               )}
             </DialogContent>
             <DialogActions>
-              <Button 
+              <Button
                 onClick={handleCloseDialog}
-                sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold", marginX: "16px", marginBottom: "16px" }} 
+                sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold", marginX: "16px", marginBottom: "16px" }}
                 variant="contained"
               >
                 Close
@@ -583,7 +584,7 @@ export default function GroupDetailPage() {
             onClose={() => setEditDialogOpen(false)}
             fullWidth
             maxWidth="sm"
-            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' }}}
+            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' } }}
           >
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Edit Cost Split</DialogTitle>
             <DialogContent>
@@ -624,7 +625,7 @@ export default function GroupDetailPage() {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      sx={{ marginLeft: "8px"}}
+                      sx={{ marginLeft: "8px" }}
                       checked={selectedSplit.is_custom_split}
                       onChange={(e) =>
                         handleSplitChange("is_custom_split", e.target.checked)
@@ -639,7 +640,7 @@ export default function GroupDetailPage() {
               <Button onClick={() => setEditDialogOpen(false)} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "16px", marginRight: "8px" }}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveSplit} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "8px", marginRight: "16px"  }}>
+              <Button onClick={handleSaveSplit} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "8px", marginRight: "16px" }}>
                 Save
               </Button>
             </DialogActions>
@@ -676,7 +677,7 @@ function getRecentReceipts(receipts: Receipt[] | null = null) {
       (a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
-  return sortedReceipts.slice(0, Math.floor(logsToShow/2))
+  return sortedReceipts.slice(0, Math.floor(logsToShow / 2))
 }
 
 const logsToShow = 10;
