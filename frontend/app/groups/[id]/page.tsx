@@ -25,12 +25,10 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   IconButton,
   List,
   ListItem,
@@ -39,8 +37,16 @@ import {
   Stack,
   Tab,
   Tabs,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
-  Typography
+  Typography,
+  FormControlLabel,
+  Checkbox
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -287,6 +293,7 @@ export default function GroupDetailPage() {
         )
       );
       setEditDialogOpen(false);
+      setDialogOpen(false); // Close the main dialog after saving the split
     } catch (error) {
       console.error("Error updating split:", error);
     }
@@ -295,6 +302,19 @@ export default function GroupDetailPage() {
   const handleSplitChange = (field: keyof GroupReceiptSplit, value: any) => {
     if (!selectedSplit) return;
     setSelectedSplit({ ...selectedSplit, [field]: value });
+  };
+
+  const getStatusStyle = (status: Status) => {
+    switch (status) {
+      case "Pending":
+        return { backgroundColor: "#F2C946", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+      case "Paid":
+        return { backgroundColor: "#84E677", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+      case "Disputed":
+        return { backgroundColor: "#E66868", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+      default:
+        return {};
+    }
   };
 
   return (
@@ -476,68 +496,65 @@ export default function GroupDetailPage() {
             onClose={handleCloseDialog}
             fullWidth
             maxWidth="md"
+            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' }}}
           >
-            <DialogTitle>Receipt Details</DialogTitle>
+            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Cost Splits</DialogTitle>
             <DialogContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Box sx={{ flex: 1, padding: "16px" }}>
-                  <Typography variant="h6">Receipt Information</Typography>
-                  <Typography>
-                    <strong>ID:</strong> {selectedReceipt.id}
-                  </Typography>
-                  <Typography>
-                    <strong>Date:</strong>{" "}
-                    {new Date(selectedReceipt.date).toLocaleDateString()}
-                  </Typography>
-                  <Typography>
-                    <strong>Amount:</strong> $
-                    {Number(selectedReceipt.total_amount).toFixed(2)}
-                  </Typography>
-                  {/* Add more fields as needed */}
-                </Box>
-                <Box sx={{ flex: 1, padding: "16px" }}>
-                  <Typography variant="h6">Cost Splits</Typography>
-                  {costSplits.length === 0 ? (
-                    <Typography>No cost splits found.</Typography>
-                  ) : (
-                    <List>
+              {costSplits.length === 0 ? (
+                <Typography>No cost splits found.</Typography>
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Member</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Amount Owed</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Amount Paid</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Edit</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
                       {costSplits.map((split) => (
-                        <ListItem key={split.id}>
-                          <ListItemText
-                            primary={`User ID: ${split.user}`}
-                            secondary={
-                              <>
-                                <Typography>
-                                  <strong>Status:</strong> {split.status}
-                                </Typography>
-                                <Typography>
-                                  <strong>Amount Owed:</strong> $
-                                  {Number(split.amount_owed).toFixed(2)}
-                                </Typography>
-                                <Typography>
-                                  <strong>Amount Paid:</strong> $
-                                  {Number(split.amount_paid).toFixed(2)}
-                                </Typography>
-                              </>
-                            }
-                          />
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            color="primary"
-                            onClick={() => handleEditSplit(split)}
-                          >
-                            <Edit />
-                          </IconButton>
-                        </ListItem>
+                        <TableRow key={split.id}>
+                          <TableCell>
+                            {members.find((m) => m.user.id === split.user)?.user
+                              .username || "Unknown"}
+                          </TableCell>
+                          <TableCell>
+                            ${Number(split.amount_owed).toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            ${Number(split.amount_paid).toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={getStatusStyle(split.status)}>
+                              {split.status}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              edge="end"
+                              aria-label="edit"
+                              color="primary"
+                              onClick={() => handleEditSplit(split)}
+                            >
+                              <Edit sx={{color: "grey"}}/>
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </List>
-                  )}
-                </Box>
-              </Box>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseDialog} color="primary">
+              <Button 
+                onClick={handleCloseDialog}
+                sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold", marginX: "16px", marginBottom: "16px" }} 
+                variant="contained"
+              >
                 Close
               </Button>
             </DialogActions>
@@ -556,11 +573,12 @@ export default function GroupDetailPage() {
             onClose={() => setEditDialogOpen(false)}
             fullWidth
             maxWidth="sm"
+            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' }}}
           >
-            <DialogTitle>Edit Cost Split</DialogTitle>
+            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Edit Cost Split</DialogTitle>
             <DialogContent>
               <Box
-                sx={{ display: "flex", flexDirection: "column", gap: "16px" }}
+                sx={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "8px" }}
               >
                 <TextField
                   label="Status"
@@ -569,6 +587,7 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("status", e.target.value as Status)
                   }
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                 >
                   <MenuItem value="Pending">Pending</MenuItem>
                   <MenuItem value="Paid">Paid</MenuItem>
@@ -581,6 +600,7 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("amount_owed", parseFloat(e.target.value))
                   }
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                 />
                 <TextField
                   label="Amount Paid"
@@ -589,10 +609,12 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("amount_paid", parseFloat(e.target.value))
                   }
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                 />
                 <FormControlLabel
                   control={
                     <Checkbox
+                      sx={{ marginLeft: "8px"}}
                       checked={selectedSplit.is_custom_split}
                       onChange={(e) =>
                         handleSplitChange("is_custom_split", e.target.checked)
@@ -604,10 +626,10 @@ export default function GroupDetailPage() {
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setEditDialogOpen(false)} color="primary">
+              <Button onClick={() => setEditDialogOpen(false)} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "16px", marginRight: "8px" }}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveSplit} color="primary">
+              <Button onClick={handleSaveSplit} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "8px", marginRight: "16px"  }}>
                 Save
               </Button>
             </DialogActions>
