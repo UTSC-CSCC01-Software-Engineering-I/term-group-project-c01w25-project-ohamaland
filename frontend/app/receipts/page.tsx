@@ -199,7 +199,6 @@ export default function Page() {
         tip: tipAmount
       };
 
-
       const response = await fetchWithAuth(
         receiptsDetailApi(updatedReceipt.id),
         {

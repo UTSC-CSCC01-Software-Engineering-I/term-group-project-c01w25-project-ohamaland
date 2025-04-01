@@ -1,6 +1,5 @@
 import { GroupReceiptSplit } from "@/types/groupReceiptSplits";
 
-
 export interface Receipt {
   id: number;
   user?: number;

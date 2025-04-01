@@ -19,7 +19,12 @@ interface ISubscriptionCardProps {
   onDeleteSubscription?: (subscriptionId: number) => void;
 }
 
-export default function SubscriptionCard({ subscription, clickable = true, onClick, onDeleteSubscription}: ISubscriptionCardProps) {
+export default function SubscriptionCard({
+  subscription,
+  clickable = true,
+  onClick,
+  onDeleteSubscription
+}: ISubscriptionCardProps) {
   const formattedDate = subscription.renewal_date.split("T")[0];
   const [progress, setProgress] = useState(0);
 
@@ -64,7 +69,12 @@ export default function SubscriptionCard({ subscription, clickable = true, onCli
   }, [subscription]);
 
   return (
-    <Grid container spacing={0} sx={cardStyle} onClick={clickable && onClick ? onClick : undefined}>
+    <Grid
+      container
+      spacing={0}
+      sx={cardStyle}
+      onClick={clickable && onClick ? onClick : undefined}
+    >
       <Grid xs={16} sx={cardContentStyle}>
         <Stack direction="column" justifyContent="space-between">
           <Box sx={headerBoxStyle}>

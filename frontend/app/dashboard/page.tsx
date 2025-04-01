@@ -1,16 +1,16 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import RecentReceipts from "@/components/dashboard/RecentReceipts";
+import CurrencyDistributionChart from "@/components/insights/CurrencyDistributionChart";
+import SpendingOverTimeChart from "@/components/insights/SpendingOverTimeChart";
+import SubscriptionCard from "@/components/subscriptions/SubscriptionCard";
+import { Subscription } from "@/types/subscriptions";
+import { dashboardApi, fetchWithAuth } from "@/utils/api";
 import { Box, Grid, LinearProgress, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchWithAuth, dashboardApi } from "@/utils/api";
-import RecentReceipts from "@/components/dashboard/RecentReceipts";
-import SubscriptionCard from "@/components/subscriptions/SubscriptionCard";
-import SpendingOverTimeChart from "@/components/insights/SpendingOverTimeChart";
-import CurrencyDistributionChart from "@/components/insights/CurrencyDistributionChart";
-import { Subscription } from "@/types/subscriptions";
 
 interface Receipt {
   merchant: string;
@@ -26,7 +26,7 @@ interface CurrencyDistribution {
 interface DashboardData {
   user: number;
   total_spending: { [date: string]: number };
-  total_spent: number; 
+  total_spent: number;
   receipts: Receipt[];
   subscription: Subscription[];
   currency: string;
@@ -37,14 +37,16 @@ interface DashboardData {
 
 export default function Page() {
   const [totalSpent, setTotalSpent] = useState<number>(0);
-  const [totalSpending, setTotalSpending] = useState<{ [date: string]: number } | null>(null);
+  const [totalSpending, setTotalSpending] = useState<{
+    [date: string]: number;
+  } | null>(null);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [currency, setCurrency] = useState<string>("USD");
   const [percentChange, setPercentChange] = useState<string>("0%");
   const [currencyDistribution, setCurrencyDistribution] = useState<
-      CurrencyDistribution[]
-    >([]);
+    CurrencyDistribution[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
@@ -92,7 +94,6 @@ export default function Page() {
     fetchDashboardData();
   }, [router]);
 
-
   if (!totalSpending || !subscriptions) {
     return (
       <PageWrapper>
@@ -102,12 +103,12 @@ export default function Page() {
           </Typography>
         </Box>
         <Box>
-        <LinearProgress sx={loadingBarStyle} />
+          <LinearProgress sx={loadingBarStyle} />
         </Box>
-      </PageWrapper> 
+      </PageWrapper>
     );
   }
-  const totalSpendingData = Object.keys(totalSpending).map(date => ({
+  const totalSpendingData = Object.keys(totalSpending).map((date) => ({
     date,
     amount: totalSpending[date]
   }));
@@ -123,7 +124,14 @@ export default function Page() {
         <Grid container spacing={2} sx={dashbaordContentStyle}>
           {/* Top Left: Total Spending */}
           <Grid item xs={12} sm={6}>
-            <Box sx={{ ...boxStyle, display: "flex", flexDirection: "column", flexGrow: 1 }}>
+            <Box
+              sx={{
+                ...boxStyle,
+                display: "flex",
+                flexDirection: "column",
+                flexGrow: 1
+              }}
+            >
               <Typography variant="h5" fontWeight="bold">
                 Total Spending in the Last Month
               </Typography>
@@ -133,15 +141,26 @@ export default function Page() {
               <Typography variant="h6">
                 {percentChange} from last month
               </Typography>
-              <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-                <CurrencyDistributionChart currencyDistribution={currencyDistribution} />
+              <Box
+                sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+              >
+                <CurrencyDistributionChart
+                  currencyDistribution={currencyDistribution}
+                />
               </Box>
             </Box>
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <Link href="/subscriptions" style={{ textDecoration: "none" }}>
-              <Box sx={{ ...boxStyle, display: "flex", flexDirection: "column", flexGrow: 1 }}>
+              <Box
+                sx={{
+                  ...boxStyle,
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1
+                }}
+              >
                 <Typography variant="h5" fontWeight="bold" sx={labelStyle}>
                   Upcoming Subscription Payments
                 </Typography>
@@ -149,7 +168,10 @@ export default function Page() {
                   <Grid container spacing={1} justifyContent="center">
                     {subscriptions.map((sub, index) => (
                       <Grid item key={index} sx={SubscriptionCardStyle}>
-                        <SubscriptionCard subscription={sub} clickable={false} />
+                        <SubscriptionCard
+                          subscription={sub}
+                          clickable={false}
+                        />
                       </Grid>
                     ))}
                   </Grid>
@@ -168,31 +190,34 @@ export default function Page() {
               <Typography variant="h5" fontWeight="bold" sx={labelStyle}>
                 Spending Over Time
               </Typography>
-              <SpendingOverTimeChart spendingData={totalSpendingData} currency={currency} />
+              <SpendingOverTimeChart
+                spendingData={totalSpendingData}
+                currency={currency}
+              />
             </Box>
           </Grid>
 
           {/* Bottom Right: Recent Receipts */}
           <Grid item xs={12} sm={6}>
             <Link href="/receipts" style={{ textDecoration: "none" }}>
-              <Box sx={{...boxStyle , height: "100%"}}>
+              <Box sx={{ ...boxStyle, height: "100%" }}>
                 <Typography variant="h5" fontWeight="bold" sx={labelStyle}>
                   Recent Receipts
                 </Typography>
                 <Box>
                   {receipts.map((receipt, index) => (
-                    <RecentReceipts 
+                    <RecentReceipts
                       key={`${receipt.date}-${index}`}
-                      merchant={receipt.merchant} 
-                      date={receipt.date} 
-                      amount={receipt.amount} 
+                      merchant={receipt.merchant}
+                      date={receipt.date}
+                      amount={receipt.amount}
                     />
                   ))}
                 </Box>
               </Box>
             </Link>
           </Grid>
-      </Grid>
+        </Grid>
       )}
     </PageWrapper>
   );
@@ -205,7 +230,7 @@ const headerContainerStyle = {
   padding: "16px 24px",
   boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
   borderRadius: "12px",
-  borderBottom: "1px solid #ddd",
+  borderBottom: "1px solid #ddd"
 };
 
 const loadingBarStyle = {
@@ -219,18 +244,18 @@ const boxStyle = {
   padding: "24px",
   marginBottom: "24px",
   boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
+  borderRadius: "8px"
 };
 
 const SubscriptionCardStyle = {
   minWidth: 400
-}
+};
 
 const labelStyle = {
   marginBottom: "16px"
-}
+};
 
 const dashbaordContentStyle = {
-  padding: "24px", 
+  padding: "24px",
   marginBottom: "24px"
-}
+};
