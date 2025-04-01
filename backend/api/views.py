@@ -23,6 +23,7 @@ from .signals import (
     calculate_folder_spending,
     calculate_merchant_spending,
     calculate_payment_method_spending,
+    calculate_percent_change,
     calculate_total_spending,
     calculate_total_spent,
     get_spending_periods,
@@ -900,7 +901,10 @@ class DashboardView(APIView):
         one_month_ago = get_spending_periods()['Monthly']
         total_spending = calculate_total_spending(user, one_month_ago, currency)
         total_spent = calculate_total_spent(user, one_month_ago, currency)
-        receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by('-date')[:5]
+        receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by('-date')[:4]
+        percent_change = calculate_percent_change(user)
+        percent_change_str = f"{percent_change:+.1f}%" if percent_change is not None else "N/A"
+        currency_distribution = calculate_currency_distribution(user, one_month_ago)
         formated_receipts = [
             {
                 "merchant": receipt.merchant,
@@ -917,6 +921,8 @@ class DashboardView(APIView):
             "receipts": formated_receipts,
             "subscription": serialized_subscriptions,
             "currency": currency,
+            "percent_change": percent_change_str,
+            "currency_distribution": currency_distribution,
         }
 
         return Response(data, status=status.HTTP_200_OK)

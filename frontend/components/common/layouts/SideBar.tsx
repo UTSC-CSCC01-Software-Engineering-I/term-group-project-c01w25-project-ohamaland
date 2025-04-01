@@ -22,6 +22,7 @@ import {
   SvgIconComponent
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from '@mui/icons-material/Home';
 import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,7 @@ interface ISideBarProps {
 }
 
 const loggedInSections = [
+  "Dashboard",
   "Groups",
   "Receipts",
   "Subscriptions",
@@ -45,6 +47,7 @@ const loggedOutSections = ["Sign In"];
 
 // routing that the sidebar options will lead to
 const routeMap: { [key: string]: string } = {
+  Dashboard: "dashboard",
   Groups: "groups",
   Receipts: "receipts",
   Subscriptions: "subscriptions",
@@ -54,6 +57,7 @@ const routeMap: { [key: string]: string } = {
 };
 
 const iconMap: { [key: string]: SvgIconComponent } = {
+  Dashboard: HomeIcon,
   Groups: Groups3,
   Receipts: ReceiptLong,
   Subscriptions: CurrencyExchange,
