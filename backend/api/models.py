@@ -23,6 +23,7 @@ class Notification(models.Model):
         ("receipt_added", "Receipt Added"),
         ("group_invitation", "Group Invitation"),
         ("system", "System Notification"),
+        ("subscription_renewal", "Subscription Renewal")
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
@@ -37,8 +38,8 @@ class Notification(models.Model):
     class Meta:
         db_table = "notification"
         ordering = ["-created_at"]
-    
-    def __str__(self):  
+
+    def __str__(self):
         return f"Notification for {self.user}: {self.title}"
 
 
@@ -103,7 +104,7 @@ class Folder(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Receipt(models.Model):
     PAYMENT_METHOD_CHOICES = [

@@ -37,7 +37,7 @@ from .models import (
     Subscription,
     Notification,
 )
-from .notifications import notify_group_receipt_added
+from .notifications import send_subscription_notification, notify_group_receipt_added
 from .serializers import (
     GroupReceiptSplitSerializer,
     FolderSerializer,
@@ -544,6 +544,7 @@ def login(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
+        send_subscription_notification(user)
         refresh = RefreshToken.for_user(user)
         return Response(
             {
@@ -677,7 +678,7 @@ class InsightsView(generics.ListAPIView):
 
     def get_user_currency(self, user):
         """Retrieve the user's currency from their profile or a geolocation API."""
-        _, currency = get_user_country_and_currency(None)  
+        _, currency = get_user_country_and_currency(None)
         return currency or "USD"
 
     def get_insights(self, user, period, start_date):
