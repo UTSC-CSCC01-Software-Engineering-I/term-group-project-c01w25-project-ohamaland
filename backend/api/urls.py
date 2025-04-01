@@ -2,13 +2,14 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    DashboardView,
     FolderDetail,
     FolderListCreate,
     FolderReceipt,
     GetUserIdView,
     GroupDelete,
     GroupMembersLeave,
-    GroupReceiptsSplitDetail,
+    GroupReceiptSplitDetail,
     GroupReceiptsSplitOverview,
     ReceiptOverview,
     ReceiptDetail,
@@ -28,6 +29,7 @@ from .views import (
     InsightsView,
     NotificationOverview,
     NotificationDetail,
+    GroupReceiptDelete,
 )
 
 urlpatterns = [
@@ -84,7 +86,7 @@ urlpatterns = [
     ),
     path(
         "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/",
-        GroupReceiptsSplitDetail.as_view(),
+        GroupReceiptSplitDetail.as_view(),
     ),
     path("folders/", FolderListCreate.as_view(), name="folder-list-create"),
     path("folders/<int:pk>/", FolderDetail.as_view(), name="folder-detail"),
@@ -110,4 +112,6 @@ urlpatterns = [
         NotificationDetail.as_view(),
         name="notification-detail",
     ),
+    path("groups/<int:group_pk>/receipts/<int:receipt_pk>/delete/", GroupReceiptDelete.as_view(), name="group-receipt-delete"),
+    path("dashboard/", DashboardView.as_view(), name="dashboard")
 ]

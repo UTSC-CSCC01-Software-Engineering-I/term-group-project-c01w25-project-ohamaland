@@ -63,3 +63,5 @@ export const darkGrey = "#2e302e";
 export const textLightGrey = "#a3a3a3";
 
 export const textGrey = "#00000099";
+
+export const recentReceiptColor = "#f9f9f9";

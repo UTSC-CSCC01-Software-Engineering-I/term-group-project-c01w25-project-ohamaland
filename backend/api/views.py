@@ -1,9 +1,12 @@
+from datetime import timedelta
+from django.utils import timezone
 import os
 import uuid
 
 import boto3
 from django.conf import settings
 from django.contrib.auth import authenticate
+from dateutil.relativedelta import relativedelta
 from django.forms import ValidationError
 from django.http import JsonResponse
 from rest_framework import generics, status
@@ -20,7 +23,9 @@ from .signals import (
     calculate_folder_spending,
     calculate_merchant_spending,
     calculate_payment_method_spending,
+    calculate_percent_change,
     calculate_total_spending,
+    calculate_total_spent,
     get_spending_periods,
     get_user_country_and_currency,
 )
@@ -70,10 +75,8 @@ class ReceiptOverview(APIView):
             receipt = serializer.save()
 
             # Notifications
-            if receipt.group and receipt.send_mail:
-                notify_group_receipt_added(
-                    receipt.group.id, receipt.id, request.user.id, receipt.send_mail
-                )
+            if receipt.group:
+                notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -157,6 +160,35 @@ class GroupDelete(generics.DestroyAPIView):
         group.delete()
         return Response(
             {"message": "Group deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+
+class GroupReceiptDelete(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, group_pk, receipt_pk):
+        group = Group.objects.filter(id=group_pk).first()
+        if group is None:
+            return Response(
+                {"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        receipt = Receipt.objects.filter(id=receipt_pk, group=group).first()
+        if receipt is None:
+            return Response(
+                {"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if not GroupMembers.objects.filter(group=group, user=request.user).exists():
+            return Response(
+                {"error": "You are not a member of this group"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        receipt.delete()
+        return Response(
+            {"message": "Receipt deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
 
@@ -437,7 +469,7 @@ class GroupReceiptsSplitOverview(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GroupReceiptsSplitDetail(APIView):
+class GroupReceiptSplitDetail(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, group_pk, receipt_pk, pk):
@@ -891,3 +923,44 @@ class NotificationDetail(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class DashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_user_currency(self, user):
+        """Retrieve the user's currency from their profile or a geolocation API."""
+        _, currency = get_user_country_and_currency(None)
+        return currency or "USD"
+
+    def get(self, request):
+        user = request.user
+        currency = self.get_user_currency(user)
+        one_month_ago = get_spending_periods()['Monthly']
+        total_spending = calculate_total_spending(user, one_month_ago, currency)
+        total_spent = calculate_total_spent(user, one_month_ago, currency)
+        receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by('-date')[:4]
+        percent_change = calculate_percent_change(user)
+        percent_change_str = f"{percent_change:+.1f}%" if percent_change is not None else "N/A"
+        currency_distribution = calculate_currency_distribution(user, one_month_ago)
+        formated_receipts = [
+            {
+                "merchant": receipt.merchant,
+                "amount": receipt.total_amount,
+                "date": receipt.date,
+            }
+            for receipt in receipts
+        ]
+        subscriptions = Subscription.objects.filter(user=user).order_by('-renewal_date')[:2]
+        serialized_subscriptions = SubscriptionSerializer(subscriptions, many=True).data
+        data = {
+            "total_spending": total_spending,
+            "total_spent": total_spent,
+            "receipts": formated_receipts,
+            "subscription": serialized_subscriptions,
+            "currency": currency,
+            "percent_change": percent_change_str,
+            "currency_distribution": currency_distribution,
+        }
+
+        return Response(data, status=status.HTTP_200_OK)

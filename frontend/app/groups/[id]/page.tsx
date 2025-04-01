@@ -1,10 +1,11 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
-import ReceiptDialog from "@/components/receipts/ReceiptDialog";
 import { textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
+import { GroupReceiptSplit, Status } from "@/types/groupReceiptSplits";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
 import {
@@ -12,54 +13,66 @@ import {
   groupsDetailApi,
   groupsMembersApi,
   groupsMembersDetailApi,
+  receiptsApi,
   receiptsDetailApi
 } from "@/utils/api";
-import { getAccessToken } from "@/utils/auth";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Add, ChevronRight, Delete, Edit } from "@mui/icons-material";
 import {
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
   Stack,
   Tab,
   Tabs,
   TextField,
   Typography
 } from "@mui/material";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function GroupDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const groupId = Number(params.id);
 
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
-  const [newUserId, setNewUserId] = useState<number>(0);
+  const [newMemberIdentifier, setNewMemberIdentifier] = useState<string>("");
   const [activeTab, setActiveTab] = useState(0);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [costSplits, setCostSplits] = useState<GroupReceiptSplit[]>([]);
+  const [selectedSplit, setSelectedSplit] = useState<GroupReceiptSplit | null>(
+    null
+  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchGroup() {
       try {
-        const token = getAccessToken();
         const res = await fetchWithAuth(groupsDetailApi(groupId), {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          method: "GET"
         });
         if (!res || !res.ok) {
           throw new Error("Failed to fetch group");
         }
         const data = await res.json();
         setGroup(data);
+        setMembers(data.members);
       } catch (error) {
         console.error(error);
       }
@@ -67,45 +80,22 @@ export default function GroupDetailPage() {
     fetchGroup();
   }, [groupId]);
 
-  useEffect(() => {
-    async function fetchMembers() {
-      try {
-        const token = getAccessToken();
-        const res = await fetchWithAuth(groupsMembersApi(groupId), {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (!res || !res.ok) {
-          throw new Error("Failed to fetch group members");
-        }
-        const data = await res.json();
-        setMembers(data.members);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchMembers();
-  }, [groupId]);
-
   const handleAddMember = async () => {
-    if (!newUserId) return;
+    if (!newMemberIdentifier) return;
     try {
-      const token = getAccessToken();
       const res = await fetchWithAuth(groupsMembersApi(groupId), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ user_id: newUserId })
+        body: JSON.stringify({ identifier: newMemberIdentifier })
       });
       if (!res || !res.ok) {
         throw new Error("Failed to add member");
       }
       const createdMember = await res.json();
       setMembers((prev) => [...prev, createdMember]);
-      setNewUserId(0);
+      setNewMemberIdentifier("");
     } catch (error) {
       console.error(error);
     }
@@ -113,14 +103,10 @@ export default function GroupDetailPage() {
 
   const handleRemoveMember = async (memberId: number) => {
     try {
-      const token = getAccessToken();
       const res = await fetchWithAuth(
         groupsMembersDetailApi(groupId, memberId),
         {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          method: "DELETE"
         }
       );
       if (!res || !res.ok) {
@@ -174,9 +160,22 @@ export default function GroupDetailPage() {
     }
   };
 
-  const handleOpenDialog = (receipt: Receipt) => {
+  const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);
-    setDialogOpen(true);
+    try {
+      const response = await fetchWithAuth(
+        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${receipt.id}/cost-splits/`
+      );
+      if (!response || !response.ok) {
+        throw new Error("Failed to fetch cost splits");
+      }
+      const data = await response.json();
+      setCostSplits(data);
+      setDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching cost splits:", error);
+      setCostSplits([]);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -184,11 +183,14 @@ export default function GroupDetailPage() {
     setDialogOpen(false);
   };
 
-  const handleDeleteReceipt = async (receiptId: number) => {
+  const handleDeleteGroupReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
-        method: "DELETE"
-      });
+      const response = await fetchWithAuth(
+        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${receiptId}/delete/`,
+        {
+          method: "DELETE"
+        }
+      );
 
       if (!response || !response.ok) {
         console.error("Failed to delete receipt");
@@ -211,11 +213,115 @@ export default function GroupDetailPage() {
     }
   };
 
+  const handleSaveReceipt = async (newReceipt: Receipt) => {
+    try {
+      const receiptData = {
+        ...newReceipt,
+        group: groupId,
+        total_amount: Number(newReceipt.total_amount.toFixed(2)),
+        tax: newReceipt.tax ? Number(newReceipt.tax.toFixed(2)) : 0,
+        tip: newReceipt.tip ? Number(newReceipt.tip.toFixed(2)) : 0,
+        items: newReceipt.items.map((item) => ({
+          ...item,
+          price: Number(item.price.toFixed(2))
+        }))
+      };
+
+      const receiptResponse = await fetchWithAuth(receiptsApi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(receiptData)
+      });
+
+      if (!receiptResponse || !receiptResponse.ok) {
+        const errorData = await receiptResponse?.json();
+        console.error("Failed to save receipt:", errorData);
+        throw new Error("Failed to save receipt");
+      }
+
+      const savedReceipt = await receiptResponse.json();
+      setGroup((prevGroup) => {
+        if (!prevGroup) return null;
+        return {
+          ...prevGroup,
+          receipts: [...(prevGroup.receipts || []), savedReceipt]
+        };
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving receipt:", error);
+      throw error;
+    }
+  };
+
+  const handleEditSplit = (split: GroupReceiptSplit) => {
+    setSelectedSplit(split);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveSplit = async () => {
+    if (!selectedSplit) return;
+    try {
+      const res = await fetchWithAuth(
+        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${selectedReceipt?.id}/cost-splits/${selectedSplit.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(selectedSplit)
+        }
+      );
+      console.log(selectedSplit);
+      if (!res || !res.ok) {
+        throw new Error("Failed to update split");
+      }
+      const updatedSplit = await res.json();
+      setCostSplits((prevSplits) =>
+        prevSplits.map((split) =>
+          split.id === updatedSplit.id ? updatedSplit : split
+        )
+      );
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error("Error updating split:", error);
+    }
+  };
+
+  const handleSplitChange = (field: keyof GroupReceiptSplit, value: any) => {
+    if (!selectedSplit) return;
+    setSelectedSplit({ ...selectedSplit, [field]: value });
+  };
+
   return (
     <PageWrapper>
       <Box sx={containerStyle}>
-        <Typography sx={titleStyle}>Group Details</Typography>
-
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+        >
+          <Typography sx={titleStyle}>Group Details</Typography>
+          <Button
+            color="primary"
+            onClick={() => {
+              router.push("/groups");
+            }}
+            sx={{
+              marginBottom: "8px",
+              fontWeight: "bold",
+              fontSize: "16px",
+              "&:hover": {
+                backgroundColor: "transparent" // Removes the hover background color
+              }
+            }}
+          >
+            Back <ChevronRight sx={{ marginBottom: "6px" }} />
+          </Button>
+        </Box>
         {/* GROUP INFO CARD */}
         <Card variant="outlined" sx={cardStyle}>
           <CardHeader title="Group Information" />
@@ -258,18 +364,29 @@ export default function GroupDetailPage() {
                       <ListItem
                         key={member.id}
                         secondaryAction={
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            color="error"
-                            onClick={() => handleRemoveMember(member.id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                          group?.creator !== member.user.id && (
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              color="error"
+                              onClick={() => handleRemoveMember(member.id)}
+                            >
+                              <Delete />
+                            </IconButton>
+                          )
                         }
                       >
                         <ListItemText
-                          primary={`User ID: ${member.user_id}`}
+                          primary={
+                            <>
+                              <Typography variant="body1">
+                                Username: {member.user.username}
+                              </Typography>
+                              <Typography variant="body1">
+                                Email: {member.user.email}
+                              </Typography>
+                            </>
+                          }
                           secondary={`Joined: ${member.joined_at}`}
                         />
                       </ListItem>
@@ -280,11 +397,11 @@ export default function GroupDetailPage() {
                 {/* Add New Member Form */}
                 <Stack direction="row" spacing={2} alignItems="center">
                   <TextField
-                    label="New Member (User ID)"
-                    type="number"
+                    label="Email or Username"
+                    type="text"
                     variant="outlined"
-                    value={newUserId || ""}
-                    onChange={(e) => setNewUserId(Number(e.target.value))}
+                    value={newMemberIdentifier}
+                    onChange={(e) => setNewMemberIdentifier(e.target.value)}
                     sx={textFieldStyle}
                   />
                   <Button
@@ -314,24 +431,174 @@ export default function GroupDetailPage() {
                       <ReceiptCard
                         key={receipt.id}
                         receipt={receipt}
-                        onClick={() => handleOpenDialog(receipt)}
-                        onDeleteReceipt={handleDeleteReceipt}
+                        onClick={() => handleOpenReceipt(receipt)}
+                        onDeleteReceipt={handleDeleteGroupReceipt}
                       />
                     ))}
                   </Stack>
                 )}
+                <Box
+                  sx={{
+                    marginTop: "16px",
+                    display: "flex",
+                    justifyContent: "center"
+                  }}
+                >
+                  <IconButton
+                    size="large"
+                    color="primary"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    <Add />
+                  </IconButton>
+                </Box>
               </CardContent>
             </Card>
           </Box>
         )}
 
         {selectedReceipt && (
-          <ReceiptDialog
-            receipt={selectedReceipt}
+          <Dialog
             open={dialogOpen}
             onClose={handleCloseDialog}
-            onSave={handleSaveReceiptUpdate}
-          />
+            fullWidth
+            maxWidth="md"
+          >
+            <DialogTitle>Receipt Details</DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{ flex: 1, padding: "16px" }}>
+                  <Typography variant="h6">Receipt Information</Typography>
+                  <Typography>
+                    <strong>ID:</strong> {selectedReceipt.id}
+                  </Typography>
+                  <Typography>
+                    <strong>Date:</strong>{" "}
+                    {new Date(selectedReceipt.date).toLocaleDateString()}
+                  </Typography>
+                  <Typography>
+                    <strong>Amount:</strong> $
+                    {Number(selectedReceipt.total_amount).toFixed(2)}
+                  </Typography>
+                  {/* Add more fields as needed */}
+                </Box>
+                <Box sx={{ flex: 1, padding: "16px" }}>
+                  <Typography variant="h6">Cost Splits</Typography>
+                  {costSplits.length === 0 ? (
+                    <Typography>No cost splits found.</Typography>
+                  ) : (
+                    <List>
+                      {costSplits.map((split) => (
+                        <ListItem key={split.id}>
+                          <ListItemText
+                            primary={`User ID: ${split.user}`}
+                            secondary={
+                              <>
+                                <Typography>
+                                  <strong>Status:</strong> {split.status}
+                                </Typography>
+                                <Typography>
+                                  <strong>Amount Owed:</strong> $
+                                  {Number(split.amount_owed).toFixed(2)}
+                                </Typography>
+                                <Typography>
+                                  <strong>Amount Paid:</strong> $
+                                  {Number(split.amount_paid).toFixed(2)}
+                                </Typography>
+                              </>
+                            }
+                          />
+                          <IconButton
+                            edge="end"
+                            aria-label="edit"
+                            color="primary"
+                            onClick={() => handleEditSplit(split)}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+
+        <AddReceipt
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveReceipt}
+        />
+
+        {selectedSplit && (
+          <Dialog
+            open={editDialogOpen}
+            onClose={() => setEditDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Edit Cost Split</DialogTitle>
+            <DialogContent>
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: "16px" }}
+              >
+                <TextField
+                  label="Status"
+                  select
+                  value={selectedSplit.status}
+                  onChange={(e) =>
+                    handleSplitChange("status", e.target.value as Status)
+                  }
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Paid">Paid</MenuItem>
+                  <MenuItem value="Disputed">Disputed</MenuItem>
+                </TextField>
+                <TextField
+                  label="Amount Owed"
+                  type="number"
+                  value={selectedSplit.amount_owed}
+                  onChange={(e) =>
+                    handleSplitChange("amount_owed", parseFloat(e.target.value))
+                  }
+                />
+                <TextField
+                  label="Amount Paid"
+                  type="number"
+                  value={selectedSplit.amount_paid}
+                  onChange={(e) =>
+                    handleSplitChange("amount_paid", parseFloat(e.target.value))
+                  }
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedSplit.is_custom_split}
+                      onChange={(e) =>
+                        handleSplitChange("is_custom_split", e.target.checked)
+                      }
+                    />
+                  }
+                  label="Custom Split"
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setEditDialogOpen(false)} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleSaveSplit} color="primary">
+                Save
+              </Button>
+            </DialogActions>
+          </Dialog>
         )}
       </Box>
     </PageWrapper>
@@ -349,8 +616,7 @@ const containerStyle = {
 
 const titleStyle = {
   fontSize: "24px",
-  fontWeight: 700,
-  marginBottom: "16px"
+  fontWeight: 700
 };
 
 const subtitleStyle = {

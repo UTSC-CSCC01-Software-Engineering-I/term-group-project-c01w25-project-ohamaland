@@ -5,16 +5,27 @@ import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
-import { Box } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField
+} from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [userId, setUserId] = useState<number | null>(null);
+  const [groupName, setGroupName] = useState("");
+  const [groupMembers, setGroupMembers] = useState<string[]>([""]);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function fetchGroups() {
@@ -54,6 +65,54 @@ export default function GroupsPage() {
     );
   };
 
+  const handleAddGroup = async () => {
+    try {
+      const membersArray = groupMembers
+        .filter((member) => member.trim() !== "")
+        .map((member) => ({ identifier: member }));
+      const groupData = {
+        creator: userId,
+        name: groupName,
+        members: membersArray,
+        receipts: []
+      };
+      const response = await fetchWithAuth(groupsApi, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(groupData)
+      });
+      if (!response || !response.ok) {
+        throw new Error("Failed to add group");
+      }
+      const data = await response.json();
+      setGroups((prevGroups) => [...prevGroups, data]);
+      setOpen(false);
+      setGroupName("");
+      setGroupMembers([""]);
+    } catch (error) {
+      console.error("Error adding group:", error);
+    }
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleMemberChange = (index: number, value: string) => {
+    const newMembers = [...groupMembers];
+    newMembers[index] = value;
+    setGroupMembers(newMembers);
+    if (value.trim() !== "" && index === groupMembers.length - 1) {
+      setGroupMembers([...groupMembers, ""]);
+    }
+  };
+
   return (
     <PageWrapper>
       {/* Full-Screen Centering for GroupFilter */}
@@ -66,6 +125,9 @@ export default function GroupsPage() {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
+        <Button variant="contained" color="primary" onClick={handleClickOpen}>
+          Add
+        </Button>
       </Box>
 
       {/* GroupGrid*/}
@@ -79,6 +141,40 @@ export default function GroupsPage() {
           userId={userId ?? -1}
         />
       </Box>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Add Group</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Group Name"
+            type="text"
+            fullWidth
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+          />
+          {groupMembers.map((member, index) => (
+            <TextField
+              key={index}
+              margin="dense"
+              label={`Group Member ${index + 1}`}
+              type="text"
+              fullWidth
+              value={member}
+              onChange={(e) => handleMemberChange(index, e.target.value)}
+            />
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddGroup} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </PageWrapper>
   );
 }
