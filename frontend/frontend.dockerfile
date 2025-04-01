@@ -8,8 +8,6 @@ COPY . /app
 
 RUN NODE_ENV=development npm i
 
-RUN NEXT_PUBLIC_IGNORE_ESLINT=true NEXT_PUBLIC_IGNORE_TYPE_ERRORS=true npm run build
-
 # Copy the entire project to the container
 COPY . .
 
