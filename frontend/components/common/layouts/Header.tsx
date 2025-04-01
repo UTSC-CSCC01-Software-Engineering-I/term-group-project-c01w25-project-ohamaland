@@ -26,7 +26,8 @@ const headerStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  height: "64px"
+  height: "64px",
+  flexShrink: 0,
 };
 
 const logoContainerStyle = {

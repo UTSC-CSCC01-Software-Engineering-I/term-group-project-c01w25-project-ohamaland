@@ -55,3 +55,4 @@ export const notificationsWS = (token: string) =>
   `ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`;
 export const notificationsDetailApi = (id: number) =>
   API_BASE_URL + `/notifications/${id}/`;
+export const dashboardApi = API_BASE_URL + "/dashboard/";

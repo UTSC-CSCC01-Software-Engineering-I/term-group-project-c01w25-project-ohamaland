@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from .models import Receipt, Insights, Item, User
 from django.db.models import Sum
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils.timezone import now
 from django.db import transaction
 import django.utils.timezone
@@ -123,6 +123,36 @@ def calculate_total_spent(user, start_date, user_currency):
 
     return round(total_spent, 2)
 
+def get_spending_in_last_30_days(user):
+    """Calculates total spending in the last 30 days."""
+    end_date = datetime.now()
+    start_date = end_date - relativedelta(months=1)  # 30-ish days ago
+    
+    return Receipt.objects.filter(
+        user=user,
+        date__gte=start_date,
+        date__lt=end_date
+    ).aggregate(total_spent=Sum('total_amount'))['total_spent'] or 0.0
+
+def calculate_percent_change(user):
+    """Calculates percent change in spending over the past 30 days compared to the previous period."""
+    current_spending = get_spending_in_last_30_days(user)
+
+    # Previous period: The 30 days before the last period
+    end_previous_period = datetime.now() - relativedelta(months=1)
+    start_previous_period = end_previous_period - relativedelta(months=1)
+
+    previous_spending = Receipt.objects.filter(
+        user=user,
+        date__gte=start_previous_period,
+        date__lt=end_previous_period
+    ).aggregate(total_spent=Sum('total_amount'))['total_spent'] or 0.0
+
+    if previous_spending == 0:
+        return 100.0 if current_spending > 0 else 0.0  # Handle division by zero case
+
+    percent_change = ((current_spending - previous_spending) / previous_spending) * 100
+    return percent_change
 
 def calculate_currency_distribution(user, start_date):
     """Calculate the percentage of receipts using each currency for a user."""

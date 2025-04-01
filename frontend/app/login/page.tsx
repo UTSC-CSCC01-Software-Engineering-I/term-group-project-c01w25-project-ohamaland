@@ -36,7 +36,7 @@ export default function LoginPage() {
   useEffect(() => {
     // If already authenticated, redirect to receipts
     if (getAccessToken()) {
-      router.push("/receipts");
+      router.push("/dashboard");
     }
   }, [router]);
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
       setAccessToken(data.access);
 
       // Redirect to the original requested page or receipts
-      const from = searchParams.get("from") || "/receipts";
+      const from = searchParams.get("from") || "/dashboard";
       router.push(from);
     } catch (error) {
       console.error("Error during login:", error);
