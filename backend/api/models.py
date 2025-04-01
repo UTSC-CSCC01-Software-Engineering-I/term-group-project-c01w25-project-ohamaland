@@ -239,6 +239,7 @@ class Subscription(models.Model):
     renewal_date = models.DateField()
     billing_period = models.CharField(max_length=10, choices=BILLING_PERIOD_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
+    notification_sent = models.BooleanField(default=False)
 
     class Meta:
         db_table = "subscription"

@@ -224,6 +224,7 @@ def send_subscription_notification(user):
     notifications = []
 
     for subscription in subscriptions_due:
+        if (subscription.notification_sent): continue
         notification = send_notification(
             user=user,
             notification_type="subscription_renewal",
@@ -238,6 +239,8 @@ def send_subscription_notification(user):
             },
             send_email=True
         )
+        subscription.notification_sent = True
+        subscription.save()
         notifications.append(notification)
 
     return notifications
