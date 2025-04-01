@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "storages",
     "phonenumber_field",
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -201,3 +202,7 @@ EXCHANGE_RATE_URL = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}
 
 # Location API
 IPSTACK_API_KEY = env('IPSTACK_API_KEY')
+
+CRONJOBS = [
+    ('0 9 * * *', '.notifications.send_subscription_notifications')
+]

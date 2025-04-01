@@ -6,7 +6,7 @@ from django.conf import settings
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from .models import Group, GroupMembers, Receipt, Notification, User
+from .models import Group, GroupMembers, Receipt, Notification, User, Subscription
 from .serializers import ReceiptSerializer
 
 
@@ -35,7 +35,7 @@ def send_notification(user, notification_type, title, message, data=None, send_e
         message=message,
         data=data
     )
-    
+
     # Send WebSocket notification
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
@@ -49,7 +49,7 @@ def send_notification(user, notification_type, title, message, data=None, send_e
             'data': data
         }
     )
-    
+
     # Send email if required
     if send_email and user.email:
         send_mail(
@@ -59,7 +59,7 @@ def send_notification(user, notification_type, title, message, data=None, send_e
             [user.email],
             fail_silently=False,
         )
-    
+
     return notification
 
 
@@ -70,16 +70,16 @@ def send_group_notification(group_id, notification_type, title, message, send_ma
     try:
         group = Group.objects.get(id=group_id)
         members = GroupMembers.objects.filter(group=group)
-        
+
         notifications = []
-        
+
         for member in members:
             user = member.user
-            
+
             # Skip excluded users if provided
             if user.id in excluded_user_ids:
                 continue
-                
+
             # Send notification to this user
             notification = send_notification(
                 user=user,
@@ -89,11 +89,11 @@ def send_group_notification(group_id, notification_type, title, message, send_ma
                 send_email=send_mail,
                 data=data
             )
-            
+
             notifications.append(notification)
-            
+
         return notifications
-            
+
     except Group.DoesNotExist:
         print(f"Error sending group notification: Group with ID {group_id} does not exist")
         return []
@@ -106,11 +106,11 @@ def notify_group_receipt_added(group_id, receipt_id, user_id, send_mail):
     try:
         group = Group.objects.get(id=group_id)
         receipt = Receipt.objects.get(id=receipt_id)
-        
+
         # Serialize the receipt data
         serializer = ReceiptSerializer(receipt)
         receipt_data = serializer.data
-        
+
         # Prepare the notification data
         notification_data = {
             'group_id': group.id,
@@ -121,7 +121,7 @@ def notify_group_receipt_added(group_id, receipt_id, user_id, send_mail):
             'currency': receipt.currency,
             'date': receipt.date.isoformat()
         }
-        
+
         # Send notification to all group members
         return send_group_notification(
             group_id=group.id,
@@ -132,7 +132,7 @@ def notify_group_receipt_added(group_id, receipt_id, user_id, send_mail):
             data=notification_data,
             excluded_user_ids=[user_id]
         )
-            
+
     except (Group.DoesNotExist, Receipt.DoesNotExist) as e:
         print(f"Error sending notification: {e}")
         return []
@@ -145,7 +145,7 @@ def notify_user_added_to_group(group_id, user_id):
     try:
         group = Group.objects.get(id=group_id)
         new_user = User.objects.get(id=user_id)
-        
+
         # Prepare the notification data
         notification_data = {
             'group_id': group.id,
@@ -153,7 +153,7 @@ def notify_user_added_to_group(group_id, user_id):
             'user_id': new_user.id,
             'username': new_user.username
         }
-        
+
         # Send notification to all group members except the newly added user
         return send_group_notification(
             group_id=group.id,
@@ -163,7 +163,7 @@ def notify_user_added_to_group(group_id, user_id):
             data=notification_data,
             excluded_user_ids=[user_id]  # Don't notify the newly added user
         )
-            
+
     except (Group.DoesNotExist, User.DoesNotExist) as e:
         print(f"Error sending notification: {e}")
         return []
@@ -177,16 +177,16 @@ def notify_group_settings_changed(group_id, changed_by_user_id, admin_ids=None):
     try:
         group = Group.objects.get(id=group_id)
         changed_by = User.objects.get(id=changed_by_user_id)
-        
+
         # List of users to exclude (the user who made the change and optionally all admins)
         excluded_user_ids = [changed_by_user_id]
-        
+
         # If admin_ids is provided, exclude all admin users from notification
         if admin_ids:
             for admin_id in admin_ids:
                 if admin_id != changed_by_user_id:  # Avoid adding the same user twice
                     excluded_user_ids.append(admin_id)
-        
+
         # Prepare the notification data
         notification_data = {
             'group_id': group.id,
@@ -195,7 +195,7 @@ def notify_group_settings_changed(group_id, changed_by_user_id, admin_ids=None):
             'changed_by_name': changed_by.username,
             'timestamp': datetime.datetime.now().isoformat()
         }
-        
+
         # Send notification to all group members except excluded users
         return send_group_notification(
             group_id=group.id,
@@ -205,7 +205,41 @@ def notify_group_settings_changed(group_id, changed_by_user_id, admin_ids=None):
             data=notification_data,
             excluded_user_ids=excluded_user_ids
         )
-            
+
     except (Group.DoesNotExist, User.DoesNotExist) as e:
         print(f"Error sending notification: {e}")
         return []
+
+def send_subscription_notifications():
+    """
+    Send notifications for subscriptions that are due in 1 day
+    """
+
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    subscriptions = Subscription.objects.filter(renewal_date=tomorrow)
+
+    notifications_sent = 0
+
+    for subscription in subscriptions:
+        if subscription.user:
+            user = subscription.user
+            title = "Subscription Renewal Reminder"
+            message = f"Your subscription to {subscription.merchant} for {subscription.total_amount} {subscription.currency} will renew tomorrow."
+
+            send_notification(
+                user=user,
+                notification_type='subscription_notification',
+                title=title,
+                message=message,
+                send_email=True,
+                data={
+                    'subscription_id': subscription.id,
+                    'merchant': subscription.merchant,
+                    'amount': str(subscription.total_amount),
+                    'currency': subscription.currency,
+                    'renewal_date': subscription.renewal_date.isoformat()
+                }
+            )
+            notifications_sent += 1
+
+    return notifications_sent
