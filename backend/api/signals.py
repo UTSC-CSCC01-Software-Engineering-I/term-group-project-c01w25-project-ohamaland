@@ -107,6 +107,23 @@ def get_all_dates_in_period(start_date, end_date):
     return date_list
 
 
+def calculate_total_spent(user, start_date, user_currency):
+    """Calculate total spending for the user."""
+    if not user:
+        return 0.0
+
+    receipts = Receipt.objects.filter(user=user, date__gte=start_date)
+    total_spent = 0.0
+    for receipt in receipts:
+        amount = float(receipt.total_amount)
+        receipt_currency = receipt.currency
+        if receipt_currency != user_currency:
+            amount = convert_currency(amount, receipt_currency, user_currency)
+        total_spent += amount
+
+    return round(total_spent, 2)
+
+
 def calculate_currency_distribution(user, start_date):
     """Calculate the percentage of receipts using each currency for a user."""
     if not user:
