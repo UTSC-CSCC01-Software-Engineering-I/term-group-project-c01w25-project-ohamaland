@@ -68,7 +68,7 @@ class ReceiptOverview(APIView):
             receipt = serializer.save()
 
             # Notifications
-            if receipt.group and receipt.send_mail:
+            if receipt.group:
                 notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

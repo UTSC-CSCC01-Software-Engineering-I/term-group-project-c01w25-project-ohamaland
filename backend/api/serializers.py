@@ -128,10 +128,10 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "send_mail",
             "created_at",
             "receipt_image_url",
+            "folder",
+            "color",
             "items",
             "splits",
-            "folder",
-            "color"
         ]
 
     def _create_or_update_splits(self, receipt, custom_splits=None):
