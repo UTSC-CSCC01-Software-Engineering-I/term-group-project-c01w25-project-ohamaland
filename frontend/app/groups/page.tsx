@@ -5,6 +5,7 @@ import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
+import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
   Button,
@@ -12,6 +13,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   TextField
 } from "@mui/material";
 import { Dayjs } from "dayjs";
@@ -116,7 +118,7 @@ export default function GroupsPage() {
   return (
     <PageWrapper>
       {/* Full-Screen Centering for GroupFilter */}
-      <Box sx={filterWrapperStyle}>
+      <Box sx={filterContainerStyle}>
         <GroupFilter
           startDate={startDate}
           endDate={endDate}
@@ -125,9 +127,27 @@ export default function GroupsPage() {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-        <Button variant="contained" color="primary" onClick={handleClickOpen}>
-          Add
-        </Button>
+        <Box
+          sx={{
+            maxWidth: 304,
+            margin: "8px",
+            borderRadius: "8px",
+            height: "64px",
+            border: "2px dashed #ccc",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            "&:hover": {
+              borderColor: "#999"
+            }
+          }}
+          onClick={() => handleClickOpen()}
+        >
+          <IconButton size="large">
+            <AddIcon sx={{ fontSize: 40, color: "#666" }} />
+          </IconButton>
+        </Box>
       </Box>
 
       {/* GroupGrid*/}
@@ -179,15 +199,15 @@ export default function GroupsPage() {
   );
 }
 
-const filterWrapperStyle = {
-  position: "fixed",
-  top: "70px",
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "clamp(400px, 50vw, 600px)",
-  backgroundColor: "white",
-  borderRadius: "24px",
-  padding: "8px 16px"
+const filterContainerStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "16px",
+  marginBottom: "16px",
+  width: "100%",
+  "& > *:first-of-type": {
+    flex: 1
+  }
 };
 
 const gridWrapperStyle = {
