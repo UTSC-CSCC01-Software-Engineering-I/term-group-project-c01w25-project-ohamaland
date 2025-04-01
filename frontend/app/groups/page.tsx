@@ -4,6 +4,7 @@ import PageWrapper from "@/components/common/layouts/PageWrapper";
 import Log from "@/components/common/Log";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
+import GroupLogItem from "@/components/groups/GroupLogItem";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
@@ -134,7 +135,7 @@ export default function GroupsPage() {
       </Box>
 
       {/* GroupGrid*/}
-      {/* <Box sx={contentLayoutStyle}> */}
+      <Box sx={contentLayoutStyle}>
         <Box sx={gridWrapperStyle}>
           <GroupGrid
             initialGroups={groups ?? []}
@@ -146,15 +147,13 @@ export default function GroupsPage() {
           />
         </Box>
 
-        {/* <Box sx={rightContainerStyle}>
+        <Box sx={rightContainerStyle}>
             <Log
-              data={getRecentActivity(groupMembers, [])}
-              Component={SubscriptionLogItem}
-              onOpenDialog={handleOpenDialog}
-              title="Upcoming Renewals"
+              data={getRecentMembers(groups)}
+              Component={GroupLogItem}
             />
           </Box>
-      </Box> */}
+      </Box>
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add Group</DialogTitle>
@@ -193,16 +192,25 @@ export default function GroupsPage() {
   );
 }
 
-// function getRecentActivity(groupMembers: GroupMember[], receipt: Receipt[]) {
-//   const currentDate = new Date();
-//   const sortedSubscriptions = subscriptions
-//     .filter((s) => new Date(s.renewal_date) >= currentDate)
-//     .sort(
-//       (a, b) =>
-//         new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime()
-//     );
-//   return sortedSubscriptions.slice(0, renewalsToShow);
-// }
+// TODO: make to simply "getRecentActivity" and get all activity, not just memvbers
+// TODO: make it defined once
+function getRecentMembers(groups: Group[] | null = null): GroupMember[] {
+  if (groups == null) return [];
+
+  const allMembers = groups.flatMap(group => group.members || []);
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return allMembers
+    .filter(member => new Date(member.joined_at) >= yesterday)
+    .sort((a, b) =>
+      new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime()
+    )
+    .slice(0, logsToShow);
+}
+
+const logsToShow = 10;
 
 const filterWrapperStyle = {
   position: "fixed",

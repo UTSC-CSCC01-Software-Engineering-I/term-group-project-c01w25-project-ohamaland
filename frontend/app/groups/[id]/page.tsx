@@ -460,11 +460,11 @@ export default function GroupDetailPage() {
           </Box>
         )}
 
-        {/* TAB PANEL: RECEIPTS */}
+        {/* TAB PANEL: Recent Activity */}
         {activeTab === 2 && (
           <Box>
             <Log
-              data={getRecentActivity(members, [])}
+              data={getRecentMembers(group?.members)}
               Component={GroupLogItem}
             />
           </Box>
@@ -618,19 +618,36 @@ export default function GroupDetailPage() {
   );
 }
 
-// TODO: Recent Receiptas
-function getRecentActivity(groupMembers: GroupMember[], receipt: Receipt[]) {
+function getRecentMembers(members: GroupMember[] | null = null) {
+  if (members == null) return [];
   const currentDate = new Date();
-  const sortedMembers = groupMembers;
-    // .filter((g) => new Date(g.joined_at) >= currentDate)
-    // .sort(
-    //   (a, b) =>
-    //     new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
-    // );
-  return sortedMembers.slice(0, membersToShow);
+  const yesteday = new Date(currentDate);
+  yesteday.setDate(currentDate.getDate() - 1);
+  const sortedMembers = members
+    .filter((g) => new Date(g.joined_at) >= yesteday)
+    .sort(
+      (a, b) =>
+        new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
+    );
+  return sortedMembers.slice(0, Math.ceil(logsToShow / 2))
 }
 
-const membersToShow = 5;
+// TODO: Add To logs
+function getRecentReceipts(receipts: Receipt[] | null = null) {
+  if (receipts == null) return [];
+  const currentDate = new Date();
+  const yesteday = new Date(currentDate);
+  yesteday.setDate(currentDate.getDate() - 1);
+  const sortedReceipts = receipts
+    .filter((r) => new Date(r.created_at) >= yesteday)
+    .sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  return sortedReceipts.slice(0, Math.floor(logsToShow/2))
+}
+
+const logsToShow = 10;
 
 const containerStyle = {
   width: "90%",
