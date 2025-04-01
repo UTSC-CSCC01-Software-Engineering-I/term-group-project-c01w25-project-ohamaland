@@ -1,9 +1,13 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import Log from "@/components/common/Log";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
+import GroupLogItem from "@/components/groups/GroupLogItem";
+import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
+import { Receipt } from "@/types/receipts";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -137,15 +141,25 @@ export default function GroupsPage() {
       </Box>
 
       {/* GroupGrid*/}
-      <Box sx={gridWrapperStyle}>
-        <GroupGrid
-          initialGroups={groups ?? []}
-          startDate={startDate}
-          endDate={endDate}
-          filterTerm={filterTerm}
-          onGroupDeleted={handleGroupDeleted}
-          userId={userId ?? -1}
-        />
+      <Box sx={contentLayoutStyle}>
+        <Box sx={gridWrapperStyle}>
+          <GroupGrid
+            initialGroups={groups ?? []}
+            startDate={startDate}
+            endDate={endDate}
+            filterTerm={filterTerm}
+            onGroupDeleted={handleGroupDeleted}
+            userId={userId ?? -1}
+          />
+        </Box>
+
+        <Box sx={rightContainerStyle}>
+            <Log
+              data={getRecentMembers(groups)}
+              Component={GroupLogItem}
+              title="Recent Activity"
+            />
+          </Box>
       </Box>
 
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth sx={{ '& .MuiDialog-paper': { width: '400px', borderRadius: '16px' } }}>
@@ -172,6 +186,38 @@ export default function GroupsPage() {
   );
 }
 
+// TODO: make to simply "getRecentActivity" and get all activity, not just members
+// TODO: make it defined once
+function getRecentMembers(groups: Group[] | null = null): GroupMember[] {
+  if (groups == null) return [];
+
+  const allMembers = groups.flatMap(group => group.members || []);
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return allMembers
+    .filter(member => new Date(member.joined_at) >= yesterday)
+    .sort((a, b) =>
+      new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime()
+    )
+    .slice(0, logsToShow);
+}
+
+const logsToShow = 10;
+
+const contentLayoutStyle = {
+  display: "flex",
+  gap: "32px"
+};
+
+const rightContainerStyle = {
+  position: "fixed",
+  right: "0px",
+  width: "304px",
+  flexShrink: 0
+};
+
 const filterContainerStyle = {
   display: "flex",
   alignItems: "center",
@@ -184,5 +230,5 @@ const filterContainerStyle = {
 };
 
 const gridWrapperStyle = {
-  paddingTop: "30px"
+  paddingTop: "32px"
 };
