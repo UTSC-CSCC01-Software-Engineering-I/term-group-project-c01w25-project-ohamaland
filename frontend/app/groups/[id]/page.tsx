@@ -420,7 +420,7 @@ export default function GroupDetailPage() {
                               </Typography>
                             </>
                           }
-                          secondary={`Joined: ${member.joined_at}`}
+                          secondary={`Joined: ${formatDate(member.joined_at)}`}
                         />
                       </ListItem>
                     ))}
