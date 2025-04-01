@@ -1,9 +1,12 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import Log from "@/components/common/Log";
 import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
+import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
+import { Receipt } from "@/types/receipts";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
 import {
   Box,
@@ -131,16 +134,27 @@ export default function GroupsPage() {
       </Box>
 
       {/* GroupGrid*/}
-      <Box sx={gridWrapperStyle}>
-        <GroupGrid
-          initialGroups={groups ?? []}
-          startDate={startDate}
-          endDate={endDate}
-          filterTerm={filterTerm}
-          onGroupDeleted={handleGroupDeleted}
-          userId={userId ?? -1}
-        />
-      </Box>
+      {/* <Box sx={contentLayoutStyle}> */}
+        <Box sx={gridWrapperStyle}>
+          <GroupGrid
+            initialGroups={groups ?? []}
+            startDate={startDate}
+            endDate={endDate}
+            filterTerm={filterTerm}
+            onGroupDeleted={handleGroupDeleted}
+            userId={userId ?? -1}
+          />
+        </Box>
+
+        {/* <Box sx={rightContainerStyle}>
+            <Log
+              data={getRecentActivity(groupMembers, [])}
+              Component={SubscriptionLogItem}
+              onOpenDialog={handleOpenDialog}
+              title="Upcoming Renewals"
+            />
+          </Box>
+      </Box> */}
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add Group</DialogTitle>
@@ -179,6 +193,17 @@ export default function GroupsPage() {
   );
 }
 
+// function getRecentActivity(groupMembers: GroupMember[], receipt: Receipt[]) {
+//   const currentDate = new Date();
+//   const sortedSubscriptions = subscriptions
+//     .filter((s) => new Date(s.renewal_date) >= currentDate)
+//     .sort(
+//       (a, b) =>
+//         new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime()
+//     );
+//   return sortedSubscriptions.slice(0, renewalsToShow);
+// }
+
 const filterWrapperStyle = {
   position: "fixed",
   top: "70px",
@@ -192,4 +217,16 @@ const filterWrapperStyle = {
 
 const gridWrapperStyle = {
   paddingTop: "120px"
+};
+
+const contentLayoutStyle = {
+  display: "flex",
+  gap: "32px"
+};
+
+const rightContainerStyle = {
+  position: "fixed",
+  right: "0px",
+  width: "304px",
+  flexShrink: 0
 };

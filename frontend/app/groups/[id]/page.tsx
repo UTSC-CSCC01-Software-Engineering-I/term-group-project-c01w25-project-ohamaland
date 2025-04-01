@@ -1,6 +1,8 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import Log from "@/components/common/Log";
+import GroupLogItem from "@/components/groups/GroupLogItem";
 import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
 import { textLightGrey } from "@/styles/colors";
@@ -346,6 +348,7 @@ export default function GroupDetailPage() {
         <Tabs value={activeTab} onChange={handleTabChange} sx={tabsStyle}>
           <Tab label="Members" />
           <Tab label="Receipts" />
+          <Tab label="Recent Activity" />
         </Tabs>
 
         {/* TAB PANEL: MEMBERS */}
@@ -454,6 +457,16 @@ export default function GroupDetailPage() {
                 </Box>
               </CardContent>
             </Card>
+          </Box>
+        )}
+
+        {/* TAB PANEL: RECEIPTS */}
+        {activeTab === 2 && (
+          <Box>
+            <Log
+              data={getRecentActivity(members, [])}
+              Component={GroupLogItem}
+            />
           </Box>
         )}
 
@@ -604,6 +617,20 @@ export default function GroupDetailPage() {
     </PageWrapper>
   );
 }
+
+// TODO: Recent Receiptas
+function getRecentActivity(groupMembers: GroupMember[], receipt: Receipt[]) {
+  const currentDate = new Date();
+  const sortedMembers = groupMembers;
+    // .filter((g) => new Date(g.joined_at) >= currentDate)
+    // .sort(
+    //   (a, b) =>
+    //     new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
+    // );
+  return sortedMembers.slice(0, membersToShow);
+}
+
+const membersToShow = 5;
 
 const containerStyle = {
   width: "90%",

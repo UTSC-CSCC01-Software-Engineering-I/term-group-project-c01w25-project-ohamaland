@@ -2,10 +2,10 @@ import { Subscription } from "@/types/subscriptions";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 interface ILogProps {
-  title: string;
+  title?: string | null;
   data: any[];
   Component: React.ComponentType<any>;
-  onOpenDialog: (subscription: Subscription) => void;
+  onOpenDialog?: (subscription: Subscription) => void;
 }
 
 export default function Log(props: ILogProps) {
@@ -24,7 +24,7 @@ export default function Log(props: ILogProps) {
           <Stack
             key={index}
             sx={itemStyle}
-            onClick={() => props.onOpenDialog(item)}
+            onClick={() => props.onOpenDialog && props.onOpenDialog(item)}
           >
             <Component data={item} />
           </Stack>
