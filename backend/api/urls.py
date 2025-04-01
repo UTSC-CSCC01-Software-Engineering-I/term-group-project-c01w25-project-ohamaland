@@ -8,7 +8,7 @@ from .views import (
     GetUserIdView,
     GroupDelete,
     GroupMembersLeave,
-    GroupReceiptsSplitDetail,
+    GroupReceiptSplitDetail,
     GroupReceiptsSplitOverview,
     ReceiptOverview,
     ReceiptDetail,
@@ -85,7 +85,7 @@ urlpatterns = [
     ),
     path(
         "groups/<int:group_pk>/receipts/<int:receipt_pk>/cost-splits/<int:pk>/",
-        GroupReceiptsSplitDetail.as_view(),
+        GroupReceiptSplitDetail.as_view(),
     ),
     path("folders/", FolderListCreate.as_view(), name="folder-list-create"),
     path("folders/<int:pk>/", FolderDetail.as_view(), name="folder-detail"),

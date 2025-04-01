@@ -33,12 +33,16 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Checkbox,
+  FormControlLabel,
+  MenuItem,
+  Select
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { GroupReceiptSplit } from "@/types/groupReceiptSplits";
-import { ChevronRight, Add, Delete } from "@mui/icons-material";
+import { GroupReceiptSplit, Status } from "@/types/groupReceiptSplits";
+import { ChevronRight, Add, Delete, Edit } from "@mui/icons-material";
 
 export default function GroupDetailPage() {
   const params = useParams();
@@ -53,6 +57,8 @@ export default function GroupDetailPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [costSplits, setCostSplits] = useState<GroupReceiptSplit[]>([]);
+  const [selectedSplit, setSelectedSplit] = useState<GroupReceiptSplit | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchGroup() {
@@ -78,6 +84,9 @@ export default function GroupDetailPage() {
     try {
       const res = await fetchWithAuth(groupsMembersApi(groupId), {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ identifier: newMemberIdentifier })
       });
       if (!res || !res.ok) {
@@ -237,6 +246,42 @@ export default function GroupDetailPage() {
       console.error("Error saving receipt:", error);
       throw error;
     }
+  };
+
+  const handleEditSplit = (split: GroupReceiptSplit) => {
+    setSelectedSplit(split);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveSplit = async () => {
+    if (!selectedSplit) return;
+    try {
+      const res = await fetchWithAuth(`http://127.0.0.1:8000/api/groups/${groupId}/receipts/${selectedReceipt?.id}/cost-splits/${selectedSplit.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(selectedSplit)
+      });
+      console.log(selectedSplit);
+      if (!res || !res.ok) {
+        throw new Error("Failed to update split");
+      }
+      const updatedSplit = await res.json();
+      setCostSplits((prevSplits) =>
+        prevSplits.map((split) =>
+          split.id === updatedSplit.id ? updatedSplit : split
+        )
+      );
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error("Error updating split:", error);
+    }
+  };
+
+  const handleSplitChange = (field: keyof GroupReceiptSplit, value: any) => {
+    if (!selectedSplit) return;
+    setSelectedSplit({ ...selectedSplit, [field]: value });
   };
 
   return (
@@ -418,6 +463,14 @@ export default function GroupDetailPage() {
                               </>
                             }
                           />
+                          <IconButton
+                            edge="end"
+                            aria-label="edit"
+                            color="primary"
+                            onClick={() => handleEditSplit(split)}
+                          >
+                            <Edit />
+                          </IconButton>
                         </ListItem>
                       ))}
                     </List>
@@ -436,6 +489,51 @@ export default function GroupDetailPage() {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveReceipt}
         />
+
+        {selectedSplit && (
+          <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm">
+            <DialogTitle>Edit Cost Split</DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <TextField
+                  label="Status"
+                  select
+                  value={selectedSplit.status}
+                  onChange={(e) => handleSplitChange("status", e.target.value as Status)}
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Paid">Paid</MenuItem>
+                  <MenuItem value="Disputed">Disputed</MenuItem>
+                </TextField>
+                <TextField
+                  label="Amount Owed"
+                  type="number"
+                  value={selectedSplit.amount_owed}
+                  onChange={(e) => handleSplitChange("amount_owed", parseFloat(e.target.value))}
+                />
+                <TextField
+                  label="Amount Paid"
+                  type="number"
+                  value={selectedSplit.amount_paid}
+                  onChange={(e) => handleSplitChange("amount_paid", parseFloat(e.target.value))}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedSplit.is_custom_split}
+                      onChange={(e) => handleSplitChange("is_custom_split", e.target.checked)}
+                    />
+                  }
+                  label="Custom Split"
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setEditDialogOpen(false)} color="primary">Cancel</Button>
+              <Button onClick={handleSaveSplit} color="primary">Save</Button>
+            </DialogActions>
+          </Dialog>
+        )}
       </Box>
     </PageWrapper>
   );

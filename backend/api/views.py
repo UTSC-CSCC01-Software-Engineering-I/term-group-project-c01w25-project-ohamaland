@@ -462,7 +462,7 @@ class GroupReceiptsSplitOverview(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GroupReceiptsSplitDetail(APIView):
+class GroupReceiptSplitDetail(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, group_pk, receipt_pk, pk):
