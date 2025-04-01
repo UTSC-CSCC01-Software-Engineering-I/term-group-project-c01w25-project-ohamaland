@@ -1,3 +1,4 @@
+import { recentReceiptColor } from "@/styles/colors";
 import { Box, Typography } from "@mui/material";
 
 interface IRecentReceiptProps {
@@ -18,7 +19,7 @@ const RecentReceipt = ({ merchant, date, amount }: IRecentReceiptProps) => {
 
 const receiptContainerStyle = {
     width: "100%",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: recentReceiptColor,
     borderRadius: "8px",
     padding: "8px",
     boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
