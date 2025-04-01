@@ -83,19 +83,3 @@ const inputStyle = {
   }
 };
 
-// const datePickerStyle = {
-//   "& .MuiOutlinedInput-root": {
-//     border: "none",
-//     boxShadow: "none"
-//   },
-//   "& fieldset": {
-//     border: "none"
-//   },
-//   "& .MuiInputBase-input": {
-//     padding: "8px 8px"
-//   },
-//   "& input:-webkit-autofill": {
-//     WebkitBoxShadow: "0 0 0px 1000px white inset !important",
-//     transition: "background-color 5000s ease-in-out 0s"
-//   }
-// };
