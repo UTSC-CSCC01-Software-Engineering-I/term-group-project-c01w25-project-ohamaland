@@ -54,8 +54,8 @@ export default function GroupCard(props: IGroupCardProps) {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCloseDialog = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setOpenDialog(false);
   };
 
