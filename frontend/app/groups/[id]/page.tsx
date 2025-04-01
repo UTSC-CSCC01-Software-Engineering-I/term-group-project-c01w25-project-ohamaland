@@ -639,7 +639,7 @@ function getRecentReceipts(receipts: Receipt[] | null = null) {
   const yesterday = new Date(currentDate);
   yesterday.setDate(currentDate.getDate() - 1);
   const sortedReceipts = receipts
-    .filter((r) => new Date(r.created_at) >= yesteday)
+    .filter((r) => new Date(r.created_at) >= yesterday)
     .sort(
       (a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()

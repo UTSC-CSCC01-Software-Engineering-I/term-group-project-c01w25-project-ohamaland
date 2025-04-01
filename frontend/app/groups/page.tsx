@@ -157,6 +157,7 @@ export default function GroupsPage() {
             <Log
               data={getRecentMembers(groups)}
               Component={GroupLogItem}
+              title="Recent Activity"
             />
           </Box>
       </Box>
