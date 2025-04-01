@@ -317,6 +317,16 @@ export default function GroupDetailPage() {
     }
   };
 
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <PageWrapper>
       <Box sx={containerStyle}>
@@ -353,9 +363,9 @@ export default function GroupDetailPage() {
                 <Typography sx={subtitleStyle}>{group.name}</Typography>
                 <Typography sx={textStyle}>
                   <strong>Creator:</strong> {group.creator}
-                </Typography>
-                <Typography sx={textStyle}>
-                  <strong>Created At:</strong> {group.created_at}
+                  <Typography sx={textStyle}>
+                    <strong>Created At:</strong> {formatDate(group.created_at)}
+                  </Typography>
                 </Typography>
               </Stack>
             ) : (
@@ -410,7 +420,7 @@ export default function GroupDetailPage() {
                               </Typography>
                             </>
                           }
-                          secondary={`Joined: ${member.joined_at}`}
+                          secondary={`Joined: ${formatDate(member.joined_at)}`}
                         />
                       </ListItem>
                     ))}

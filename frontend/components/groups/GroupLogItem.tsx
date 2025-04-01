@@ -7,10 +7,20 @@ interface IGroupLogItemProps {
     data: GroupMember;
 }
 
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export default function GroupLogItem(props: IGroupLogItemProps) {
   return (
     <Typography sx={{ ...lightTextStyle, "&:hover": darkTextStyle }}>
-      {props.data.user.username} - {"Joined the Group at"} {props.data.joined_at}
+      {props.data.user.username} - {"Joined the Group at"} {formatDate(props.data.joined_at)}
     </Typography>
   );
 }
