@@ -253,9 +253,10 @@ export default function Page() {
 }
 
 function getUpcomingRenewals(subscriptions: Subscription[]) {
-  const currentDate = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   const sortedSubscriptions = subscriptions
-    .filter((s) => new Date(s.renewal_date) >= currentDate)
+    .filter((s) => new Date(s.renewal_date) >= yesterday)
     .sort(
       (a, b) =>
         new Date(a.renewal_date).getTime() - new Date(b.renewal_date).getTime()
