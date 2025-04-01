@@ -54,7 +54,8 @@ export default function GroupCard(props: IGroupCardProps) {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setOpenDialog(false);
   };
 
@@ -127,8 +128,8 @@ export default function GroupCard(props: IGroupCardProps) {
   const formattedDate = new Date(props.group.created_at).toLocaleDateString();
 
   return (
-    <Card sx={cardStyle} onClick={handleCardClick}>
-      <Box sx={{ display: "flex" }}>
+    <Card sx={cardStyle}>
+      <Box sx={{ display: "flex" }} onClick={handleCardClick}>
         <Box sx={greyStripStyle} />
         <Box sx={{ flexGrow: 1 }}>
         <Box sx={textCenteringStyle}>
@@ -153,19 +154,16 @@ export default function GroupCard(props: IGroupCardProps) {
               Receipts: {props.group.receipts.length}
             </Typography>
             {props.group.creator !== currentUserId && (
-              <Button
-                variant="contained"
-                color="warning"
-                sx={buttonStyle}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenDialog("leave");
-                }}
-                disabled={isLeaving}
-                startIcon={<ExitToAppIcon />}
-              >
-                {isLeaving ? "Leaving..." : "Leave Group"}
-              </Button>
+              <RedDeleteIconButton
+              aria-label="delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenDialog("leave");
+              }}
+              sx={iconButtonStyle}
+            >
+              <ExitToAppIcon />
+            </RedDeleteIconButton>
             )}
           </CardContent>
         </Box>
