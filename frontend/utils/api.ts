@@ -1,6 +1,8 @@
 import { getAccessToken, removeAccessToken } from "./auth";
 
-export const API_BASE_URL = "http://127.0.0.1:8000/api";
+export const BASE_URL = "127.0.0.1:8000/api";
+
+export const API_BASE_URL = "http://" + BASE_URL;
 
 export async function handleApiResponse(response: Response) {
   if (response.status === 401) {
@@ -52,7 +54,13 @@ export const insightsApi = API_BASE_URL + "/analytics/insights/";
 export const insightsDetailApi = (period: string) =>
   API_BASE_URL + `/analytics/insights/${period}/`;
 export const notificationsWS = (token: string) =>
-  `ws://127.0.0.1:8000/api/ws/notifications/?token=${token}`;
+  `ws://${BASE_URL}/ws/notifications/?token=${token}`;
 export const notificationsDetailApi = (id: number) =>
   API_BASE_URL + `/notifications/${id}/`;
 export const dashboardApi = API_BASE_URL + "/dashboard/";
+export const costSplittingApi = (groupId: number, receiptId: number) => 
+  `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/cost-splits/`;
+export const costSplittingDetailApi = (groupId: number, receiptId: number, splitId: number) => 
+  `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/cost-splits/${splitId}/`;
+export const deleteGroupReceiptApi = (groupId: number, receiptId: number) =>
+  `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/delete/`;

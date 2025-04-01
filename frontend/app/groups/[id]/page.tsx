@@ -11,6 +11,9 @@ import { GroupReceiptSplit, Status } from "@/types/groupReceiptSplits";
 import { Group } from "@/types/groups";
 import { Receipt } from "@/types/receipts";
 import {
+  costSplittingApi,
+  costSplittingDetailApi,
+  deleteGroupReceiptApi,
   fetchWithAuth,
   groupsDetailApi,
   groupsMembersApi,
@@ -171,9 +174,7 @@ export default function GroupDetailPage() {
   const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);
     try {
-      const response = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${receipt.id}/cost-splits/`
-      );
+      const response = await fetchWithAuth(costSplittingApi(groupId, receipt.id), {method: "GET"});
       if (!response || !response.ok) {
         throw new Error("Failed to fetch cost splits");
       }
@@ -193,13 +194,7 @@ export default function GroupDetailPage() {
 
   const handleDeleteGroupReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${receiptId}/delete/`,
-        {
-          method: "DELETE"
-        }
-      );
-
+      const response = await fetchWithAuth(deleteGroupReceiptApi(groupId, receiptId), {method: "DELETE"});
       if (!response || !response.ok) {
         console.error("Failed to delete receipt");
         return;
@@ -272,8 +267,9 @@ export default function GroupDetailPage() {
   const handleSaveSplit = async () => {
     if (!selectedSplit) return;
     try {
+      if (!selectedReceipt) return;
       const res = await fetchWithAuth(
-        `http://127.0.0.1:8000/api/groups/${groupId}/receipts/${selectedReceipt?.id}/cost-splits/${selectedSplit.id}/`,
+        costSplittingDetailApi(groupId, selectedReceipt.id, selectedSplit.id),
         {
           method: "PATCH",
           headers: {
