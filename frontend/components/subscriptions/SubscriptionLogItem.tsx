@@ -14,8 +14,6 @@ export default function SubscriptionLogItem(props: ISubscriptionLogItemProps) {
   );
 }
 
-const upcomingRenewalsBoxStyle = {};
-
 const lightTextStyle = {
   fontSize: "14px",
   color: textLightGrey,

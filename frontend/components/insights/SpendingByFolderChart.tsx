@@ -87,10 +87,6 @@ const chartContainerStyle = {
   justifyContent: "center"
 };
 
-const titleStyle = {
-  marginBottom: "8px"
-};
-
 const tooltipStyle = {
   padding: "8px",
   backgroundColor: "#fff",
