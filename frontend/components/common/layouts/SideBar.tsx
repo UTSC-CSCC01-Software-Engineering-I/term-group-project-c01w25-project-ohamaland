@@ -13,12 +13,12 @@ import { fetchWithAuth, userLogoutApi } from "@/utils/api";
 import { getRefreshToken, logout } from "@/utils/auth";
 import {
   BrokenImage,
+  CurrencyExchange,
   Groups3,
   Insights,
   Logout,
   ReceiptLong,
   Settings,
-  CurrencyExchange,
   SvgIconComponent
 } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";

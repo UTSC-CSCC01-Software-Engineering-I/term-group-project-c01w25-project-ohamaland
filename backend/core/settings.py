@@ -76,11 +76,7 @@ MIDDLEWARE = [
 
 ASGI_APPLICATION = "core.asgi.application"
 
-CHANNEL_LAYERS = {
-    'default':{
-        'BACKEND':'channels.layers.InMemoryChannelLayer'
-    }
-}
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Allow CORS
 CORS_ALLOW_ALL_ORIGINS = True  # For development, allow all origins
@@ -197,7 +193,9 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
 # Currency conversion API
 EXCHANGE_RATE_API_KEY = env("EXCHANGE_RATE_API_KEY")
-EXCHANGE_RATE_URL = f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/latest/USD"
+EXCHANGE_RATE_URL = (
+    f"https://v6.exchangerate-api.com/v6/{EXCHANGE_RATE_API_KEY}/latest/USD"
+)
 
 # Location API
-IPSTACK_API_KEY = env('IPSTACK_API_KEY')
+IPSTACK_API_KEY = env("IPSTACK_API_KEY")

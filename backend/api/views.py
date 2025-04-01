@@ -61,7 +61,9 @@ class ReceiptOverview(APIView):
             request.data["user"] = request.user.id
 
         if not request.data.get("folder"):
-            request.data["folder"], _ = Folder.objects.get_or_create(user=request.user, name="All")
+            request.data["folder"], _ = Folder.objects.get_or_create(
+                user=request.user, name="All"
+            )
 
         serializer = ReceiptSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -69,7 +71,9 @@ class ReceiptOverview(APIView):
 
             # Notifications
             if receipt.group and receipt.send_mail:
-                notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
+                notify_group_receipt_added(
+                    receipt.group.id, receipt.id, request.user.id, receipt.send_mail
+                )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -687,7 +691,9 @@ class InsightsView(generics.ListAPIView):
         folder_spending = calculate_folder_spending(user, start_date, user_currency)
         total_spending = calculate_total_spending(user, start_date, user_currency)
         merchant_spending = calculate_merchant_spending(user, start_date, user_currency)
-        payment_method_spending = calculate_payment_method_spending(user, start_date, user_currency)
+        payment_method_spending = calculate_payment_method_spending(
+            user, start_date, user_currency
+        )
         currency_distribution = calculate_currency_distribution(user, start_date)
 
         return {
@@ -837,21 +843,23 @@ class NotificationOverview(APIView):
     def get(self, request):
         """Get all notifications for the current user, filtered by status"""
         # Get query parameters
-        is_read = request.query_params.get('is_read', None)
-        is_dismissed = request.query_params.get('is_dismissed', 'false').lower() == 'true'
+        is_read = request.query_params.get("is_read", None)
+        is_dismissed = (
+            request.query_params.get("is_dismissed", "false").lower() == "true"
+        )
 
         # Filter notifications
         notifications = Notification.objects.filter(user=request.user)
 
         if is_read is not None:
-            is_read = is_read.lower() == 'true'
+            is_read = is_read.lower() == "true"
             notifications = notifications.filter(is_read=is_read)
 
         # By default, only show undismissed notifications unless explicitly requested
         notifications = notifications.filter(is_dismissed=is_dismissed)
 
         serializer = NotificationSerializer(notifications, many=True)
-        return Response({'notifications': serializer.data}, status=status.HTTP_200_OK)
+        return Response({"notifications": serializer.data}, status=status.HTTP_200_OK)
 
 
 class NotificationDetail(APIView):
@@ -875,9 +883,11 @@ class NotificationDetail(APIView):
                 {"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        allowed_fields = {'is_read', 'is_dismissed'}
+        allowed_fields = {"is_read", "is_dismissed"}
         update_data = {k: v for k, v in request.data.items() if k in allowed_fields}
-        serializer = NotificationSerializer(notification, data=update_data, partial=True)
+        serializer = NotificationSerializer(
+            notification, data=update_data, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

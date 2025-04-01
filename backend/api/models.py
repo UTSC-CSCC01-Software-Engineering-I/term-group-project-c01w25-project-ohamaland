@@ -23,14 +23,16 @@ class Notification(models.Model):
         ("receipt_added", "Receipt Added"),
         ("group_invitation", "Group Invitation"),
         ("system", "System Notification"),
-        ("subscription_renewal", "Subscription Renewal")
+        ("subscription_renewal", "Subscription Renewal"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=255)
     message = models.TextField()
-    data = models.JSONField(null=True, blank=True) # Store additional data as JSON
+    data = models.JSONField(null=True, blank=True)  # Store additional data as JSON
     is_read = models.BooleanField(default=False)
     is_dismissed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -144,7 +146,6 @@ class Receipt(models.Model):
 
     class Meta:
         db_table = "receipt"
-
 
     def clean(self):
         if self.user and self.group:
