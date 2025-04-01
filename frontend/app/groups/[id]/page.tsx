@@ -130,43 +130,43 @@ export default function GroupDetailPage() {
     setActiveTab(newValue);
   };
 
-  const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
-    try {
-      const formattedDate = new Date(updatedReceipt.date)
-        .toISOString()
-        .split("T")[0];
+  // const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+  //   try {
+  //     const formattedDate = new Date(updatedReceipt.date)
+  //       .toISOString()
+  //       .split("T")[0];
 
-      const updatedData = { ...updatedReceipt, date: formattedDate };
+  //     const updatedData = { ...updatedReceipt, date: formattedDate };
 
-      const response = await fetchWithAuth(
-        receiptsDetailApi(updatedReceipt.id),
-        {
-          method: "PATCH",
-          body: JSON.stringify(updatedData)
-        }
-      );
+  //     const response = await fetchWithAuth(
+  //       receiptsDetailApi(updatedReceipt.id),
+  //       {
+  //         method: "PATCH",
+  //         body: JSON.stringify(updatedData)
+  //       }
+  //     );
 
-      if (!response || !response.ok) {
-        console.error("Failed to save receipt");
-        return;
-      }
+  //     if (!response || !response.ok) {
+  //       console.error("Failed to save receipt");
+  //       return;
+  //     }
 
-      const savedReceipt = await response.json();
-      setGroup((prevGroup) => {
-        if (!prevGroup) return null;
-        return {
-          ...prevGroup,
-          receipts:
-            prevGroup.receipts?.map((r) =>
-              r.id === savedReceipt.id ? savedReceipt : r
-            ) ?? []
-        };
-      });
-      handleCloseDialog();
-    } catch (error) {
-      console.error("Error updating receipt:", error);
-    }
-  };
+  //     const savedReceipt = await response.json();
+  //     setGroup((prevGroup) => {
+  //       if (!prevGroup) return null;
+  //       return {
+  //         ...prevGroup,
+  //         receipts:
+  //           prevGroup.receipts?.map((r) =>
+  //             r.id === savedReceipt.id ? savedReceipt : r
+  //           ) ?? []
+  //       };
+  //     });
+  //     handleCloseDialog();
+  //   } catch (error) {
+  //     console.error("Error updating receipt:", error);
+  //   }
+  // };
 
   const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);

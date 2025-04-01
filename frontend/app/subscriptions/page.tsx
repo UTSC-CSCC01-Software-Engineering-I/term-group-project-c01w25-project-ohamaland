@@ -14,7 +14,7 @@ import {
   subscriptionsDetailApi,
   userMeApi
 } from "@/utils/api";
-import { Box, Button, SelectChangeEvent, IconButton, } from "@mui/material";
+import { Box, SelectChangeEvent, IconButton, } from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Page() {

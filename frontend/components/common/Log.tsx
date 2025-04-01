@@ -1,15 +1,21 @@
+import { GroupMember } from "@/types/groupMembers";
+import { Receipt } from "@/types/receipts";
 import { Subscription } from "@/types/subscriptions";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 interface ILogProps {
   title?: string | null;
-  data: any[];
+  data: Subscription[] | GroupMember[] | Receipt[];
   Component: React.ComponentType<any>;
   onOpenDialog?: (subscription: Subscription) => void;
 }
 
 export default function Log(props: ILogProps) {
   const { title, data, Component } = props;
+
+  const isSubscription = (item: Subscription | GroupMember | Receipt): item is Subscription => {
+    return (item as Subscription).renewal_date !== undefined;
+  };
 
   return (
     <Box sx={logItemsBoxStyle}>
@@ -24,7 +30,11 @@ export default function Log(props: ILogProps) {
           <Stack
             key={index}
             sx={itemStyle}
-            onClick={() => props.onOpenDialog && props.onOpenDialog(item)}
+            onClick={() => {
+              if (props.onOpenDialog && isSubscription(item)) {
+                props.onOpenDialog(item);
+              }
+            }}
           >
             <Component data={item} />
           </Stack>
