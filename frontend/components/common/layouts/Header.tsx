@@ -12,7 +12,7 @@ export default function Header() {
             <Image src="/catalog.png" width={36} height={36} alt={""} />
           </Link>
         </Box>
-        <Typography sx={titleTextStyle}>Cat&Log</Typography>
+        <Typography sx={titleTextStyle}>Catalog</Typography>
       </Box>
       <UserMenu />
     </Box>
