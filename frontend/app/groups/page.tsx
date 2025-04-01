@@ -186,5 +186,5 @@ const filterContainerStyle = {
 };
 
 const gridWrapperStyle = {
-  paddingTop: "120px"
+  paddingTop: "30px"
 };

@@ -1,4 +1,4 @@
-import { textGrey } from "@/styles/colors";
+import { textGrey, textLightGrey } from "@/styles/colors";
 import { Group } from "@/types/groups";
 import {
   fetchWithAuth,
@@ -6,7 +6,7 @@ import {
   groupsMembersLeaveApi,
   userMeApi
 } from "@/utils/api";
-import { Card, CardContent, Typography, IconButton, Button } from "@mui/material";
+import { Card, CardContent, Typography, IconButton, Button, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -128,40 +128,49 @@ export default function GroupCard(props: IGroupCardProps) {
 
   return (
     <Card sx={cardStyle} onClick={handleCardClick}>
-      <CardContent>
-        {props.group.creator === currentUserId && (
-          <RedDeleteIconButton
-            aria-label="delete"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenDialog("delete");
-            }}
-            sx={iconButtonStyle}
-          >
-            <DeleteOutlineIcon />
-          </RedDeleteIconButton>
-        )}
-        <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
-        <Typography sx={textStyle}>Creator: {props.group.creator}</Typography>
-        <Typography sx={textStyle}>
-          Created At: {formattedDate}
-        </Typography>
-        {props.group.creator !== currentUserId && (
-          <Button
-            variant="contained"
-            color="warning"
-            sx={buttonStyle}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenDialog("leave");
-            }}
-            disabled={isLeaving}
-            startIcon={<ExitToAppIcon />}
-          >
-            {isLeaving ? "Leaving..." : "Leave Group"}
-          </Button>
-        )}
-      </CardContent>
+      <Box sx={{ display: "flex" }}>
+        <Box sx={greyStripStyle} />
+        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={textCenteringStyle}>
+          <CardContent>
+            {props.group.creator === currentUserId && (
+              <RedDeleteIconButton
+                aria-label="delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenDialog("delete");
+                }}
+                sx={iconButtonStyle}
+              >
+                <DeleteOutlineIcon />
+              </RedDeleteIconButton>
+            )}
+            <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
+            <Typography sx={textStyle}>
+              Members: {props.group.members.length}
+            </Typography>
+            <Typography sx={textStyle}>
+              Receipts: {props.group.receipts.length}
+            </Typography>
+            {props.group.creator !== currentUserId && (
+              <Button
+                variant="contained"
+                color="warning"
+                sx={buttonStyle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenDialog("leave");
+                }}
+                disabled={isLeaving}
+                startIcon={<ExitToAppIcon />}
+              >
+                {isLeaving ? "Leaving..." : "Leave Group"}
+              </Button>
+            )}
+          </CardContent>
+        </Box>
+        </Box>
+      </Box>
       <DeleteLeaveConfirmationDialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -178,6 +187,7 @@ const cardStyle = {
   cursor: "pointer",
   position: "relative",
   borderRadius: "16px",
+  height: "160px",
 };
 
 const groupnameTextStyle = {
@@ -187,7 +197,7 @@ const groupnameTextStyle = {
 };
 
 const textStyle = {
-  color: textGrey,
+  color: textLightGrey,
   fontSize: "16px"
 };
 
@@ -197,6 +207,21 @@ const buttonStyle = {
 
 const iconButtonStyle = {
   position: "absolute",
-  top: "8px",
+  bottom: "8px",
   right: "8px"
+};
+
+const greyStripStyle = {
+  width: "64px",
+  backgroundColor: textGrey,
+  borderTopLeftRadius: "16px",
+  borderBottomLeftRadius: "16px",
+  height: "160px",
+};
+
+const textCenteringStyle = {
+  flexGrow: 1, 
+  display: "flex", 
+  alignItems: "center", 
+  height: "100%"
 };
