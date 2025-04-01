@@ -148,8 +148,8 @@ export default function GroupsPage() {
         />
       </Box>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add Group</DialogTitle>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth sx={{ '& .MuiDialog-paper': { width: '400px', borderRadius: '16px' } }}>
+        <DialogTitle sx={{ fontWeight: "bold", paddingBottom: 0 }}>Add Group</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -159,14 +159,12 @@ export default function GroupsPage() {
             fullWidth
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddGroup} color="primary">
-            Add
+        <DialogActions sx={{ paddingX: 2, paddingBottom: 2 }}>
+          <Button onClick={handleAddGroup} sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold"}} variant="contained">
+            Create Group
           </Button>
         </DialogActions>
       </Dialog>
