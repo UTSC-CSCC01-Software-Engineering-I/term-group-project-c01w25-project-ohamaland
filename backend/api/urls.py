@@ -28,6 +28,7 @@ from .views import (
     InsightsView,
     NotificationOverview,
     NotificationDetail,
+    MyTokenObtainPairView
 )
 
 urlpatterns = [
@@ -66,6 +67,7 @@ urlpatterns = [
     path("user/login/", login, name="user-login"),
     path("user/logout/", logout, name="user-logout"),
     path("user/me/", me, name="me"),
+    path("user/token/", MyTokenObtainPairView.as_view(), name="token-obtain"),
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("subscriptions/", SubscriptionList.as_view(), name="subscription-list"),
     path(

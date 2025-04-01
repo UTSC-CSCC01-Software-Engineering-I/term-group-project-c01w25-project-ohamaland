@@ -1,4 +1,27 @@
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  user_id: number;
+  username: string;
+  exp: number; // expiration timestamp
+}
+
+export function getCurrentUser(): { user_id: number; username: string } | null {
+  const token = getAccessToken();
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode<DecodedToken>(token);
+    return {
+      user_id: decoded.user_id,
+      username: decoded.username
+    };
+  } catch (error) {
+    console.error("Failed to decode JWT:", error);
+    return null;
+  }
+}
 
 export function getAccessToken() {
   return Cookies.get("accessToken");

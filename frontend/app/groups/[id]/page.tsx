@@ -8,6 +8,7 @@ import { textLightGrey } from "@/styles/colors";
 import GroupLogItem from "@/components/groups/GroupLogItem";
 import AddReceipt from "@/components/common/AddReceipt";
 import { receiptsApi } from "@/utils/api";
+import { getCurrentUser } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -30,6 +31,7 @@ import { useEffect, useState } from "react";
 import { Receipt } from "@/types/receipts";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
+import { GroupLogEntry } from "@/types/groups";
 
 import {
   fetchWithAuth,
@@ -51,6 +53,23 @@ export default function GroupDetailPage() {
   const [newUserId, setNewUserId] = useState<number>(0);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [logEntries, setLogEntries] = useState<GroupLogEntry[]>([]);
+  
+  const generateLogFromReceipts = (receipts: Receipt[], members: GroupMember[]): GroupLogEntry[] => {
+    return receipts
+      .map((receipt) => {
+        const matchingMember = members.find((m) => m.user_id === receipt.user_id);
+        const username = matchingMember?.username ?? `User ${receipt.user_id}`;
+  
+        return {
+          user: username,
+          action: `Added a new receipt at ${receipt.merchant}.`,
+          date: receipt.date.split("T")[0],
+          type: "add" as const,
+        };
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };  
 
   // Fetch group details
   useEffect(() => {
@@ -96,6 +115,12 @@ export default function GroupDetailPage() {
     fetchMembers();
   }, [groupId]);
 
+  useEffect(() => {
+    if (group?.receipts?.length && members.length) {
+      setLogEntries(generateLogFromReceipts(group.receipts, members));
+    }
+  }, [group, members]);  
+  
   // Add member
   const handleAddMember = async () => {
     if (!newUserId) return;
@@ -114,6 +139,15 @@ export default function GroupDetailPage() {
       }
       const createdMember = await res.json();
       setMembers((prev) => [...prev, createdMember]);
+      setLogEntries((prev) => [
+        {
+          user: createdMember.username,
+          action: "Joined the group!",
+          date: new Date().toISOString().split("T")[0],
+          type: "join"
+        },
+        ...prev
+      ]);      
       setNewUserId(0);
     } catch (error) {
       console.error(error);
@@ -122,6 +156,7 @@ export default function GroupDetailPage() {
   // Remove member
   const handleRemoveMember = async (memberId: number) => {
     try {
+      const member = members.find((m) => m.id === memberId);
       const token = getAccessToken();
       const res = await fetchWithAuth(
         groupsMembersDetailApi(groupId, memberId),
@@ -132,14 +167,27 @@ export default function GroupDetailPage() {
           }
         }
       );
+  
       if (!res || !res.ok) {
         throw new Error("Failed to delete member");
       }
+  
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
+  
+      if (member) {
+        const logEntry: GroupLogEntry = {
+          user: member.username,
+          action: "Left the group.",
+          date: new Date().toISOString().split("T")[0],
+          type: "leave"
+        };
+  
+        setLogEntries((prev) => [logEntry, ...prev]);
+      }
     } catch (error) {
       console.error(error);
     }
-  };
+  };  
 
   // Open and close dialog
   const handleOpenDialog = (receipt: Receipt) => {
@@ -165,9 +213,9 @@ export default function GroupDetailPage() {
       const formattedDate = new Date(updatedReceipt.date)
         .toISOString()
         .split("T")[0];
-
+  
       const updatedData = { ...updatedReceipt, date: formattedDate };
-
+  
       const response = await fetchWithAuth(
         receiptsDetailApi(updatedReceipt.id),
         {
@@ -178,13 +226,14 @@ export default function GroupDetailPage() {
           body: JSON.stringify(updatedData)
         }
       );
-
+  
       if (!response || !response.ok) {
         console.error("Failed to save receipt");
         return;
       }
-
+  
       const savedReceipt = await response.json();
+  
       setGroup((prevGroup) => {
         if (!prevGroup) return null;
         return {
@@ -195,11 +244,21 @@ export default function GroupDetailPage() {
             ) ?? []
         };
       });
+  
+      const logEntry: GroupLogEntry = {
+        user: getCurrentUser()?.username ?? "Unknown",
+        action: `Updated receipt at ${savedReceipt.merchant}.`,
+        date: formattedDate,
+        type: "update"
+      };
+  
+      setLogEntries((prev) => [logEntry, ...prev]);
+  
       handleCloseDialog();
     } catch (error) {
       console.error("Error updating receipt:", error);
     }
-  };
+  };  
 
   const handleSaveGroupReceipt = async (newReceipt: Receipt, file: File | null) => {
     try {
@@ -207,6 +266,7 @@ export default function GroupDetailPage() {
         ...newReceipt,
         group: groupId
       };
+      console.log("Current user", getCurrentUser());
   
       const response = await fetchWithAuth(receiptsApi, {
         method: "POST",
@@ -220,6 +280,7 @@ export default function GroupDetailPage() {
       }
   
       const savedReceipt = await response.json();
+  
       setGroup((prevGroup) => {
         if (!prevGroup) return null;
         return {
@@ -227,6 +288,16 @@ export default function GroupDetailPage() {
           receipts: [...(prevGroup.receipts || []), savedReceipt]
         };
       });
+  
+      setLogEntries((prev) => [
+        {
+          user: getCurrentUser()?.username ?? "Unknown",
+          action: `Added a new receipt at ${savedReceipt.merchant}.`,
+          date: savedReceipt.date.split("T")[0],
+          type: "add"
+        },
+        ...prev
+      ]);
   
       setIsCreating(false);
     } catch (error) {
@@ -237,15 +308,17 @@ export default function GroupDetailPage() {
   // Delete receipt
   const handleDeleteReceipt = async (receiptId: number) => {
     try {
+      const deletedReceipt = group?.receipts?.find((r) => r.id === receiptId);
+  
       const response = await fetchWithAuth(receiptsDetailApi(receiptId), {
         method: "DELETE"
       });
-
+  
       if (!response || !response.ok) {
         console.error("Failed to delete receipt");
         return;
       }
-
+  
       setGroup((prevGroup) => {
         if (!prevGroup) return null;
         return {
@@ -253,20 +326,34 @@ export default function GroupDetailPage() {
           receipts: prevGroup.receipts?.filter((r) => r.id !== receiptId) ?? []
         };
       });
-
+  
+      if (deletedReceipt) {
+        setLogEntries((prev) => [
+          {
+            user: getCurrentUser()?.username ?? "Unknown",
+            action: `Deleted a receipt at ${deletedReceipt.merchant}.`,
+            date: new Date().toISOString().split("T")[0],
+            type: "delete"
+          },
+          ...prev
+        ]);
+      }
+  
       if (selectedReceipt?.id === receiptId) {
         handleCloseDialog();
       }
     } catch (error) {
       console.error("Error deleting receipt:", error);
     }
-  };
+  };  
 
-// ✅ Placeholder log (replace with real data if available)
-const logData = [
-  { user: "Someone", action: "joined the group", date: "2025-03-31" },
-  { user: "Admin", action: "added a receipt", date: "2025-03-30" }
-];
+  function getRecentGroupReceipts(receipts: Receipt[]) {
+    const sortedReceipts = receipts
+      .filter((r) => !!r.date)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
+    return sortedReceipts.slice(0, 5); // top 5 most recent
+  }
 
 return (
   <PageWrapper>
@@ -299,12 +386,12 @@ return (
 
       {/* Right: Log + Members */}
       <Box sx={{ width: 300 }}>
-        <Log
-          title="Recent Activity"
-          data={logData}
-          Component={GroupLogItem}
-          onOpenDialog={() => {}}
-        />
+      <Log
+        title="Recent Activity"
+        data={logEntries}
+        Component={GroupLogItem}
+        onOpenDialog={() => {}}
+      />
 
         <Card variant="outlined" sx={{ mt: 3 }}>
           <CardHeader title="Members" />
@@ -324,7 +411,7 @@ return (
                   }
                 >
                   <ListItemText
-                    primary={`User ID: ${member.user_id}`}
+                    primary={`@${member.username}`}
                     secondary={`Joined: ${member.joined_at}`}
                   />
                 </ListItem>

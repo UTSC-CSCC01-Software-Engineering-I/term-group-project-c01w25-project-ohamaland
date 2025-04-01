@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
 from django.db import models
 from django.db.models import Q
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .signals import (
     calculate_currency_distribution,
@@ -51,6 +52,7 @@ from .serializers import (
     UserSerializer,
     SubscriptionSerializer,
     NotificationSerializer,
+    MyTokenObtainPairSerializer
 )
 
 
@@ -890,3 +892,7 @@ class NotificationDetail(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

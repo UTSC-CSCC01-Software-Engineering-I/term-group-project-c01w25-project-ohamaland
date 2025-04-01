@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import (
     GroupReceiptSplit,
@@ -57,11 +58,12 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class GroupMembersSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source="user.id")
+    username = serializers.CharField(source="user.username", read_only=True)
     group = serializers.IntegerField(source="group.id")
 
     class Meta:
         model = GroupMembers
-        fields = ["id", "group", "user_id", "joined_at"]
+        fields = ["id", "group", "user_id", "username", "joined_at"]
 
     def create(self, validated_data):
         user_id = validated_data.pop("user")["id"]
@@ -382,3 +384,13 @@ class FolderSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["user"] = user
         return super().create(validated_data)
+    
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        
+        token["user_id"] = user.id
+        token["username"] = user.username
+
+        return token

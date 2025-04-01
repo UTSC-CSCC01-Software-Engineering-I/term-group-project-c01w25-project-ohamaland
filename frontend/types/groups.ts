@@ -9,3 +9,10 @@ export type Group = {
   members?: GroupMember[]; // synced type with backend, now referencing GroupMembers.ts
   receipts?: Receipt[];
 };
+
+export interface GroupLogEntry {
+  user: string;
+  action: string;
+  date: string; // format "YYYY-MM-DD"
+  type?: "join" | "add" | "delete" | "tag"| "update" | "leave";
+}
