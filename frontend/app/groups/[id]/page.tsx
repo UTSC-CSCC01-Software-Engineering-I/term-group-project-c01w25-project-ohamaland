@@ -1,6 +1,8 @@
 "use client";
 
 import PageWrapper from "@/components/common/layouts/PageWrapper";
+import Log from "@/components/common/Log";
+import GroupLogItem from "@/components/groups/GroupLogItem";
 import AddReceipt from "@/components/receipts/AddReceipt";
 import ReceiptCard from "@/components/receipts/ReceiptCard";
 import { textLightGrey } from "@/styles/colors";
@@ -346,6 +348,7 @@ export default function GroupDetailPage() {
         <Tabs value={activeTab} onChange={handleTabChange} sx={tabsStyle}>
           <Tab label="Members" />
           <Tab label="Receipts" />
+          <Tab label="Recent Activity" />
         </Tabs>
 
         {/* TAB PANEL: MEMBERS */}
@@ -454,6 +457,16 @@ export default function GroupDetailPage() {
                 </Box>
               </CardContent>
             </Card>
+          </Box>
+        )}
+
+        {/* TAB PANEL: Recent Activity */}
+        {activeTab === 2 && (
+          <Box>
+            <Log
+              data={getRecentMembers(group?.members)}
+              Component={GroupLogItem}
+            />
           </Box>
         )}
 
@@ -604,6 +617,37 @@ export default function GroupDetailPage() {
     </PageWrapper>
   );
 }
+
+function getRecentMembers(members: GroupMember[] | null = null) {
+  if (members == null) return [];
+  const currentDate = new Date();
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
+  const sortedMembers = members
+    .filter((g) => new Date(g.joined_at) >= yesterday)
+    .sort(
+      (a, b) =>
+        new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
+    );
+  return sortedMembers.slice(0, Math.ceil(logsToShow / 2))
+}
+
+// TODO: Add To logs
+function getRecentReceipts(receipts: Receipt[] | null = null) {
+  if (receipts == null) return [];
+  const currentDate = new Date();
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
+  const sortedReceipts = receipts
+    .filter((r) => new Date(r.created_at) >= yesteday)
+    .sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  return sortedReceipts.slice(0, Math.floor(logsToShow/2))
+}
+
+const logsToShow = 10;
 
 const containerStyle = {
   width: "90%",
