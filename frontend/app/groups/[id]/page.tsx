@@ -346,14 +346,16 @@ export default function GroupDetailPage() {
                       <ListItem
                         key={member.id}
                         secondaryAction={
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            color="error"
-                            onClick={() => handleRemoveMember(member.id)}
-                          >
-                            <Delete />
-                          </IconButton>
+                          group?.creator !== member.user.id && (
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              color="error"
+                              onClick={() => handleRemoveMember(member.id)}
+                            >
+                              <Delete />
+                            </IconButton>
+                          )
                         }
                       >
                         <ListItemText
