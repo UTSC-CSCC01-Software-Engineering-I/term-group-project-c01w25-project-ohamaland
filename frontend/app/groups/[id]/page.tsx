@@ -621,10 +621,10 @@ export default function GroupDetailPage() {
 function getRecentMembers(members: GroupMember[] | null = null) {
   if (members == null) return [];
   const currentDate = new Date();
-  const yesteday = new Date(currentDate);
-  yesteday.setDate(currentDate.getDate() - 1);
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
   const sortedMembers = members
-    .filter((g) => new Date(g.joined_at) >= yesteday)
+    .filter((g) => new Date(g.joined_at) >= yesterday)
     .sort(
       (a, b) =>
         new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
