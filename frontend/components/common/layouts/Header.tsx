@@ -27,7 +27,7 @@ const headerStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   height: "64px",
-  flexShrink: 0,
+  flexShrink: 0
 };
 
 const logoContainerStyle = {

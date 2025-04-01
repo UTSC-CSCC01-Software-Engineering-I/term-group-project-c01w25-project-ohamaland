@@ -5,7 +5,15 @@ import GroupFilter from "@/components/groups/GroupFilter";
 import GroupGrid from "@/components/groups/GroupGrid";
 import { Group } from "@/types/groups";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
-import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField
+} from "@mui/material";
 import { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
@@ -59,20 +67,22 @@ export default function GroupsPage() {
 
   const handleAddGroup = async () => {
     try {
-      const membersArray = groupMembers.filter(member => member.trim() !== "").map(member => ({ identifier: member }));
+      const membersArray = groupMembers
+        .filter((member) => member.trim() !== "")
+        .map((member) => ({ identifier: member }));
       const groupData = {
         creator: userId,
         name: groupName,
         members: membersArray,
-        receipts: [],
+        receipts: []
       };
       const response = await fetchWithAuth(groupsApi, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(groupData)
-            });
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(groupData)
+      });
       if (!response || !response.ok) {
         throw new Error("Failed to add group");
       }
@@ -115,11 +125,7 @@ export default function GroupsPage() {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleClickOpen}
-        >
+        <Button variant="contained" color="primary" onClick={handleClickOpen}>
           Add
         </Button>
       </Box>

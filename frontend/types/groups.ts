@@ -1,5 +1,5 @@
-import { Receipt } from "@/types/receipts";
 import { GroupMember } from "@/types/groupMembers";
+import { Receipt } from "@/types/receipts";
 
 export type Group = {
   id: number;
