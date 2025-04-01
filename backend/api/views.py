@@ -901,14 +901,22 @@ class DashboardView(APIView):
         total_spending = calculate_total_spending(user, one_month_ago, currency)
         total_spent = calculate_total_spent(user, one_month_ago, currency)
         receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by('-date')[:5]
-        serialized_receipts = ReceiptSerializer(receipts, many=True).data
-        subscription = Subscription.objects.filter(user=user).order_by('-renewal_date').first()
-        serialized_subscription = SubscriptionSerializer(subscription).data if subscription else None
+        formated_receipts = [
+            {
+                "merchant": receipt.merchant,
+                "amount": receipt.total_amount,
+                "date": receipt.date,
+            }
+            for receipt in receipts
+        ]
+        subscriptions = Subscription.objects.filter(user=user).order_by('-renewal_date')[:2]
+        serialized_subscriptions = SubscriptionSerializer(subscriptions, many=True).data
         data = {
             "total_spending": total_spending,
             "total_spent": total_spent,
-            "receipts": serialized_receipts,
-            "subscription": serialized_subscription,
+            "receipts": formated_receipts,
+            "subscription": serialized_subscriptions,
+            "currency": currency,
         }
 
         return Response(data, status=status.HTTP_200_OK)
