@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    DashboardView,
     FolderDetail,
     FolderListCreate,
     FolderReceipt,
@@ -106,4 +107,5 @@ urlpatterns = [
     path("receipts/upload/", receipt_upload, name="image-upload"),
     path('notifications/', NotificationOverview.as_view(), name='notification-list'),
     path('notifications/<int:pk>/', NotificationDetail.as_view(), name='notification-detail'),
+    path("dashboard/", DashboardView.as_view(), name="dashboard")
 ]
