@@ -185,7 +185,7 @@ export default function GroupsPage() {
   );
 }
 
-// TODO: make to simply "getRecentActivity" and get all activity, not just memvbers
+// TODO: make to simply "getRecentActivity" and get all activity, not just members
 // TODO: make it defined once
 function getRecentMembers(groups: Group[] | null = null): GroupMember[] {
   if (groups == null) return [];
