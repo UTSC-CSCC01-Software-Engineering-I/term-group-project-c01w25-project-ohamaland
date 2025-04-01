@@ -182,7 +182,7 @@ export default function GroupCard(props: IGroupCardProps) {
 }
 
 const cardStyle = {
-  minWidth: "300px",
+  minWidth: "320px",
   margin: "8px",
   cursor: "pointer",
   position: "relative",
