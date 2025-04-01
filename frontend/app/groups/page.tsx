@@ -23,7 +23,6 @@ export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [userId, setUserId] = useState<number | null>(null);
   const [groupName, setGroupName] = useState("");
-  const [groupMembers, setGroupMembers] = useState<string[]>([""]);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [filterTerm, setFilterTerm] = useState("");
@@ -69,13 +68,10 @@ export default function GroupsPage() {
 
   const handleAddGroup = async () => {
     try {
-      const membersArray = groupMembers
-        .filter((member) => member.trim() !== "")
-        .map((member) => ({ identifier: member }));
       const groupData = {
         creator: userId,
         name: groupName,
-        members: membersArray,
+        members: [],
         receipts: []
       };
       const response = await fetchWithAuth(groupsApi, {
@@ -92,7 +88,6 @@ export default function GroupsPage() {
       setGroups((prevGroups) => [...prevGroups, data]);
       setOpen(false);
       setGroupName("");
-      setGroupMembers([""]);
     } catch (error) {
       console.error("Error adding group:", error);
     }
@@ -104,15 +99,6 @@ export default function GroupsPage() {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleMemberChange = (index: number, value: string) => {
-    const newMembers = [...groupMembers];
-    newMembers[index] = value;
-    setGroupMembers(newMembers);
-    if (value.trim() !== "" && index === groupMembers.length - 1) {
-      setGroupMembers([...groupMembers, ""]);
-    }
   };
 
   return (
@@ -174,17 +160,6 @@ export default function GroupsPage() {
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
           />
-          {groupMembers.map((member, index) => (
-            <TextField
-              key={index}
-              margin="dense"
-              label={`Group Member ${index + 1}`}
-              type="text"
-              fullWidth
-              value={member}
-              onChange={(e) => handleMemberChange(index, e.target.value)}
-            />
-          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
