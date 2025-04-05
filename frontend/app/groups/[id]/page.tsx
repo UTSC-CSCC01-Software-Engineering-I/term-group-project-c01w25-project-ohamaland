@@ -19,7 +19,6 @@ import {
   groupsMembersApi,
   groupsMembersDetailApi,
   receiptsApi,
-  receiptsDetailApi
 } from "@/utils/api";
 import { Add, ChevronRight, Delete, Edit } from "@mui/icons-material";
 import {
@@ -133,43 +132,43 @@ export default function GroupDetailPage() {
     setActiveTab(newValue);
   };
 
-  const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
-    try {
-      const formattedDate = new Date(updatedReceipt.date)
-        .toISOString()
-        .split("T")[0];
+  // const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
+  //   try {
+  //     const formattedDate = new Date(updatedReceipt.date)
+  //       .toISOString()
+  //       .split("T")[0];
 
-      const updatedData = { ...updatedReceipt, date: formattedDate };
+  //     const updatedData = { ...updatedReceipt, date: formattedDate };
 
-      const response = await fetchWithAuth(
-        receiptsDetailApi(updatedReceipt.id),
-        {
-          method: "PATCH",
-          body: JSON.stringify(updatedData)
-        }
-      );
+  //     const response = await fetchWithAuth(
+  //       receiptsDetailApi(updatedReceipt.id),
+  //       {
+  //         method: "PATCH",
+  //         body: JSON.stringify(updatedData)
+  //       }
+  //     );
 
-      if (!response || !response.ok) {
-        console.error("Failed to save receipt");
-        return;
-      }
+  //     if (!response || !response.ok) {
+  //       console.error("Failed to save receipt");
+  //       return;
+  //     }
 
-      const savedReceipt = await response.json();
-      setGroup((prevGroup) => {
-        if (!prevGroup) return null;
-        return {
-          ...prevGroup,
-          receipts:
-            prevGroup.receipts?.map((r) =>
-              r.id === savedReceipt.id ? savedReceipt : r
-            ) ?? []
-        };
-      });
-      handleCloseDialog();
-    } catch (error) {
-      console.error("Error updating receipt:", error);
-    }
-  };
+  //     const savedReceipt = await response.json();
+  //     setGroup((prevGroup) => {
+  //       if (!prevGroup) return null;
+  //       return {
+  //         ...prevGroup,
+  //         receipts:
+  //           prevGroup.receipts?.map((r) =>
+  //             r.id === savedReceipt.id ? savedReceipt : r
+  //           ) ?? []
+  //       };
+  //     });
+  //     handleCloseDialog();
+  //   } catch (error) {
+  //     console.error("Error updating receipt:", error);
+  //   }
+  // };
 
   const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);
@@ -664,19 +663,19 @@ function getRecentMembers(members: GroupMember[] | null = null) {
 }
 
 // TODO: Add To logs
-function getRecentReceipts(receipts: Receipt[] | null = null) {
-  if (receipts == null) return [];
-  const currentDate = new Date();
-  const yesterday = new Date(currentDate);
-  yesterday.setDate(currentDate.getDate() - 1);
-  const sortedReceipts = receipts
-    .filter((r) => new Date(r.created_at) >= yesterday)
-    .sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-  return sortedReceipts.slice(0, Math.floor(logsToShow / 2))
-}
+// function getRecentReceipts(receipts: Receipt[] | null = null) {
+//   if (receipts == null) return [];
+//   const currentDate = new Date();
+//   const yesterday = new Date(currentDate);
+//   yesterday.setDate(currentDate.getDate() - 1);
+//   const sortedReceipts = receipts
+//     .filter((r) => new Date(r.created_at) >= yesterday)
+//     .sort(
+//       (a, b) =>
+//         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+//     );
+//   return sortedReceipts.slice(0, Math.floor(logsToShow / 2))
+// }
 
 const logsToShow = 10;
 
