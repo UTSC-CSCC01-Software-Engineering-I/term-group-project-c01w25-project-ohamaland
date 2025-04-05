@@ -357,12 +357,14 @@ export default function GroupDetailPage() {
             {group ? (
               <Stack spacing={1}>
                 <Typography sx={subtitleStyle}>{group.name}</Typography>
-                <Typography sx={textStyle}>
-                  <strong>Creator:</strong> {group.creator}
+                <Stack spacing={1}>
+                  <Typography sx={textStyle}>
+                    <strong>Creator:</strong> {group.creator}
+                  </Typography>
                   <Typography sx={textStyle}>
                     <strong>Created At:</strong> {formatDate(group.created_at)}
                   </Typography>
-                </Typography>
+                </Stack>
               </Stack>
             ) : (
               <Typography sx={loadingTextStyle}>Loading group...</Typography>

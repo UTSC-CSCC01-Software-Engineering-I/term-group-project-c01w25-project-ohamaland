@@ -39,7 +39,6 @@ const loggedInSections = [
   "Receipts",
   "Subscriptions",
   "Insights",
-  "Settings",
   "Logout"
 ];
 
