@@ -2,7 +2,7 @@
 
 ## Iteration 03 - Review & Retrospect
 
-**When:** March 21, 2025  
+**When:** March 26, 2025  
 **Where:** Online (Discord)
 
 ---
