@@ -5,6 +5,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
+import Image from "next/image";
 
 registerPlugin(FilePondPluginFileValidateType);
 
@@ -82,7 +83,7 @@ export default function FilePondUpload({
           <span>Processing receipt...</span>
         </div>
       ) : fileUrl ? (
-        <img src={fileUrl} alt="Uploaded receipt" width={200} />
+        <Image src={fileUrl} alt="Uploaded receipt" width={200} height={200} />
       ) : (
         <p>No receipt uploaded yet.</p>
       )}
