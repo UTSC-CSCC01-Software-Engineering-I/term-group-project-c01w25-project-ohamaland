@@ -294,7 +294,7 @@ export default function GroupDetailPage() {
     }
   };
 
-  const handleSplitChange = (field: keyof GroupReceiptSplit, value: any) => {
+  const handleSplitChange = <T extends GroupReceiptSplit[keyof GroupReceiptSplit]>(field: keyof GroupReceiptSplit, value: T) => {
     if (!selectedSplit) return;
     setSelectedSplit({ ...selectedSplit, [field]: value });
   };
