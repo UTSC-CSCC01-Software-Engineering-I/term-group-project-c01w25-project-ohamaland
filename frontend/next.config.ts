@@ -6,4 +6,10 @@ const nextConfig = {
   }
 };
 
+module.exports = {
+  images: {
+    domains: ['upload.wikimedia.org'],
+  },
+};
+
 export default nextConfig;

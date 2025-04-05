@@ -1,5 +1,6 @@
 import { chart } from "@/styles/colors";
 import { Box, LinearProgress } from "@mui/material";
+import Image from "next/image"; // Import the Image component from next/image
 
 interface ICurrencyDistributionChartProps {
   currencyDistribution: { currency: string; percentage: number }[];
@@ -24,9 +25,12 @@ const CurrencyDistributionChart = ({
           <Box key={currencyCode} sx={currencyItemStyle}>
             <Box sx={flagContainerStyle}>
               {flagUrl && (
-                <img
+                <Image
                   src={flagUrl}
                   alt={`${currencyCode} flag`}
+                  layout="intrinsic"
+                  width={40} // Set appropriate width
+                  height={40} // Set appropriate height
                   style={flagStyle}
                 />
               )}
@@ -78,10 +82,13 @@ const flagContainerStyle = {
   height: "40px",
   borderRadius: "50%",
   overflow: "hidden",
-  marginRight: "8px"
+  marginRight: "8px",
+  display: "flex",
+  justifyContent: "center", 
+  alignItems: "center",
 };
 
-const flagStyle = {
+const flagStyle: React.CSSProperties = {
   width: "100%",
   height: "100%",
   objectFit: "cover"

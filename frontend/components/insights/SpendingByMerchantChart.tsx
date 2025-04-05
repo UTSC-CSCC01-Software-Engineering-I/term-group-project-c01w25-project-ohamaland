@@ -7,13 +7,27 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
+  TooltipProps
 } from "recharts";
 
 interface ISpendingByMerchantChartProps {
   merchantSpending: { merchant: string; amount: number }[];
   currency: string;
 }
+
+const customTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    const { name, amount } = payload[0].payload;
+    return (
+      <Box sx={tooltipStyle}>
+        <strong>{name}</strong>
+        <p>Total: ${amount.toFixed(2)}</p>
+      </Box>
+    );
+  }
+  return null;
+};
 
 const graphColors = [
   "#FF6384",
@@ -54,18 +68,7 @@ const SpendingByMerchantChart = ({
   );
 };
 
-const customTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const { name, amount } = payload[0].payload;
-    return (
-      <Box sx={tooltipStyle}>
-        <strong>{name}</strong>
-        <p>Total: ${amount.toFixed(2)}</p>
-      </Box>
-    );
-  }
-  return null;
-};
+
 
 const chartContainerStyle = {
   flex: 1,
