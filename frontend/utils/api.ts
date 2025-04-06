@@ -1,6 +1,6 @@
 import { getAccessToken, removeAccessToken } from "./auth";
 
-export const BASE_URL = "127.0.0.1:8000/api";
+export const BASE_URL = "192.168.88.5:8000/api";
 
 export const API_BASE_URL = "http://" + BASE_URL;
 
@@ -8,6 +8,8 @@ export async function handleApiResponse(response: Response) {
   if (response.status === 401) {
     // Clear auth tokens
     removeAccessToken();
+    // Redirect to login
+    window.location.href = "/login";
     return null;
   }
   return response;
