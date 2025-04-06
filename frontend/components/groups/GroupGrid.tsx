@@ -26,7 +26,6 @@ export default function GroupGrid(props: IGroupGridProps) {
     props.endDate,
     props.filterTerm
   );
-  console.log("Filtered Groups:", filteredGroups);
   return (
     <Grid2 container spacing={3}>
       {filteredGroups.map((group, index) => (
@@ -34,7 +33,6 @@ export default function GroupGrid(props: IGroupGridProps) {
           key={`${group.id}-${index}`}
           group={group}
           onGroupDeleted={props.onGroupDeleted}
-          userId={props.userId}
         />
       ))}
     </Grid2>

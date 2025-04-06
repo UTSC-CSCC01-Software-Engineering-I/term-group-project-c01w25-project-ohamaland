@@ -6,12 +6,29 @@ import "filepond/dist/filepond.min.css";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 import Image from "next/image";
+import { Currency, PaymentMethod } from "@/types/receipts";
 
 registerPlugin(FilePondPluginFileValidateType);
 
+interface OcrData {
+  merchant?: string;
+  total_amount?: number;
+  currency?: Currency;
+  date?: string;
+  payment_method?: PaymentMethod;
+  items?: Array<{
+    id?: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+  receipt_image_url?: string;
+  ocr_confidence?: number;
+}
+
 interface FilePondUploadProps {
   setFile: (file: File) => void;
-  onOcrDataExtracted: (ocrData: any) => void;
+  onOcrDataExtracted: (ocrData: OcrData) => void;
 }
 
 export default function FilePondUpload({

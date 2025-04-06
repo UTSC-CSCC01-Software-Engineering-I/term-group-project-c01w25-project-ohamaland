@@ -17,14 +17,14 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface LoginError {
   message: string;
   type: "auth" | "network" | "server";
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -293,3 +293,11 @@ const continueButtonStyle = {
     opacity: 0.7
   }
 };
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
+  );
+}

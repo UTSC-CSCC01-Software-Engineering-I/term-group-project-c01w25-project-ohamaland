@@ -8,8 +8,6 @@ export async function handleApiResponse(response: Response) {
   if (response.status === 401) {
     // Clear auth tokens
     removeAccessToken();
-    // Redirect to login
-    window.location.href = "/login";
     return null;
   }
   return response;

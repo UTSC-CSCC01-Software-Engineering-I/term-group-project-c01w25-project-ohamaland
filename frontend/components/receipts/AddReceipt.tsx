@@ -52,7 +52,7 @@ export default function AddReceipt(props: IAddReceiptProps) {
   const { open, onClose, onSave } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [newReceipt, setNewReceipt] = useState<Receipt>({
-    id: Date.now(), // Add a temporary ID for new receipts
+    id: Date.now(),
     merchant: "",
     date: new Date().toISOString(),
     currency: "USD",
@@ -62,7 +62,12 @@ export default function AddReceipt(props: IAddReceiptProps) {
     tax: 0,
     tip: 0,
     color: "#000000",
-    folder_id: 0
+    tax_last: false,
+    send_mail: false,
+    created_at: new Date().toISOString(),
+    receipt_image_url: "",
+    folder: "All",
+    splits: []
   });
   const [file, setFile] = useState<File | null>(null);
 
@@ -120,7 +125,7 @@ export default function AddReceipt(props: IAddReceiptProps) {
       };
       await onSave(formattedReceipt, file);
       setNewReceipt({
-        id: Date.now(), // Add a temporary ID for new receipts
+        id: Date.now(),
         merchant: "",
         date: new Date().toISOString(),
         currency: "USD",
@@ -130,7 +135,12 @@ export default function AddReceipt(props: IAddReceiptProps) {
         tax: 0,
         tip: 0,
         color: "#000000",
-        folder_id: 0
+        tax_last: false,
+        send_mail: false,
+        created_at: new Date().toISOString(),
+        receipt_image_url: "",
+        folder: "All",
+        splits: []
       });
       setFile(null);
     } finally {

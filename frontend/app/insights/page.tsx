@@ -15,7 +15,6 @@ import {
   SelectChangeEvent,
   Typography
 } from "@mui/material";
-import { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -57,20 +56,11 @@ interface BackendSpendingResponse {
 
 export default function Page() {
   const [folderSpending, setFolderSpending] = useState<FolderSpending>({});
-  const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>(
-    []
-  );
+  const [merchantSpending, setMerchantSpending] = useState<MerchantSpending[]>([]);
   const [spendingData, setSpendingData] = useState<SpendingData[]>([]);
-  const [paymentMethodSpending, setPaymentMethodSpending] = useState<
-    PaymentMethodSpending[]
-  >([]);
-  const [currencyDistribution, setCurrencyDistribution] = useState<
-    CurrencyDistribution[]
-  >([]);
+  const [paymentMethodSpending, setPaymentMethodSpending] = useState<PaymentMethodSpending[]>([]);
+  const [currencyDistribution, setCurrencyDistribution] = useState<CurrencyDistribution[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("Monthly");
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [filterTerm, setFilterTerm] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [currency, setCurrency] = useState<string>("");
   const router = useRouter();
@@ -152,13 +142,7 @@ export default function Page() {
           Insights
         </Typography>
         <SpendingFilter
-          startDate={startDate}
-          endDate={endDate}
-          filterTerm={filterTerm}
           selectedPeriod={selectedPeriod}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-          setFilterTerm={setFilterTerm}
           handlePeriodChange={handlePeriodChange}
         />
       </Box>

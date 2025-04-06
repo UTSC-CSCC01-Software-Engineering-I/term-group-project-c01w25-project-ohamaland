@@ -92,8 +92,7 @@ export function filterReceipts(
     }
 
     if (
-      category !== "All" &&
-      !receipt.items.some((item) => item.category === category)
+      category !== "All"
     ) {
       return false;
     }

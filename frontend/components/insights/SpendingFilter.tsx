@@ -10,9 +10,9 @@ import {
 import { Dayjs } from "dayjs";
 
 interface ISpendingFilterProps {
-  filterTerm: string;
+  filterTerm?: string;
   selectedPeriod: string;
-  setEndDate: (value: Dayjs | null) => void;
+  setEndDate?: (value: Dayjs | null) => void;
   handlePeriodChange: (event: SelectChangeEvent) => void;
 }
 
