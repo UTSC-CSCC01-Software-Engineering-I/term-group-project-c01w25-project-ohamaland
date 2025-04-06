@@ -7,8 +7,8 @@ export function getAccessToken() {
 export function setAccessToken(token: string) {
   Cookies.set("accessToken", token, {
     expires: 1, // 1 day
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict"
+    secure: false,
+    sameSite: "Lax"
   });
 }
 
@@ -19,8 +19,8 @@ export function getRefreshToken() {
 export function setRefreshToken(token: string) {
   Cookies.set("refreshToken", token, {
     expires: 7, // 7 days
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict"
+    secure: false,
+    sameSite: "Lax"
   });
 }
 
