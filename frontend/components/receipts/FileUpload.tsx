@@ -3,9 +3,9 @@ import { Box, CircularProgress } from "@mui/material";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
+import Image from "next/image";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
-import Image from "next/image";
 
 registerPlugin(FilePondPluginFileValidateType);
 

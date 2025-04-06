@@ -3,7 +3,7 @@ import { GroupMember } from "@/types/groupMembers";
 import { Typography } from "@mui/material";
 
 interface IGroupLogItemProps {
-    data: GroupMember;
+  data: GroupMember;
 }
 
 const formatDate = (dateString: string): string => {
@@ -12,14 +12,15 @@ const formatDate = (dateString: string): string => {
     month: "long",
     day: "numeric",
     hour: "2-digit",
-    minute: "2-digit",
+    minute: "2-digit"
   });
 };
 
 export default function GroupLogItem(props: IGroupLogItemProps) {
   return (
     <Typography sx={{ ...lightTextStyle, "&:hover": darkTextStyle }}>
-      {props.data.user.username} - {"Joined the Group at"} {formatDate(props.data.joined_at)}
+      {props.data.user.username} - {"Joined the Group at"}{" "}
+      {formatDate(props.data.joined_at)}
     </Typography>
   );
 }

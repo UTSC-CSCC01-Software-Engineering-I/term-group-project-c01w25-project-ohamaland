@@ -6,12 +6,12 @@ import {
   groupsMembersLeaveApi,
   userMeApi
 } from "@/utils/api";
-import { Card, CardContent, Typography, IconButton, Box } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { Box, Card, CardContent, IconButton, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 interface IGroupCardProps {
   group: Group;
@@ -64,7 +64,6 @@ export default function GroupCard(props: IGroupCardProps) {
   };
 
   const handleDeleteGroup = async () => {
-
     try {
       const response = await fetchWithAuth(groupsDeleteApi(props.group.id), {
         method: "DELETE"
@@ -75,8 +74,7 @@ export default function GroupCard(props: IGroupCardProps) {
       }
 
       props.onGroupDeleted(props.group.id);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   async function handleLeaveGroup() {
@@ -95,8 +93,7 @@ export default function GroupCard(props: IGroupCardProps) {
       }
 
       props.onGroupDeleted(props.group.id);
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   const handleCardClick = () => {
@@ -104,9 +101,9 @@ export default function GroupCard(props: IGroupCardProps) {
   };
 
   const RedDeleteIconButton = styled(IconButton)(() => ({
-    '&:hover': {
-      color: 'red',
-    },
+    "&:hover": {
+      color: "red"
+    }
   }));
 
   return (
@@ -114,41 +111,43 @@ export default function GroupCard(props: IGroupCardProps) {
       <Box sx={{ display: "flex" }} onClick={handleCardClick}>
         <Box sx={greyStripStyle} />
         <Box sx={{ flexGrow: 1 }}>
-        <Box sx={textCenteringStyle}>
-          <CardContent>
-            {props.group.creator === currentUserId && (
-              <RedDeleteIconButton
-                aria-label="delete"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenDialog("delete");
-                }}
-                sx={iconButtonStyle}
-              >
-                <DeleteOutlineIcon />
-              </RedDeleteIconButton>
-            )}
-            <Typography sx={groupnameTextStyle}>{props.group.name}</Typography>
-            <Typography sx={textStyle}>
-              Members: {props.group.members.length}
-            </Typography>
-            <Typography sx={textStyle}>
-              Receipts: {props.group.receipts.length}
-            </Typography>
-            {props.group.creator !== currentUserId && (
-              <RedDeleteIconButton
-              aria-label="delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleOpenDialog("leave");
-              }}
-              sx={iconButtonStyle}
-            >
-              <ExitToAppIcon />
-            </RedDeleteIconButton>
-            )}
-          </CardContent>
-        </Box>
+          <Box sx={textCenteringStyle}>
+            <CardContent>
+              {props.group.creator === currentUserId && (
+                <RedDeleteIconButton
+                  aria-label="delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenDialog("delete");
+                  }}
+                  sx={iconButtonStyle}
+                >
+                  <DeleteOutlineIcon />
+                </RedDeleteIconButton>
+              )}
+              <Typography sx={groupnameTextStyle}>
+                {props.group.name}
+              </Typography>
+              <Typography sx={textStyle}>
+                Members: {props.group.members.length}
+              </Typography>
+              <Typography sx={textStyle}>
+                Receipts: {props.group.receipts.length}
+              </Typography>
+              {props.group.creator !== currentUserId && (
+                <RedDeleteIconButton
+                  aria-label="delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenDialog("leave");
+                  }}
+                  sx={iconButtonStyle}
+                >
+                  <ExitToAppIcon />
+                </RedDeleteIconButton>
+              )}
+            </CardContent>
+          </Box>
         </Box>
       </Box>
       <DeleteLeaveConfirmationDialog
@@ -167,7 +166,7 @@ const cardStyle = {
   cursor: "pointer",
   position: "relative",
   borderRadius: "16px",
-  height: "160px",
+  height: "160px"
 };
 
 const groupnameTextStyle = {
@@ -192,7 +191,7 @@ const greyStripStyle = {
   backgroundColor: textGrey,
   borderTopLeftRadius: "16px",
   borderBottomLeftRadius: "16px",
-  height: "160px",
+  height: "160px"
 };
 
 const textCenteringStyle = {

@@ -16,7 +16,6 @@ interface ISpendingByFolderChartProps {
   currency: string;
 }
 
-
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     const { name, amount } = payload[0].payload;

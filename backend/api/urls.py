@@ -112,6 +112,10 @@ urlpatterns = [
         NotificationDetail.as_view(),
         name="notification-detail",
     ),
-    path("groups/<int:group_pk>/receipts/<int:receipt_pk>/delete/", GroupReceiptDelete.as_view(), name="group-receipt-delete"),
-    path("dashboard/", DashboardView.as_view(), name="dashboard")
+    path(
+        "groups/<int:group_pk>/receipts/<int:receipt_pk>/delete/",
+        GroupReceiptDelete.as_view(),
+        name="group-receipt-delete",
+    ),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
 ]

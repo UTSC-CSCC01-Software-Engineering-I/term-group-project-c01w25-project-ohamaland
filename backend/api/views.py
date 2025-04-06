@@ -76,7 +76,9 @@ class ReceiptOverview(APIView):
 
             # Notifications
             if receipt.group:
-                notify_group_receipt_added(receipt.group.id, receipt.id, request.user.id, receipt.send_mail)
+                notify_group_receipt_added(
+                    receipt.group.id, receipt.id, request.user.id, receipt.send_mail
+                )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -183,7 +185,7 @@ class GroupReceiptDelete(APIView):
         if not GroupMembers.objects.filter(group=group, user=request.user).exists():
             return Response(
                 {"error": "You are not a member of this group"},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         receipt.delete()
@@ -936,12 +938,16 @@ class DashboardView(APIView):
     def get(self, request):
         user = request.user
         currency = self.get_user_currency(user)
-        one_month_ago = get_spending_periods()['Monthly']
+        one_month_ago = get_spending_periods()["Monthly"]
         total_spending = calculate_total_spending(user, one_month_ago, currency)
         total_spent = calculate_total_spent(user, one_month_ago, currency)
-        receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by('-date')[:4]
+        receipts = Receipt.objects.filter(user=user, date__gte=one_month_ago).order_by(
+            "-date"
+        )[:4]
         percent_change = calculate_percent_change(user)
-        percent_change_str = f"{percent_change:+.1f}%" if percent_change is not None else "N/A"
+        percent_change_str = (
+            f"{percent_change:+.1f}%" if percent_change is not None else "N/A"
+        )
         currency_distribution = calculate_currency_distribution(user, one_month_ago)
         formated_receipts = [
             {
@@ -951,7 +957,9 @@ class DashboardView(APIView):
             }
             for receipt in receipts
         ]
-        subscriptions = Subscription.objects.filter(user=user).order_by('-renewal_date')[:2]
+        subscriptions = Subscription.objects.filter(user=user).order_by(
+            "-renewal_date"
+        )[:2]
         serialized_subscriptions = SubscriptionSerializer(subscriptions, many=True).data
         data = {
             "total_spending": total_spending,

@@ -18,7 +18,7 @@ import {
   groupsDetailApi,
   groupsMembersApi,
   groupsMembersDetailApi,
-  receiptsApi,
+  receiptsApi
 } from "@/utils/api";
 import { Add, ChevronRight, Delete, Edit } from "@mui/icons-material";
 import {
@@ -27,10 +27,12 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
@@ -38,17 +40,15 @@ import {
   MenuItem,
   Stack,
   Tab,
-  Tabs,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
   TextField,
-  Typography,
-  FormControlLabel,
-  Checkbox
+  Typography
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -83,8 +83,7 @@ export default function GroupDetailPage() {
         const data = await res.json();
         setGroup(data);
         setMembers(data.members);
-      } catch (error) {
-      }
+      } catch (error) {}
     }
     fetchGroup();
   }, [groupId]);
@@ -105,8 +104,7 @@ export default function GroupDetailPage() {
       const createdMember = await res.json();
       setMembers((prev) => [...prev, createdMember]);
       setNewMemberIdentifier("");
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleRemoveMember = async (memberId: number) => {
@@ -121,8 +119,7 @@ export default function GroupDetailPage() {
         throw new Error("Failed to delete member");
       }
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -132,7 +129,10 @@ export default function GroupDetailPage() {
   const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);
     try {
-      const response = await fetchWithAuth(costSplittingApi(groupId, receipt.id), {method: "GET"});
+      const response = await fetchWithAuth(
+        costSplittingApi(groupId, receipt.id),
+        { method: "GET" }
+      );
       if (!response || !response.ok) {
         throw new Error("Failed to fetch cost splits");
       }
@@ -151,7 +151,10 @@ export default function GroupDetailPage() {
 
   const handleDeleteGroupReceipt = async (receiptId: number) => {
     try {
-      const response = await fetchWithAuth(deleteGroupReceiptApi(groupId, receiptId), {method: "DELETE"});
+      const response = await fetchWithAuth(
+        deleteGroupReceiptApi(groupId, receiptId),
+        { method: "DELETE" }
+      );
       if (!response || !response.ok) {
         return;
       }
@@ -167,8 +170,7 @@ export default function GroupDetailPage() {
       if (selectedReceipt?.id === receiptId) {
         handleCloseDialog();
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleSaveReceipt = async (newReceipt: Receipt) => {
@@ -242,11 +244,15 @@ export default function GroupDetailPage() {
       );
       setEditDialogOpen(false);
       setDialogOpen(false); // Close the main dialog after saving the split
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
-  const handleSplitChange = <T extends GroupReceiptSplit[keyof GroupReceiptSplit]>(field: keyof GroupReceiptSplit, value: T) => {
+  const handleSplitChange = <
+    T extends GroupReceiptSplit[keyof GroupReceiptSplit]
+  >(
+    field: keyof GroupReceiptSplit,
+    value: T
+  ) => {
     if (!selectedSplit) return;
     setSelectedSplit({ ...selectedSplit, [field]: value });
   };
@@ -254,11 +260,38 @@ export default function GroupDetailPage() {
   const getStatusStyle = (status: Status) => {
     switch (status) {
       case "Pending":
-        return { backgroundColor: "#F2C946", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+        return {
+          backgroundColor: "#F2C946",
+          color: "white",
+          padding: "8px",
+          borderRadius: "8px",
+          display: "inline-block",
+          paddingX: "16px",
+          paddingBottom: "4px",
+          fontWeight: "bold"
+        };
       case "Paid":
-        return { backgroundColor: "#84E677", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+        return {
+          backgroundColor: "#84E677",
+          color: "white",
+          padding: "8px",
+          borderRadius: "8px",
+          display: "inline-block",
+          paddingX: "16px",
+          paddingBottom: "4px",
+          fontWeight: "bold"
+        };
       case "Disputed":
-        return { backgroundColor: "#E66868", color: "white", padding: "8px", borderRadius: "8px", display: "inline-block", paddingX: "16px", paddingBottom: "4px", fontWeight: "bold" };
+        return {
+          backgroundColor: "#E66868",
+          color: "white",
+          padding: "8px",
+          borderRadius: "8px",
+          display: "inline-block",
+          paddingX: "16px",
+          paddingBottom: "4px",
+          fontWeight: "bold"
+        };
       default:
         return {};
     }
@@ -270,7 +303,7 @@ export default function GroupDetailPage() {
       month: "long",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
   };
 
@@ -361,10 +394,16 @@ export default function GroupDetailPage() {
                         <ListItemText
                           primary={
                             <>
-                              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: "bold" }}
+                              >
                                 Username: {member.user.username}
                               </Typography>
-                              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: "bold" }}
+                              >
                                 Email: {member.user.email}
                               </Typography>
                             </>
@@ -390,7 +429,12 @@ export default function GroupDetailPage() {
                     variant="contained"
                     size="large"
                     onClick={handleAddMember}
-                    sx={{ bgcolor: "black", color: "white", fontWeight: "bold", borderRadius: "8px" }}
+                    sx={{
+                      bgcolor: "black",
+                      color: "white",
+                      fontWeight: "bold",
+                      borderRadius: "8px"
+                    }}
                   >
                     Add Member
                   </Button>
@@ -456,9 +500,11 @@ export default function GroupDetailPage() {
             onClose={handleCloseDialog}
             fullWidth
             maxWidth="md"
-            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' } }}
+            sx={{ "& .MuiDialog-paper": { borderRadius: "16px" } }}
           >
-            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Cost Splits</DialogTitle>
+            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>
+              Cost Splits
+            </DialogTitle>
             <DialogContent>
               {costSplits.length === 0 ? (
                 <Typography>No cost splits found.</Typography>
@@ -467,11 +513,31 @@ export default function GroupDetailPage() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Member</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Amount Owed</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Amount Paid</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Status</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold', fontSize: "16px" }}>Edit</TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Member
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Amount Owed
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Amount Paid
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Status
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: "bold", fontSize: "16px" }}
+                        >
+                          Edit
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -512,7 +578,15 @@ export default function GroupDetailPage() {
             <DialogActions>
               <Button
                 onClick={handleCloseDialog}
-                sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold", marginX: "16px", marginBottom: "16px" }}
+                sx={{
+                  backgroundColor: "black",
+                  color: "white",
+                  width: "100%",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  marginX: "16px",
+                  marginBottom: "16px"
+                }}
                 variant="contained"
               >
                 Close
@@ -533,12 +607,19 @@ export default function GroupDetailPage() {
             onClose={() => setEditDialogOpen(false)}
             fullWidth
             maxWidth="sm"
-            sx={{ '& .MuiDialog-paper': { borderRadius: '16px' } }}
+            sx={{ "& .MuiDialog-paper": { borderRadius: "16px" } }}
           >
-            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>Edit Cost Split</DialogTitle>
+            <DialogTitle sx={{ fontWeight: "bold", fontSize: "24px" }}>
+              Edit Cost Split
+            </DialogTitle>
             <DialogContent>
               <Box
-                sx={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "8px" }}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  marginTop: "8px"
+                }}
               >
                 <TextField
                   label="Status"
@@ -547,7 +628,7 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("status", e.target.value as Status)
                   }
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                 >
                   <MenuItem value="Pending">Pending</MenuItem>
                   <MenuItem value="Paid">Paid</MenuItem>
@@ -560,7 +641,7 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("amount_owed", parseFloat(e.target.value))
                   }
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                 />
                 <TextField
                   label="Amount Paid"
@@ -569,7 +650,7 @@ export default function GroupDetailPage() {
                   onChange={(e) =>
                     handleSplitChange("amount_paid", parseFloat(e.target.value))
                   }
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                 />
                 <FormControlLabel
                   control={
@@ -586,10 +667,34 @@ export default function GroupDetailPage() {
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setEditDialogOpen(false)} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "16px", marginRight: "8px" }}>
+              <Button
+                onClick={() => setEditDialogOpen(false)}
+                sx={{
+                  bgcolor: "black",
+                  color: "white",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  marginBottom: "16px",
+                  width: "50%",
+                  marginLeft: "16px",
+                  marginRight: "8px"
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSaveSplit} sx={{ bgcolor: "black", color: "white", borderRadius: "8px", fontWeight: "bold", marginBottom: "16px", width: "50%", marginLeft: "8px", marginRight: "16px" }}>
+              <Button
+                onClick={handleSaveSplit}
+                sx={{
+                  bgcolor: "black",
+                  color: "white",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  marginBottom: "16px",
+                  width: "50%",
+                  marginLeft: "8px",
+                  marginRight: "16px"
+                }}
+              >
                 Save
               </Button>
             </DialogActions>
@@ -611,7 +716,7 @@ function getRecentMembers(members: GroupMember[] | null = null) {
       (a, b) =>
         new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
     );
-  return sortedMembers.slice(0, Math.ceil(logsToShow / 2))
+  return sortedMembers.slice(0, Math.ceil(logsToShow / 2));
 }
 
 // TODO: Add To logs
@@ -691,4 +796,4 @@ const receiptListStyle = {
   flexWrap: "wrap",
   gap: "16px",
   justifyContent: "flex-start"
-}
+};

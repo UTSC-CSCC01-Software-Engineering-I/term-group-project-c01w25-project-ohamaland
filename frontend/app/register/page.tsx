@@ -75,8 +75,7 @@ export default function RegisterPage() {
       }
 
       window.location.href = "/login";
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (

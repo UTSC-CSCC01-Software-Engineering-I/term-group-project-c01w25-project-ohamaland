@@ -57,8 +57,7 @@ export default function Page() {
     try {
       const newFolder = await folderService.createFolder(name, color);
       setFolders((prevFolders) => [...prevFolders, newFolder]);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleDeleteFolder = async (folderId: number) => {
@@ -67,8 +66,7 @@ export default function Page() {
       setFolders((prevFolders) =>
         prevFolders.filter((folder) => folder.id !== folderId)
       );
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleFolderClick = async (folderId: number) => {
@@ -94,8 +92,7 @@ export default function Page() {
         );
         setReceipts(fullReceipts);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleSaveReceipt = async (newReceipt: Receipt) => {
@@ -147,8 +144,7 @@ export default function Page() {
           setSelectedReceipt(null);
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleOpenDialog = (receipt: Receipt) => {
@@ -211,8 +207,7 @@ export default function Page() {
         prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
       );
       handleCloseDialog();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (

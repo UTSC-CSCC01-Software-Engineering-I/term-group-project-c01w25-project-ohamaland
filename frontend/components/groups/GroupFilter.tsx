@@ -36,7 +36,7 @@ export default function GroupFilter(props: IGroupFilterProps) {
           onChange={(newDate) => props.setStartDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose a Start date",
+              placeholder: "Choose a Start date"
             }
           }}
         />
@@ -47,7 +47,7 @@ export default function GroupFilter(props: IGroupFilterProps) {
           onChange={(newDate) => props.setEndDate(newDate)}
           slotProps={{
             textField: {
-              placeholder: "Choose an End date",
+              placeholder: "Choose an End date"
             }
           }}
         />
@@ -82,4 +82,3 @@ const inputStyle = {
     fontWeight: 400
   }
 };
-
