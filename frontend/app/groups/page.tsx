@@ -7,7 +7,6 @@ import GroupGrid from "@/components/groups/GroupGrid";
 import GroupLogItem from "@/components/groups/GroupLogItem";
 import { GroupMember } from "@/types/groupMembers";
 import { Group } from "@/types/groups";
-import { Receipt } from "@/types/receipts";
 import { fetchWithAuth, groupsApi, userMeApi } from "@/utils/api";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -213,9 +212,15 @@ const contentLayoutStyle = {
 
 const rightContainerStyle = {
   position: "fixed",
-  right: "0px",
+  right: "32px",
   width: "304px",
-  flexShrink: 0
+  flexShrink: 0,
+  display: "flex",
+  flexDirection: "column",
+  padding: "16px",
+  borderRadius: "12px",
+  backgroundColor: "white",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
 };
 
 const filterContainerStyle = {

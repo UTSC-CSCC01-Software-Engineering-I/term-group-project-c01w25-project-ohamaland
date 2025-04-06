@@ -5,7 +5,8 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  TooltipProps
 } from "recharts";
 
 interface ISpendingByFolderChartProps {
@@ -14,6 +15,24 @@ interface ISpendingByFolderChartProps {
   };
   currency: string;
 }
+
+
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    const { name, amount } = payload[0].payload;
+    return (
+      <Box sx={tooltipStyle}>
+        <Typography variant="subtitle2">{name}</Typography>
+        <Typography variant="body2">Total: ${amount.toFixed(2)}</Typography>
+      </Box>
+    );
+  }
+  return null;
+};
+
+const LegendFormatter = (value: string, entry: { color?: string }) => {
+  return <span style={{ color: entry.color || "black" }}>{value}</span>;
+};
 
 const SpendingByFolderChart = ({
   folderSpending,
@@ -58,23 +77,6 @@ const SpendingByFolderChart = ({
   );
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const { name, amount } = payload[0].payload;
-    return (
-      <Box sx={tooltipStyle}>
-        <Typography variant="subtitle2">{name}</Typography>
-        <Typography variant="body2">Total: ${amount.toFixed(2)}</Typography>
-      </Box>
-    );
-  }
-  return null;
-};
-
-const LegendFormatter = (value: string, entry: any) => {
-  return <span style={{ color: entry.color }}>{value}</span>;
-};
-
 const chartContainerStyle = {
   flex: 1,
   boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.1)",
@@ -85,10 +87,6 @@ const chartContainerStyle = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "center"
-};
-
-const titleStyle = {
-  marginBottom: "8px"
 };
 
 const tooltipStyle = {

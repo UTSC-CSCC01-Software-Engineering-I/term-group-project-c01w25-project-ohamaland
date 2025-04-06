@@ -5,13 +5,27 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  TooltipProps
 } from "recharts";
 
 interface ISpendingByPaymentMethodChartProps {
   paymentMethodSpending: { payment_method: string; amount: number }[];
   currency: string;
 }
+
+const customTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    const { name, amount } = payload[0].payload;
+    return (
+      <Box sx={tooltipStyle}>
+        <strong>{name}</strong>
+        <p>Total: ${amount.toFixed(2)}</p>
+      </Box>
+    );
+  }
+  return null;
+};
 
 const graphColors = ["#8884d8", "#82ca9d", "#ff8c00", "#d0ed57"];
 
@@ -62,18 +76,6 @@ const SpendingByPaymentMethodChart = ({
   );
 };
 
-const customTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const { name, amount } = payload[0].payload;
-    return (
-      <Box sx={tooltipStyle}>
-        <strong>{name}</strong>
-        <p>Total: ${amount.toFixed(2)}</p>
-      </Box>
-    );
-  }
-  return null;
-};
 
 const chartContainerStyle = {
   flex: 3,

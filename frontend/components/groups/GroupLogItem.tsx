@@ -1,6 +1,5 @@
 import { defaultText, textLightGrey } from "@/styles/colors";
 import { GroupMember } from "@/types/groupMembers";
-import { Receipt } from "@/types/receipts";
 import { Typography } from "@mui/material";
 
 interface IGroupLogItemProps {

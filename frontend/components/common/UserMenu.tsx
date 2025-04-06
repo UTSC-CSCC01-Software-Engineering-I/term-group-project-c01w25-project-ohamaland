@@ -25,7 +25,7 @@ interface Notification {
   notification_type: string;
   title: string;
   message: string;
-  data: any;
+  data: Record<string, string | number>;
   is_read: boolean;
   is_dismissed: boolean;
   created_at: string;
@@ -113,7 +113,7 @@ export default function UserMenu() {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [notifications]);
 
   // Mark a single notification as read
   const markNotificationAsRead = (notificationId: number) => {
@@ -300,7 +300,7 @@ export default function UserMenu() {
                 />
               </ListItem>
             ) : (
-              notifications.map((notification, index) => (
+              notifications.map((notification) => (
                 <Box
                   key={notification.notification_id}
                   sx={{

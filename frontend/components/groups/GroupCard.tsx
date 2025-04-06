@@ -6,9 +6,8 @@ import {
   groupsMembersLeaveApi,
   userMeApi
 } from "@/utils/api";
-import { Card, CardContent, Typography, IconButton, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, IconButton, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import DeleteLeaveConfirmationDialog from "./DeleteLeaveConfirmationDialog";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -35,8 +34,6 @@ async function getUserIdFromBackend() {
 }
 
 export default function GroupCard(props: IGroupCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [actionType, setActionType] = useState<"delete" | "leave">("delete");
@@ -69,7 +66,6 @@ export default function GroupCard(props: IGroupCardProps) {
   };
 
   const handleDeleteGroup = async () => {
-    setIsDeleting(true);
 
     try {
       const response = await fetchWithAuth(groupsDeleteApi(props.group.id), {
@@ -84,15 +80,11 @@ export default function GroupCard(props: IGroupCardProps) {
       props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error deleting group:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
   async function handleLeaveGroup() {
     if (!currentUserId) return;
-
-    setIsLeaving(true);
 
     try {
       const response = await fetchWithAuth(
@@ -110,8 +102,6 @@ export default function GroupCard(props: IGroupCardProps) {
       props.onGroupDeleted(props.group.id);
     } catch (error) {
       console.error("Error leaving group:", error);
-    } finally {
-      setIsLeaving(false);
     }
   }
 
@@ -119,13 +109,11 @@ export default function GroupCard(props: IGroupCardProps) {
     window.location.href = `/groups/${props.group.id}`;
   };
 
-  const RedDeleteIconButton = styled(IconButton)(({ theme }) => ({
+  const RedDeleteIconButton = styled(IconButton)(() => ({
     '&:hover': {
       color: 'red',
     },
   }));
-
-  const formattedDate = new Date(props.group.created_at).toLocaleDateString();
 
   return (
     <Card sx={cardStyle}>
@@ -199,10 +187,6 @@ const textStyle = {
   fontSize: "16px"
 };
 
-const buttonStyle = {
-  marginTop: "8px"
-};
-
 const iconButtonStyle = {
   position: "absolute",
   bottom: "8px",
@@ -218,8 +202,8 @@ const greyStripStyle = {
 };
 
 const textCenteringStyle = {
-  flexGrow: 1, 
-  display: "flex", 
-  alignItems: "center", 
+  flexGrow: 1,
+  display: "flex",
+  alignItems: "center",
   height: "100%"
 };
