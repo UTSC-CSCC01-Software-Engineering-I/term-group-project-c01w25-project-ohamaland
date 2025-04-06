@@ -20,13 +20,20 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
   const [subscriptionToDelete, setSubscriptionToDelete] =
     useState<Subscription | null>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [dontRemindMe, setDontRemindMe] = useState(() => {
-    return localStorage.getItem("dont_remind_delete_subscription") === "true";
-  });
+  const [dontRemindMe, setDontRemindMe] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem("dont_remind_delete_subscription");
-    setDontRemindMe(false);
+    if (typeof window !== 'undefined') {
+      const dontRemindValue = localStorage.getItem("dont_remind_delete_subscription");
+      setDontRemindMe(dontRemindValue === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("dont_remind_delete_subscription");
+      setDontRemindMe(false);
+    }
   }, []);
 
   const filteredSubscriptions = filterSubscriptions(
@@ -41,7 +48,7 @@ export default function SubscriptionGrid(props: ISubscriptionGridProps) {
       props.onDeleteSubscription(subscriptionToDelete.id);
       setOpenSnackbar(true);
     }
-    if (dontRemindMe) {
+    if (dontRemindMe && typeof window !== 'undefined') {
       localStorage.setItem("dont_remind_delete_subscription", "true");
     }
     setOpenConfirmationDialog(false);
