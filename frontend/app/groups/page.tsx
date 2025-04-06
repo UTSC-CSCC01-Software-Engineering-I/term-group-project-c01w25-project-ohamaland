@@ -34,17 +34,14 @@ export default function GroupsPage() {
   useEffect(() => {
     async function fetchGroups() {
       try {
-        console.log("Fetching groups...");
         const response = await fetchWithAuth(groupsApi);
         if (!response || !response.ok) {
           throw new Error("Failed to fetch groups");
         }
         const data = await response.json();
-        console.log("Received Group Data:", data);
 
         setGroups(Array.isArray(data.groups) ? data.groups : []);
       } catch (error) {
-        console.error("Error fetching groups:", error);
       }
     }
     async function fetchUserId() {
@@ -56,7 +53,6 @@ export default function GroupsPage() {
         const data = await response.json();
         setUserId(data.id);
       } catch (error) {
-        console.error("Error fetching user:", error);
       }
     }
     fetchGroups();
@@ -92,7 +88,6 @@ export default function GroupsPage() {
       setOpen(false);
       setGroupName("");
     } catch (error) {
-      console.error("Error adding group:", error);
     }
   };
 

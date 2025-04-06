@@ -84,7 +84,6 @@ export default function GroupDetailPage() {
         setGroup(data);
         setMembers(data.members);
       } catch (error) {
-        console.error(error);
       }
     }
     fetchGroup();
@@ -107,7 +106,6 @@ export default function GroupDetailPage() {
       setMembers((prev) => [...prev, createdMember]);
       setNewMemberIdentifier("");
     } catch (error) {
-      console.error(error);
     }
   };
 
@@ -124,51 +122,12 @@ export default function GroupDetailPage() {
       }
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
     } catch (error) {
-      console.error(error);
     }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-
-  // const handleSaveReceiptUpdate = async (updatedReceipt: Receipt) => {
-  //   try {
-  //     const formattedDate = new Date(updatedReceipt.date)
-  //       .toISOString()
-  //       .split("T")[0];
-
-  //     const updatedData = { ...updatedReceipt, date: formattedDate };
-
-  //     const response = await fetchWithAuth(
-  //       receiptsDetailApi(updatedReceipt.id),
-  //       {
-  //         method: "PATCH",
-  //         body: JSON.stringify(updatedData)
-  //       }
-  //     );
-
-  //     if (!response || !response.ok) {
-  //       console.error("Failed to save receipt");
-  //       return;
-  //     }
-
-  //     const savedReceipt = await response.json();
-  //     setGroup((prevGroup) => {
-  //       if (!prevGroup) return null;
-  //       return {
-  //         ...prevGroup,
-  //         receipts:
-  //           prevGroup.receipts?.map((r) =>
-  //             r.id === savedReceipt.id ? savedReceipt : r
-  //           ) ?? []
-  //       };
-  //     });
-  //     handleCloseDialog();
-  //   } catch (error) {
-  //     console.error("Error updating receipt:", error);
-  //   }
-  // };
 
   const handleOpenReceipt = async (receipt: Receipt) => {
     setSelectedReceipt(receipt);
@@ -181,7 +140,6 @@ export default function GroupDetailPage() {
       setCostSplits(data);
       setDialogOpen(true);
     } catch (error) {
-      console.error("Error fetching cost splits:", error);
       setCostSplits([]);
     }
   };
@@ -195,7 +153,6 @@ export default function GroupDetailPage() {
     try {
       const response = await fetchWithAuth(deleteGroupReceiptApi(groupId, receiptId), {method: "DELETE"});
       if (!response || !response.ok) {
-        console.error("Failed to delete receipt");
         return;
       }
 
@@ -211,7 +168,6 @@ export default function GroupDetailPage() {
         handleCloseDialog();
       }
     } catch (error) {
-      console.error("Error deleting receipt:", error);
     }
   };
 
@@ -239,7 +195,6 @@ export default function GroupDetailPage() {
 
       if (!receiptResponse || !receiptResponse.ok) {
         const errorData = await receiptResponse?.json();
-        console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
 
@@ -253,7 +208,6 @@ export default function GroupDetailPage() {
       });
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error saving receipt:", error);
       throw error;
     }
   };
@@ -277,7 +231,6 @@ export default function GroupDetailPage() {
           body: JSON.stringify(selectedSplit)
         }
       );
-      console.log(selectedSplit);
       if (!res || !res.ok) {
         throw new Error("Failed to update split");
       }
@@ -290,7 +243,6 @@ export default function GroupDetailPage() {
       setEditDialogOpen(false);
       setDialogOpen(false); // Close the main dialog after saving the split
     } catch (error) {
-      console.error("Error updating split:", error);
     }
   };
 

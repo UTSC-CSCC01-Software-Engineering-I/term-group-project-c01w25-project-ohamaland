@@ -42,7 +42,6 @@ export default function Page() {
         }
         setFolders(foldersData);
       } catch (error) {
-        console.error("Error fetching data:", error);
         setReceipts([]);
         setFolders([]);
       }
@@ -59,7 +58,6 @@ export default function Page() {
       const newFolder = await folderService.createFolder(name, color);
       setFolders((prevFolders) => [...prevFolders, newFolder]);
     } catch (error) {
-      console.error("Error creating folder:", error);
     }
   };
 
@@ -70,7 +68,6 @@ export default function Page() {
         prevFolders.filter((folder) => folder.id !== folderId)
       );
     } catch (error) {
-      console.error("Error deleting folder:", error);
     }
   };
 
@@ -98,7 +95,6 @@ export default function Page() {
         setReceipts(fullReceipts);
       }
     } catch (error) {
-      console.error("Error fetching folder receipts:", error);
     }
   };
 
@@ -124,8 +120,6 @@ export default function Page() {
       });
 
       if (!receiptResponse || !receiptResponse.ok) {
-        const errorData = await receiptResponse?.json();
-        console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
 
@@ -133,7 +127,6 @@ export default function Page() {
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error saving receipt:", error);
       throw error;
     }
   };
@@ -155,7 +148,6 @@ export default function Page() {
         }
       }
     } catch (error) {
-      console.error("Error deleting receipt:", error);
     }
   };
 
@@ -211,7 +203,6 @@ export default function Page() {
       );
 
       if (!response || !response.ok) {
-        console.error("Failed to save receipt");
         return;
       }
 
@@ -221,7 +212,6 @@ export default function Page() {
       );
       handleCloseDialog();
     } catch (error) {
-      console.error("Error updating receipt:", error);
     }
   };
 

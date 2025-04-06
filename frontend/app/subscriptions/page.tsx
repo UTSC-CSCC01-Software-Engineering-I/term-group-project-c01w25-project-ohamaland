@@ -38,7 +38,6 @@ export default function Page() {
           setSubscriptions(data.subscriptions);
         }
       } catch (error) {
-        console.error("Error fetching subscriptions:", error);
         setSubscriptions([]);
       }
     }
@@ -104,7 +103,6 @@ export default function Page() {
         }
       }
     } catch (error) {
-      console.error("Error saving subscription:", error);
       throw error;
     }
   };
@@ -154,7 +152,6 @@ export default function Page() {
         handleCloseDialog();
       }
     } catch (error) {
-      console.error("Error updating subscription:", error);
     }
   };
 
@@ -183,7 +180,6 @@ export default function Page() {
         }
       }
     } catch (error) {
-      console.error("Error deleting subscription:", error);
     }
   };
 

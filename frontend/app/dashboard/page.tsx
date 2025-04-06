@@ -86,7 +86,6 @@ export default function Page() {
         );
         setCurrency(fetchedData.currency);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }

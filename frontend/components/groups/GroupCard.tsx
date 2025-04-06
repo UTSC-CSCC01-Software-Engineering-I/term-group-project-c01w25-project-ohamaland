@@ -22,13 +22,11 @@ async function getUserIdFromBackend() {
   try {
     const response = await fetchWithAuth(userMeApi);
     if (!response || !response.ok) {
-      console.error("Failed to fetch user_id");
       return null;
     }
     const data = await response.json();
     return data.id;
   } catch (error) {
-    console.error("Error fetching user_id:", error);
     return null;
   }
 }
@@ -73,13 +71,11 @@ export default function GroupCard(props: IGroupCardProps) {
       });
 
       if (!response || !response.ok) {
-        console.error("Failed to delete group");
         return;
       }
 
       props.onGroupDeleted(props.group.id);
     } catch (error) {
-      console.error("Error deleting group:", error);
     }
   };
 
@@ -95,13 +91,11 @@ export default function GroupCard(props: IGroupCardProps) {
       );
 
       if (!response || !response.ok) {
-        console.error("Failed to leave group");
         return;
       }
 
       props.onGroupDeleted(props.group.id);
     } catch (error) {
-      console.error("Error leaving group:", error);
     }
   }
 

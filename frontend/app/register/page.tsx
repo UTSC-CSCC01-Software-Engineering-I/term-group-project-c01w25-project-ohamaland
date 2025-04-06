@@ -74,11 +74,8 @@ export default function RegisterPage() {
         return;
       }
 
-      const data = await response.json();
-      console.log("Registration successful:", data);
       window.location.href = "/login";
     } catch (error) {
-      console.error("Error during registration:", error);
     }
   };
 

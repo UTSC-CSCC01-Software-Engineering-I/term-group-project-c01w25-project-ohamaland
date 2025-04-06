@@ -36,8 +36,6 @@ export default function FilePondUpload({
       });
 
       if (!response || !response.ok) {
-        const errorData = await response?.json();
-        console.error("Receipt OCR upload failed:", errorData);
         throw new Error("Failed to upload and process receipt");
       }
 
@@ -46,7 +44,6 @@ export default function FilePondUpload({
       setFileUrl(data.receipt_image_url);
       onOcrDataExtracted(data);
     } catch (err) {
-      console.error("OCR upload error:", err);
       alert("Failed to upload and process receipt.");
     } finally {
       setIsProcessing(false);

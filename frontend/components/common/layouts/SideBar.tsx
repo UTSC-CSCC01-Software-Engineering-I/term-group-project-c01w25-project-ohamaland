@@ -116,7 +116,6 @@ export default function SideBar(props: ISideBarProps) {
         logout();
       }
     } catch (error) {
-      console.error("Error during logout:", error);
       // Even if there's an error, we should still clear local tokens
       logout();
     }
