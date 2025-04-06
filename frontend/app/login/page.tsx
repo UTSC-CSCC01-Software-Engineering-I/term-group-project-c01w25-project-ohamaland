@@ -15,9 +15,10 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
+import catalogLogo from "@/public/catalog.png";
 
 interface LoginError {
   message: string;
@@ -148,7 +149,7 @@ function LoginContent() {
           alignItems: "center"
         }}
       >
-        <Image src="/catalog.png" width={90} height={90} alt={""} />
+        <Image src={catalogLogo} width={90} height={90} alt={""} />
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
           Sign in to{" "}
           <span
