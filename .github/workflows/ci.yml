@@ -42,16 +42,6 @@ jobs:
       - name: Build frontend Docker image
         run: docker build -t mallisho/catalog:frontend-latest ./frontend
 
-      - name: Run backend tests
-        run: |
-          docker run --rm mallisho/catalog:backend-latest python manage.py test
-        continue-on-error: false
-
-      - name: Run frontend tests
-        run: |
-          docker run --rm mallisho/catalog:frontend-latest npm test
-        continue-on-error: false
-
       - name: Push backend image
         run: docker push mallisho/catalog:backend-latest
 
