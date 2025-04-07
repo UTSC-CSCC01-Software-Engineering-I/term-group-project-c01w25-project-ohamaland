@@ -140,7 +140,6 @@ class Receipt(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="receipts",
-        default="All",
     )
     color = models.CharField(max_length=7, default="#A9A9A9")
 

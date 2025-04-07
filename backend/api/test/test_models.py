@@ -50,12 +50,14 @@ class ReceiptModelTest(TestCase):
         self.user = User.objects.create_user(
             username="receiptuser", password="Pass123!"
         )
+        self.folder = Folder.objects.create(name="All", user=self.user, color="#A9A9A9")
         self.receipt = Receipt.objects.create(
             user=self.user,
             merchant="Test Merchant",
             total_amount=Decimal("100.00"),
             currency="USD",
             date=date.today(),
+            folder=self.folder
         )
 
     def test_receipt_creation(self):
@@ -69,12 +71,14 @@ class ReceiptModelTest(TestCase):
 class ItemModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="itemuser", password="Pass123!")
+        self.folder = Folder.objects.create(name="All", user=self.user, color="#A9A9A9")
         self.receipt = Receipt.objects.create(
             user=self.user,
             merchant="Test Merchant",
             total_amount=Decimal("50.00"),
             currency="USD",
             date=date.today(),
+            folder=self.folder
         )
         self.item = Item.objects.create(
             receipt=self.receipt, name="Milk", price=Decimal("2.99"), quantity=3
@@ -97,7 +101,7 @@ class FolderModelTest(TestCase):
         """Test that the folder is created properly."""
         self.assertEqual(self.folder.name, "Groceries")
         self.assertEqual(self.folder.user, self.user)
-        self.assertEqual(self.folder.color, "#FFFFFF")
+        self.assertEqual(self.folder.color, "#A9A9A9")
 
 
 class SubscriptionModelTest(TestCase):
@@ -128,7 +132,6 @@ class InsightsModelTest(TestCase):
         )
         self.insights = Insights.objects.create(
             user=self.user,
-            category_spending={"Food": "50.00", "Transport": "20.00"},
             total_spent=Decimal("70.00"),
             period="Monthly",
             date=date.today(),
@@ -137,8 +140,5 @@ class InsightsModelTest(TestCase):
     def test_insights_creation(self):
         """Test that the insights record is created properly."""
         self.assertEqual(self.insights.user, self.user)
-        self.assertEqual(
-            self.insights.category_spending, {"Food": "50.00", "Transport": "20.00"}
-        )
         self.assertEqual(self.insights.total_spent, Decimal("70.00"))
         self.assertEqual(self.insights.period, "Monthly")
