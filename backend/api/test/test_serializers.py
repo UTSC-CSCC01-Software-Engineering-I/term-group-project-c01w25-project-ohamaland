@@ -113,7 +113,7 @@ class GroupSerializerTests(TestCase):
         )
 
     def test_create_group(self):
-        data = {"name": "testgroup", "creator": self.user.id}
+        data = {"name": "testgroup", "creator": self.user.id, "members": [], "receipts": []}
         serializer = GroupSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
         group = serializer.save()
@@ -176,12 +176,14 @@ class ItemSerializerTests(TestCase):
             username="testuser", password="SecurePass123!"
         )
         self.group = Group.objects.create(name="Test Group", creator=self.user)
+        self.folder = Folder.objects.create(name="Test Folder", user=self.user, color="#FFFFFF")
         self.receipt = Receipt.objects.create(
             date=date(2025, 3, 25),
             total_amount=Decimal("10.00"),
             currency="USD",
             merchant="Test Merchant",
             user=self.user,
+            folder=self.folder
         )
 
     def test_valid_item(self):

@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from ocr.receipt_processor_gpt import process_receipt
-
+from django.db import IntegrityError
 from .signals import (
     calculate_currency_distribution,
     calculate_folder_spending,
@@ -773,8 +773,14 @@ class FolderListCreate(APIView):
     def post(self, request):
         serializer = FolderSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {"non_field_errors": ["Folder with this name already exists."]},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
