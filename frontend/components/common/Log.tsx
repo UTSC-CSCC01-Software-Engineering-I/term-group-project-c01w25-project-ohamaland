@@ -1,5 +1,5 @@
-import { Box, Divider, Stack, Typography } from "@mui/material";
 import { LogData, LogItemProps } from "@/types/logs";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 
 interface LogProps<T extends LogData> {
   title?: string;
@@ -43,15 +43,15 @@ export default function Log<T extends LogData>({
 }
 
 const logItemsBoxStyle = {
-  width: '100%',
+  width: "100%"
 };
 
 const itemStyle = {
   padding: 1,
   cursor: "pointer",
   transition: "color 0.3s",
-  '&:hover': {
-    backgroundColor: 'action.hover',
+  "&:hover": {
+    backgroundColor: "action.hover"
   }
 };
 

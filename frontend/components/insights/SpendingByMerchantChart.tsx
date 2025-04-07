@@ -6,9 +6,9 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
+  TooltipProps,
   XAxis,
-  YAxis,
-  TooltipProps
+  YAxis
 } from "recharts";
 
 interface ISpendingByMerchantChartProps {
@@ -67,8 +67,6 @@ const SpendingByMerchantChart = ({
     </Box>
   );
 };
-
-
 
 const chartContainerStyle = {
   flex: 1,

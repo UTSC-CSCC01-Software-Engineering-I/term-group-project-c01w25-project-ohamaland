@@ -84,8 +84,8 @@ const flagContainerStyle = {
   overflow: "hidden",
   marginRight: "8px",
   display: "flex",
-  justifyContent: "center", 
-  alignItems: "center",
+  justifyContent: "center",
+  alignItems: "center"
 };
 
 const flagStyle: React.CSSProperties = {

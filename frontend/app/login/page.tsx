@@ -89,7 +89,6 @@ export default function LoginPage() {
       const from = searchParams.get("from") || "/dashboard";
       router.push(from);
     } catch (error) {
-      console.error("Error during login:", error);
       setError({
         message:
           "Unable to connect to the server. Please check your internet connection.",

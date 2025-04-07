@@ -3,9 +3,9 @@ import { Box, CircularProgress } from "@mui/material";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "filepond/dist/filepond.min.css";
+import Image from "next/image";
 import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
-import Image from "next/image";
 
 registerPlugin(FilePondPluginFileValidateType);
 
@@ -36,8 +36,6 @@ export default function FilePondUpload({
       });
 
       if (!response || !response.ok) {
-        const errorData = await response?.json();
-        console.error("Receipt OCR upload failed:", errorData);
         throw new Error("Failed to upload and process receipt");
       }
 
@@ -46,7 +44,6 @@ export default function FilePondUpload({
       setFileUrl(data.receipt_image_url);
       onOcrDataExtracted(data);
     } catch (err) {
-      console.error("OCR upload error:", err);
       alert("Failed to upload and process receipt.");
     } finally {
       setIsProcessing(false);

@@ -18,15 +18,12 @@ interface IGroupGridProps {
  * and a text filter (filterTerm) for the group name.
  */
 export default function GroupGrid(props: IGroupGridProps) {
-  console.log("Props passed to GroupGrid:", props);
-  console.log("Initial Groups:", props.initialGroups);
   const filteredGroups = filterGroups(
     props.initialGroups,
     props.startDate,
     props.endDate,
     props.filterTerm
   );
-  console.log("Filtered Groups:", filteredGroups);
   return (
     <Grid2 container spacing={3}>
       {filteredGroups.map((group, index) => (

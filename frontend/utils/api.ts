@@ -58,9 +58,13 @@ export const notificationsWS = (token: string) =>
 export const notificationsDetailApi = (id: number) =>
   API_BASE_URL + `/notifications/${id}/`;
 export const dashboardApi = API_BASE_URL + "/dashboard/";
-export const costSplittingApi = (groupId: number, receiptId: number) => 
+export const costSplittingApi = (groupId: number, receiptId: number) =>
   `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/cost-splits/`;
-export const costSplittingDetailApi = (groupId: number, receiptId: number, splitId: number) => 
+export const costSplittingDetailApi = (
+  groupId: number,
+  receiptId: number,
+  splitId: number
+) =>
   `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/cost-splits/${splitId}/`;
 export const deleteGroupReceiptApi = (groupId: number, receiptId: number) =>
   `${API_BASE_URL}/groups/${groupId}/receipts/${receiptId}/delete/`;

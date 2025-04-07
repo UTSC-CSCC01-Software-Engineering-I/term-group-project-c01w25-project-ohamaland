@@ -34,18 +34,14 @@ export default function GroupsPage() {
   useEffect(() => {
     async function fetchGroups() {
       try {
-        console.log("Fetching groups...");
         const response = await fetchWithAuth(groupsApi);
         if (!response || !response.ok) {
           throw new Error("Failed to fetch groups");
         }
         const data = await response.json();
-        console.log("Received Group Data:", data);
 
         setGroups(Array.isArray(data.groups) ? data.groups : []);
-      } catch (error) {
-        console.error("Error fetching groups:", error);
-      }
+      } catch (error) {}
     }
     async function fetchUserId() {
       try {
@@ -55,9 +51,7 @@ export default function GroupsPage() {
         }
         const data = await response.json();
         setUserId(data.id);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
+      } catch (error) {}
     }
     fetchGroups();
     fetchUserId();
@@ -91,9 +85,7 @@ export default function GroupsPage() {
       setGroups((prevGroups) => [...prevGroups, data]);
       setOpen(false);
       setGroupName("");
-    } catch (error) {
-      console.error("Error adding group:", error);
-    }
+    } catch (error) {}
   };
 
   const handleClickOpen = () => {
@@ -153,16 +145,24 @@ export default function GroupsPage() {
         </Box>
 
         <Box sx={rightContainerStyle}>
-            <Log
-              data={getRecentMembers(groups)}
-              Component={GroupLogItem}
-              title="Recent Activity"
-            />
-          </Box>
+          <Log
+            data={getRecentMembers(groups)}
+            Component={GroupLogItem}
+            title="Recent Activity"
+          />
+        </Box>
       </Box>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth sx={{ '& .MuiDialog-paper': { width: '400px', borderRadius: '16px' } }}>
-        <DialogTitle sx={{ fontWeight: "bold", paddingBottom: 0 }}>Add Group</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { width: "400px", borderRadius: "16px" } }}
+      >
+        <DialogTitle sx={{ fontWeight: "bold", paddingBottom: 0 }}>
+          Add Group
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -172,11 +172,21 @@ export default function GroupsPage() {
             fullWidth
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
           />
         </DialogContent>
         <DialogActions sx={{ paddingX: 2, paddingBottom: 2 }}>
-          <Button onClick={handleAddGroup} sx={{ backgroundColor: 'black', color: 'white', width: '100%', borderRadius: "8px", fontWeight: "bold"}} variant="contained">
+          <Button
+            onClick={handleAddGroup}
+            sx={{
+              backgroundColor: "black",
+              color: "white",
+              width: "100%",
+              borderRadius: "8px",
+              fontWeight: "bold"
+            }}
+            variant="contained"
+          >
             Create Group
           </Button>
         </DialogActions>
@@ -190,15 +200,16 @@ export default function GroupsPage() {
 function getRecentMembers(groups: Group[] | null = null): GroupMember[] {
   if (groups == null) return [];
 
-  const allMembers = groups.flatMap(group => group.members || []);
+  const allMembers = groups.flatMap((group) => group.members || []);
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
   return allMembers
-    .filter(member => new Date(member.joined_at) >= yesterday)
-    .sort((a, b) =>
-      new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime()
+    .filter((member) => new Date(member.joined_at) >= yesterday)
+    .sort(
+      (a, b) =>
+        new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime()
     )
     .slice(0, logsToShow);
 }
@@ -220,7 +231,7 @@ const rightContainerStyle = {
   padding: "16px",
   borderRadius: "12px",
   backgroundColor: "white",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
 };
 
 const filterContainerStyle = {

@@ -133,7 +133,6 @@ export default function Page() {
           )
         );
       } catch (error) {
-        console.error("Error fetching spending data:", error);
       } finally {
         setLoading(false);
       }

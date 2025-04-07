@@ -6,7 +6,6 @@ import SubscriptionDialog from "@/components/subscriptions/SubscriptionDialog";
 import SubscriptionFilter from "@/components/subscriptions/SubscriptionFilter";
 import SubscriptionGrid from "@/components/subscriptions/SubscriptionGrid";
 import SubscriptionLogItem from "@/components/subscriptions/SubscriptionLogItem";
-import AddIcon from "@mui/icons-material/Add";
 import { BillingPeriod, Subscription, TimePeriod } from "@/types/subscriptions";
 import {
   fetchWithAuth,
@@ -14,7 +13,8 @@ import {
   subscriptionsDetailApi,
   userMeApi
 } from "@/utils/api";
-import { Box, SelectChangeEvent, IconButton, } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Box, IconButton, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -38,7 +38,6 @@ export default function Page() {
           setSubscriptions(data.subscriptions);
         }
       } catch (error) {
-        console.error("Error fetching subscriptions:", error);
         setSubscriptions([]);
       }
     }
@@ -104,7 +103,6 @@ export default function Page() {
         }
       }
     } catch (error) {
-      console.error("Error saving subscription:", error);
       throw error;
     }
   };
@@ -153,9 +151,7 @@ export default function Page() {
         );
         handleCloseDialog();
       }
-    } catch (error) {
-      console.error("Error updating subscription:", error);
-    }
+    } catch (error) {}
   };
 
   const handleDeleteSubscription = async (subscriptionId: number) => {
@@ -182,9 +178,7 @@ export default function Page() {
           setSelectedSubscription(null);
         }
       }
-    } catch (error) {
-      console.error("Error deleting subscription:", error);
-    }
+    } catch (error) {}
   };
 
   return (
@@ -199,14 +193,11 @@ export default function Page() {
             handleTimePeriodChange={handleTimePeriodChange}
             handleBillingPeriodChange={handleBillingPeriodChange}
           />
-        <Box
-           sx={buttonStyle}
-           onClick={() => setIsModalOpen(true)}
-         >
-           <IconButton size="large">
-             <AddIcon sx={{ fontSize: 40, color: "#666" }} />
-           </IconButton>
-         </Box>
+          <Box sx={buttonStyle} onClick={() => setIsModalOpen(true)}>
+            <IconButton size="large">
+              <AddIcon sx={{ fontSize: 40, color: "#666" }} />
+            </IconButton>
+          </Box>
         </Box>
 
         <Box sx={contentLayoutStyle}>
@@ -280,7 +271,7 @@ const buttonStyle = {
   "&:hover": {
     borderColor: "#999"
   }
-}
+};
 
 const pageLayoutStyle = {
   display: "flex",
@@ -319,5 +310,5 @@ const rightContainerStyle = {
   padding: "16px",
   borderRadius: "12px",
   backgroundColor: "white",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
 };

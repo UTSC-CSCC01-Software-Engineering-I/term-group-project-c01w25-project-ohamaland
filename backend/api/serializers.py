@@ -191,7 +191,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
                         is_custom_split=True,
                         status=existing_split.status if existing_split else "Pending",
                         notes=existing_split.notes if existing_split else "",
-                        created_at=existing_split.created_at if existing_split else None
+                        created_at=(
+                            existing_split.created_at if existing_split else None
+                        ),
                     )
                 )
             else:
@@ -206,7 +208,9 @@ class ReceiptSerializer(serializers.ModelSerializer):
                         is_custom_split=False,
                         status=existing_split.status if existing_split else "Pending",
                         notes=existing_split.notes if existing_split else "",
-                        created_at=existing_split.created_at if existing_split else None
+                        created_at=(
+                            existing_split.created_at if existing_split else None
+                        ),
                     )
                 )
 

@@ -51,9 +51,7 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
       try {
         const foldersData = await folderService.getAllFolders();
         setFolders(foldersData);
-      } catch (error) {
-        console.error("Error fetching folders:", error);
-      }
+      } catch (error) {}
     }
     if (open) {
       fetchFolders();
@@ -85,9 +83,7 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
           handleChange("folder", folderName);
           handleChange("color", selectedFolder.color);
         }
-      } catch (error) {
-        console.error("Error adding receipt to folder:", error);
-      }
+      } catch (error) {}
     } else if (editedReceipt.folder) {
       try {
         const currentFolder = folders.find(
@@ -101,9 +97,7 @@ export default function ReceiptDialog(props: IReceiptDialogProps) {
           handleChange("folder", null);
           handleChange("color", "#000000"); // Reset to default color
         }
-      } catch (error) {
-        console.error("Error removing receipt from folder:", error);
-      }
+      } catch (error) {}
     }
   };
 

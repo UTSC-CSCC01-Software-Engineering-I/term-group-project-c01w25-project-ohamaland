@@ -42,7 +42,6 @@ export default function Page() {
         }
         setFolders(foldersData);
       } catch (error) {
-        console.error("Error fetching data:", error);
         setReceipts([]);
         setFolders([]);
       }
@@ -58,9 +57,7 @@ export default function Page() {
     try {
       const newFolder = await folderService.createFolder(name, color);
       setFolders((prevFolders) => [...prevFolders, newFolder]);
-    } catch (error) {
-      console.error("Error creating folder:", error);
-    }
+    } catch (error) {}
   };
 
   const handleDeleteFolder = async (folderId: number) => {
@@ -69,9 +66,7 @@ export default function Page() {
       setFolders((prevFolders) =>
         prevFolders.filter((folder) => folder.id !== folderId)
       );
-    } catch (error) {
-      console.error("Error deleting folder:", error);
-    }
+    } catch (error) {}
   };
 
   const handleFolderClick = async (folderId: number) => {
@@ -97,9 +92,7 @@ export default function Page() {
         );
         setReceipts(fullReceipts);
       }
-    } catch (error) {
-      console.error("Error fetching folder receipts:", error);
-    }
+    } catch (error) {}
   };
 
   const handleSaveReceipt = async (newReceipt: Receipt) => {
@@ -124,8 +117,6 @@ export default function Page() {
       });
 
       if (!receiptResponse || !receiptResponse.ok) {
-        const errorData = await receiptResponse?.json();
-        console.error("Failed to save receipt:", errorData);
         throw new Error("Failed to save receipt");
       }
 
@@ -133,7 +124,6 @@ export default function Page() {
       setReceipts((prevReceipts) => [...prevReceipts, savedReceipt]);
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error saving receipt:", error);
       throw error;
     }
   };
@@ -154,9 +144,7 @@ export default function Page() {
           setSelectedReceipt(null);
         }
       }
-    } catch (error) {
-      console.error("Error deleting receipt:", error);
-    }
+    } catch (error) {}
   };
 
   const handleOpenDialog = (receipt: Receipt) => {
@@ -211,7 +199,6 @@ export default function Page() {
       );
 
       if (!response || !response.ok) {
-        console.error("Failed to save receipt");
         return;
       }
 
@@ -220,9 +207,7 @@ export default function Page() {
         prevReceipts.map((r) => (r.id === savedReceipt.id ? savedReceipt : r))
       );
       handleCloseDialog();
-    } catch (error) {
-      console.error("Error updating receipt:", error);
-    }
+    } catch (error) {}
   };
 
   return (

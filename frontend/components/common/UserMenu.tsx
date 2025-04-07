@@ -46,13 +46,8 @@ export default function UserMenu() {
     // Create WebSocket connection
     const ws = new WebSocket(notificationsWS(token));
 
-    ws.onopen = () => {
-      console.log("Connected to notification websocket");
-    };
-
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received from websocket:", data);
 
       if (data.type === "stored_notifications") {
         // Initial notifications loaded
@@ -102,10 +97,6 @@ export default function UserMenu() {
           )
         );
       }
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from notification websocket");
     };
 
     setSocket(ws);
